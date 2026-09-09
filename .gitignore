@@ -1,0 +1,23 @@
+# Build output
+bin/
+obj/
+build/
+dist/
+out/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.cache
+
+# IDE and editor files
+.idea/
+.vscode/
+*.user
+*.suo
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
