@@ -1,0 +1,5 @@
+{
+  "QGS-QGS_SUNWARD_POWER.title": "向阳",
+  "QGS-QGS_SUNWARD_POWER.description": "每两回合开始时，获得1点能量。",
+  "QGS-QGS_SUNWARD_POWER.smartDescription": "每两回合开始时，获得[blue]{Amount}[/blue]点能量。"
+}

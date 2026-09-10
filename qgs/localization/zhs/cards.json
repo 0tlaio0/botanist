@@ -1,0 +1,10 @@
+{
+  "QGS-QGS_STRIKE.title": "打击",
+  "QGS-QGS_STRIKE.description": "造成{Damage:diff()}点伤害。",
+  "QGS-QGS_DEFEND.title": "防御",
+  "QGS-QGS_DEFEND.description": "获得{Block:diff()}点[gold]格挡[/gold]。",
+  "QGS-QGS_SUNFLOWER.title": "向日葵",
+  "QGS-QGS_SUNFLOWER.description": "[gold]播种时[/gold]：获得{Block:diff()}点[gold]格挡[/gold]。\n[gold]培育[/gold]：{Fire}火 {Earth}土。\n[gold]成熟时[/gold]：获得1层[gold]向阳[/gold]。",
+  "QGS-QGS_AETHER.title": "以太",
+  "QGS-QGS_AETHER.description": "培养区中所有种子的每种所需元素计数各减少1。"
+}

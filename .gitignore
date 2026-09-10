@@ -4,6 +4,14 @@ obj/
 build/
 dist/
 out/
+.godot/
+.dotnet-home/
+
+# Godot editor cache
+export_templates/
+feature_profiles/
+script_templates/
+text_editor_themes/
 
 # Logs and temporary files
 *.log
