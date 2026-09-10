@@ -1,54 +1,26 @@
 using Godot;
 using HarmonyLib;
+using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Combat;
 
 namespace Qgs.Scripts;
 
-[HarmonyPatch(typeof(NCard), "UpdateEnergyCostVisuals")]
-public static class NCardElementIconPatch
+[HarmonyPatch(typeof(NCard), nameof(NCard.UpdateVisuals))]
+public static class NCardChromePatch
 {
-    private const string IconNodeName = "QgsElementIcons";
-
-    public static void Postfix(NCard __instance, TextureRect ___energyIcon)
+    public static void Postfix(NCard __instance)
     {
-        Node? existing = ___energyIcon.GetNodeOrNull(IconNodeName);
-        existing?.Free();
+        QgsCardChrome.Refresh(__instance);
+    }
+}
 
-        if (__instance.Model is not QgsCardModel qgsCard || qgsCard.Element == QgsElement.None)
-        {
-            return;
-        }
-
-        HBoxContainer row = new()
-        {
-            Name = IconNodeName,
-            MouseFilter = Control.MouseFilterEnum.Ignore,
-            Alignment = BoxContainer.AlignmentMode.Center
-        };
-        row.AddThemeConstantOverride("separation", 2);
-        row.Position = new Vector2(4, 58);
-        row.Size = new Vector2(56, 24);
-
-        foreach (QgsElement element in qgsCard.Element.IconElements())
-        {
-            Texture2D? texture = QgsArt.Load(element.IconPath());
-            if (texture == null)
-            {
-                continue;
-            }
-
-            row.AddChild(new TextureRect
-            {
-                Texture = texture,
-                CustomMinimumSize = new Vector2(22, 22),
-                ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-                StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
-                MouseFilter = Control.MouseFilterEnum.Ignore
-            });
-        }
-
-        ___energyIcon.AddChild(row);
+[HarmonyPatch(typeof(NCard), nameof(NCard.OnReturnedFromPool))]
+public static class NCardChromePoolPatch
+{
+    public static void Postfix(NCard __instance)
+    {
+        QgsCardChrome.Clear(__instance);
     }
 }
 

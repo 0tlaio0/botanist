@@ -26,9 +26,7 @@ public class QgsSunflower : QgsSeedCardModel
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new BlockVar(3, ValueProp.Move),
-        new DynamicVar("Fire", 2),
-        new DynamicVar("Earth", 1)
+        new BlockVar(3, ValueProp.Move)
     ];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
