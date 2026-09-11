@@ -34,7 +34,7 @@ public class QgsSunflower : QgsSeedCardModel
         HoverTipFactory.FromPower<QgsSunwardPower>()
     ];
 
-    public QgsSunflower() : base(1, CardRarity.Basic, TargetType.Self, true)
+    public QgsSunflower() : base(1, CardRarity.Uncommon, TargetType.Self, true)
     {
     }
 

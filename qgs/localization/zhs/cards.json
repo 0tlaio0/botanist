@@ -18,5 +18,7 @@
   "QGS-QGS_GLOVES.title": "园艺手套",
   "QGS-QGS_GLOVES.description": "获得{Dexterity:diff()}点敏捷。",
   "QGS-QGS_COMPOST.title": "堆肥",
-  "QGS-QGS_COMPOST.description": "获得{Strength:diff()}点力量。"
+  "QGS-QGS_COMPOST.description": "获得{Strength:diff()}点力量。",
+  "QGS-QGS_CREATION_DEW.title": "参天造化露",
+  "QGS-QGS_CREATION_DEW.description": "使培养区中的种子每种成长所需计数减少1。"
 }

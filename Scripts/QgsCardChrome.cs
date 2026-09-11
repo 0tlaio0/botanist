@@ -20,17 +20,16 @@ public static class QgsCardChrome
     // 否则会和费用球一样大。这个值应明显小于 64。
     private const float PlayIconSize = 22f;
     private const float PlayNudgeX = -8f; // 负数往左，正数往右
-    private const float PlayHangY = -4f;   // 0 对齐能量球底边，正数再往下探
+    private const float PlayNudgeY = -8f; // 负数往上，贴在费用球左上角外沿
 
     // 卡牌正上方的幼苗组。幼苗必须明显大于需求元素。
     private const float SproutSize = 34f;
     private const float ReqIconSize = 20f;
     private const float StackGap = 4f;
-    private const float AboveCardGap = 5f; // 整组底边到卡顶的空隙
+    private const float AboveCardGap = 0f; // 整组底边到卡顶的空隙，0 贴住卡顶
     private const float StackOffsetX = 0f; // 正数整组右移
     private const float StackOffsetY = 0f; // 正数整组下移
 
-    private static readonly Vector2 FallbackEnergySize = new(64f, 64f);
     // card.tscn 里 EnergyIcon 相对卡面中心的左上角。
     private static readonly Vector2 EnergyOrbTopLeft = new(-166f, -227f);
 
@@ -73,7 +72,6 @@ public static class QgsCardChrome
     {
         Control playIcon = MakeIcon(qgsCard.Element.IconPath(), PlayIconSize, PlayElementName);
         TextureRect? energyIcon = card.GetNodeOrNull<TextureRect>("%EnergyIcon");
-        Vector2 orbSize = energyIcon != null ? NodeSize(energyIcon, FallbackEnergySize) : FallbackEnergySize;
 
         // 不要抬 ZIndex。尺寸必须先定好，再写 Position；ForceBox 若再清 Offset，
         // 挂到 NCard 时会回到卡心，看起来就像贴在类型牌上。
@@ -81,17 +79,17 @@ public static class QgsCardChrome
         {
             energyIcon.ClipContents = false;
             energyIcon.AddChild(playIcon);
-            playIcon.Position = PlayElementOffset(orbSize);
+            playIcon.Position = PlayElementOffset();
             return;
         }
 
         card.AddChild(playIcon);
-        playIcon.Position = EnergyOrbTopLeft + PlayElementOffset(orbSize);
+        playIcon.Position = EnergyOrbTopLeft + PlayElementOffset();
     }
 
-    private static Vector2 PlayElementOffset(Vector2 orb)
+    private static Vector2 PlayElementOffset()
     {
-        return new Vector2(PlayNudgeX, orb.Y - PlayIconSize + PlayHangY);
+        return new Vector2(PlayNudgeX, PlayNudgeY);
     }
 
     private static void AttachSeedStack(NCard card, QgsSeedCardModel seed)
@@ -142,11 +140,6 @@ public static class QgsCardChrome
         return new Vector2(
             -stackWidth * 0.5f + StackOffsetX,
             -NCard.defaultSize.Y * 0.5f - StackHeight - AboveCardGap + StackOffsetY);
-    }
-
-    private static Vector2 NodeSize(Control node, Vector2 fallback)
-    {
-        return node.Size.X > 1f ? node.Size : fallback;
     }
 
     private static Control MakeIcon(string path, float size, string? name = null)

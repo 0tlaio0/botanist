@@ -170,6 +170,12 @@ public sealed class QgsCultivation : CustomSingletonModel
             {
                 await CardPileCmd.Add(seed.Card, PileType.Discard);
             }
+
+            QgsHeavenPalmBottle? bottle = player.GetRelic<QgsHeavenPalmBottle>();
+            if (bottle != null)
+            {
+                await bottle.OnSeedCultivated(choiceContext);
+            }
         }
 
         if (ripe.Count > 0)

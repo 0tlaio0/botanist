@@ -40,7 +40,6 @@ public class QgsCharacter : PlaceholderCharacterModel
         ModelDb.Card<QgsDefend>(),
         ModelDb.Card<QgsDefend>(),
         ModelDb.Card<QgsDefend>(),
-        ModelDb.Card<QgsSunflower>(),
         ModelDb.Card<QgsAether>()
     ];
 
