@@ -8,10 +8,11 @@ using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
+using MegaCrit.Sts2.Core.Models.CardPools;
 
 namespace Qgs.Scripts;
 
-[Pool(typeof(QgsCardPool))]
+[Pool(typeof(TokenCardPool))]
 public class QgsSpecimen : QgsCardModel
 {
     private IQgsSeedCard? _copiedSeed;
