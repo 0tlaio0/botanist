@@ -1,4 +1,4 @@
-// 中文卡名：防御
+// 中文卡名：小铲
 // 卡面描述：获得{Block:diff()}点[gold]格挡[/gold]。
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,17 +12,16 @@ using MegaCrit.Sts2.Core.ValueProps;
 namespace Qgs.Scripts;
 
 [Pool(typeof(QgsCardPool))]
-public class QgsDefend : QgsCardModel
+public class QgsTrowel : QgsCardModel
 {
     public override QgsElement Element => QgsElement.Earth;
     public override bool GainsBlock => true;
-    public override IEnumerable<CardTag> Tags => [CardTag.Defend];
     public override string PortraitPath => "res://qgs/images/qgs_character.svg";
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
-    [new BlockVar(5, ValueProp.Move)];
+        [new BlockVar(8, ValueProp.Move)];
 
-    public QgsDefend() : base(1, CardType.Skill, CardRarity.Basic, TargetType.Self, true)
+    public QgsTrowel() : base(1, CardType.Skill, CardRarity.Common, TargetType.Self, true)
     {
     }
 

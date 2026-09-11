@@ -1,43 +1,40 @@
-// 中文卡名：打击
-// 卡面描述：造成{Damage:diff()}点伤害。
-using System;
+// 中文卡名：堆肥
+// 卡面描述：获得{Strength:diff()}点力量。
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BaseLib.Utils;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
-using MegaCrit.Sts2.Core.ValueProps;
+using MegaCrit.Sts2.Core.Models.Powers;
 
 namespace Qgs.Scripts;
 
 [Pool(typeof(QgsCardPool))]
-public class QgsStrike : QgsCardModel
+public class QgsCompost : QgsCardModel
 {
     public override QgsElement Element => QgsElement.Fire;
-    public override IEnumerable<CardTag> Tags => [CardTag.Strike];
     public override string PortraitPath => "res://qgs/images/qgs_character.svg";
 
-    protected override IEnumerable<DynamicVar> CanonicalVars =>
-    [new DamageVar(6, ValueProp.Move)];
+    protected override IEnumerable<IHoverTip> ExtraHoverTips =>
+        [HoverTipFactory.FromPower<StrengthPower>()];
 
-    public QgsStrike() : base(1, CardType.Attack, CardRarity.Basic, TargetType.AnyEnemy, true)
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+        [new PowerVar<StrengthPower>(2m)];
+
+    public QgsCompost() : base(1, CardType.Power, CardRarity.Common, TargetType.Self, true)
     {
     }
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
-
-        await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
-            .FromCard(this)
-            .Targeting(cardPlay.Target)
-            .Execute(choiceContext);
+        await PowerCmd.Apply<StrengthPower>(choiceContext, Owner.Creature, DynamicVars.Strength.BaseValue, Owner.Creature, this);
     }
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Damage.UpgradeValueBy(3);
+        DynamicVars.Strength.UpgradeValueBy(1);
     }
 }

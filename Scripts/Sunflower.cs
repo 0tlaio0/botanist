@@ -1,3 +1,7 @@
+// 中文卡名：向日葵
+// 卡面描述：
+// 获得{Block:diff()}点[gold]格挡[/gold]。
+// 成长：获得一层[gold]向阳[/gold]。
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BaseLib.Utils;

@@ -1,3 +1,5 @@
+// 中文卡名：参天造化露
+// 卡面描述：使培养区中的种子每种成长所需计数减少1。
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BaseLib.Utils;

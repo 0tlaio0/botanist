@@ -1,5 +1,6 @@
-// 中文卡名：防御
-// 卡面描述：获得{Block:diff()}点[gold]格挡[/gold]。
+// 中文卡名：剪枝刀
+// 卡面描述：造成{Damage:diff()}点伤害。
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BaseLib.Utils;
@@ -12,27 +13,29 @@ using MegaCrit.Sts2.Core.ValueProps;
 namespace Qgs.Scripts;
 
 [Pool(typeof(QgsCardPool))]
-public class QgsDefend : QgsCardModel
+public class QgsPruner : QgsCardModel
 {
-    public override QgsElement Element => QgsElement.Earth;
-    public override bool GainsBlock => true;
-    public override IEnumerable<CardTag> Tags => [CardTag.Defend];
+    public override QgsElement Element => QgsElement.Fire;
     public override string PortraitPath => "res://qgs/images/qgs_character.svg";
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
-    [new BlockVar(5, ValueProp.Move)];
+        [new DamageVar(9, ValueProp.Move)];
 
-    public QgsDefend() : base(1, CardType.Skill, CardRarity.Basic, TargetType.Self, true)
+    public QgsPruner() : base(1, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy, true)
     {
     }
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        await CreatureCmd.GainBlock(Owner.Creature, DynamicVars.Block, cardPlay);
+        ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
+        await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
+            .FromCard(this)
+            .Targeting(cardPlay.Target)
+            .Execute(choiceContext);
     }
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Block.UpgradeValueBy(3);
+        DynamicVars.Damage.UpgradeValueBy(3);
     }
 }

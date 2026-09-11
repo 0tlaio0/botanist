@@ -1,3 +1,5 @@
+// 中文卡名：以太
+// 卡面描述：培养区中所有种子的每种所需元素计数各减少1。
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BaseLib.Utils;
