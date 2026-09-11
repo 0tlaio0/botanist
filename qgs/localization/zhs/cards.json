@@ -4,7 +4,19 @@
   "QGS-QGS_DEFEND.title": "防御",
   "QGS-QGS_DEFEND.description": "获得{Block:diff()}点[gold]格挡[/gold]。",
   "QGS-QGS_SUNFLOWER.title": "向日葵",
-  "QGS-QGS_SUNFLOWER.description": "获得{Block:diff()}点[gold]格挡[/gold]。\n成长：获得1层[gold]向阳[/gold]。",
+  "QGS-QGS_SUNFLOWER.description": "获得{Block:diff()}点[gold]格挡[/gold]。\n成长：获得一层[gold]向阳[/gold]。",
   "QGS-QGS_AETHER.title": "以太",
-  "QGS-QGS_AETHER.description": "培养区中所有种子的每种所需元素计数各减少1。"
+  "QGS-QGS_AETHER.description": "培养区中所有种子的每种所需元素计数各减少1。",
+  "QGS-QGS_PRUNER.title": "剪枝刀",
+  "QGS-QGS_PRUNER.description": "造成{Damage:diff()}点伤害。",
+  "QGS-QGS_SWEEP_NET.title": "捕虫网",
+  "QGS-QGS_SWEEP_NET.description": "造成{Damage:diff()}点伤害。给予{Weak:diff()}层虚弱。",
+  "QGS-QGS_TROWEL.title": "小铲",
+  "QGS-QGS_TROWEL.description": "获得{Block:diff()}点[gold]格挡[/gold]。",
+  "QGS-QGS_WATERING.title": "浇灌",
+  "QGS-QGS_WATERING.description": "抽{Cards:diff()}张牌。",
+  "QGS-QGS_GLOVES.title": "园艺手套",
+  "QGS-QGS_GLOVES.description": "获得{Dexterity:diff()}点敏捷。",
+  "QGS-QGS_COMPOST.title": "堆肥",
+  "QGS-QGS_COMPOST.description": "获得{Strength:diff()}点力量。"
 }

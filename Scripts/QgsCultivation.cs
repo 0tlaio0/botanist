@@ -89,12 +89,14 @@ public sealed class QgsCultivation : CustomSingletonModel
             return;
         }
 
+        // 结算顺序：先把这张牌的元素给培养区里已有的种子，再把新种子放进去。
+        // 这样种子不会用自己的元素给自己扣点，但会喂到场上其他种子。
+        await ApplyElement(choiceContext, qgsCard.Owner, qgsCard.Element);
+
         if (qgsCard is QgsSeedCardModel seed)
         {
             await TryPlant(seed);
         }
-
-        await ApplyElement(choiceContext, qgsCard.Owner, qgsCard.Element);
     }
 
     private async Task TryPlant(QgsSeedCardModel seed)
