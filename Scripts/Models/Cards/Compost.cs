@@ -1,5 +1,5 @@
 // 中文卡名：堆肥
-// 卡面描述：获得{Strength:diff()}点力量。
+// 卡面描述：获得{StrengthPower:diff()}点力量。
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BaseLib.Utils;

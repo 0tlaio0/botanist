@@ -1,5 +1,5 @@
 // 中文卡名：捕虫网
-// 卡面描述：造成{Damage:diff()}点伤害。给予{Weak:diff()}层虚弱。
+// 卡面描述：造成{Damage:diff()}点伤害。给予{WeakPower:diff()}层虚弱。
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

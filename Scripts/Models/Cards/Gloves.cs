@@ -1,5 +1,5 @@
 // 中文卡名：园艺手套
-// 卡面描述：获得{Dexterity:diff()}点敏捷。
+// 卡面描述：获得{DexterityPower:diff()}点敏捷。
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BaseLib.Utils;

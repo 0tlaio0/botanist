@@ -6,6 +6,10 @@
 - 玩法与文案以 [亓官夙卡组需求文档.md](亓官夙卡组需求文档.md) 为准；其中「种子与培育」是角色核心机制，后续设计与代码不得与下文冲突。
 - 先做可加载、可本地化、可在游戏中取得的最小内容，再扩展成熟联动和 UI。
 
+## 文件结构
+
+参考原版 `src/Core/Models` 分类组织项目：内容模型放在 `Scripts/Models/{Cards,CardPools,Characters,Relics,RelicPools,Potions,PotionPools,Powers}`，玩法系统放在 `Scripts/Systems`，Godot 节点放在 `Scripts/Nodes`，补丁放在 `Scripts/Patches`，通用工具放在 `Scripts/Utilities`。尚未实现但已规划的分类使用空目录和 `.gitkeep` 占位。
+
 ## 核心机制：种子与培育
 
 ### 元素
