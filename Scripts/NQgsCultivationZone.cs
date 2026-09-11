@@ -5,26 +5,45 @@ using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Nodes.Combat;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
+using MegaCrit.Sts2.Core.Rooms;
 
 namespace Qgs.Scripts;
 
-public partial class NQgsCultivationZone : HBoxContainer
+public partial class NQgsCultivationZone : Control
 {
     private const string NodeName = "QgsCultivationZone";
+    private const float OrbWidth = 140f;
+    private const float LayoutDuration = 0.45f;
+    private static readonly Vector2 ZoneCenter = new(260f, 160f);
+
+    private readonly Dictionary<PlantedSeed, NQgsCultivationOrb> _seedOrbs = [];
+    private readonly Dictionary<PlantedSeed, int> _seedIndices = [];
+    private readonly Dictionary<NQgsCultivationOrb, int> _emptyOrbs = [];
+
+    private static NQgsCultivationZone? _active;
+    private static bool _attachPending;
+
+    private Player? _player;
+    private NCreature? _creatureNode;
+    private Tween? _layoutTween;
+    private bool _flipArc;
+    private int _layoutCapacity;
+
+    public void Initialize(Player player)
+    {
+        _player = player;
+    }
 
     public override void _Ready()
     {
         Name = NodeName;
         MouseFilter = MouseFilterEnum.Ignore;
-        Alignment = AlignmentMode.Center;
-        AddThemeConstantOverride("separation", 12);
-        SetAnchorsPreset(LayoutPreset.CenterTop);
-        OffsetLeft = -330;
-        OffsetRight = 330;
-        OffsetTop = 18;
-        OffsetBottom = 168;
-        GrowHorizontal = GrowDirection.Both;
-        ZIndex = 40;
+        SetAnchorsPreset(LayoutPreset.TopLeft);
+        Size = new Vector2(520f, 320f);
+        PivotOffset = ZoneCenter;
+        ZIndex = 0;
+        ProcessMode = ProcessModeEnum.Always;
+        Visible = CombatManager.Instance.IsInProgress && NCombatRoom.Instance?.Ui?.Visible == true;
 
         if (QgsCultivation.Instance != null)
         {
@@ -34,8 +53,64 @@ public partial class NQgsCultivationZone : HBoxContainer
         Refresh();
     }
 
+    public override void _EnterTree()
+    {
+        base._EnterTree();
+        CombatManager.Instance.CombatEnded += OnCombatEnded;
+        CombatManager.Instance.CombatWon += OnCombatWon;
+    }
+
+    public override void _Process(double delta)
+    {
+        if (!CombatManager.Instance.IsInProgress || NCombatRoom.Instance?.Ui?.Visible != true)
+        {
+            Visible = false;
+            return;
+        }
+
+        Visible = true;
+
+        if (_player == null)
+        {
+            return;
+        }
+
+        bool flipArc = (_player.PlayerCombatState?.OrbQueue.Capacity ?? 0) > 0;
+        if (flipArc != _flipArc)
+        {
+            _flipArc = flipArc;
+            Refresh();
+        }
+
+        _creatureNode = NCombatRoom.Instance?.GetCreatureNode(_player.Creature);
+        if (_creatureNode == null || !IsInstanceValid(_creatureNode))
+        {
+            return;
+        }
+
+        float creatureScale = _creatureNode.Visuals.Scale.X;
+        float visualScale = creatureScale > 1f
+            ? 1f
+            : Mathf.Lerp(creatureScale, 1f, 0.5f);
+        Vector2 separationOffset = _flipArc
+            ? Vector2.Up * 120f * visualScale
+            : Vector2.Zero;
+        Scale = Vector2.One * visualScale;
+        GlobalPosition = _creatureNode.Visuals.OrbPosition.GlobalPosition
+            - ZoneCenter * visualScale
+            + separationOffset;
+    }
+
     public override void _ExitTree()
     {
+        CombatManager.Instance.CombatEnded -= OnCombatEnded;
+        CombatManager.Instance.CombatWon -= OnCombatWon;
+
+        if (_active == this)
+        {
+            _active = null;
+        }
+
         if (QgsCultivation.Instance != null)
         {
             QgsCultivation.Instance.Changed -= Refresh;
@@ -44,8 +119,8 @@ public partial class NQgsCultivationZone : HBoxContainer
 
     public static void TryAttach()
     {
-        NCombatUi? ui = NCombatRoom.Instance?.Ui;
-        if (ui == null || ui.GetNodeOrNull(NodeName) != null)
+        NCombatRoom? room = NCombatRoom.Instance;
+        if (room == null || _attachPending || (_active != null && IsInstanceValid(_active)))
         {
             return;
         }
@@ -57,133 +132,238 @@ public partial class NQgsCultivationZone : HBoxContainer
             return;
         }
 
-        ui.AddChild(new NQgsCultivationZone());
+        NCreature? creature = room.GetCreatureNode(player.Creature);
+        if (creature == null)
+        {
+            _attachPending = true;
+            Callable.From(DeferredAttach).CallDeferred();
+            return;
+        }
+
+        if (creature.GetNodeOrNull(NodeName) != null)
+        {
+            return;
+        }
+
+        NQgsCultivationZone zone = new();
+        zone.Initialize(player);
+        _active = zone;
+        creature.AddChild(zone);
     }
 
     public static void Detach()
     {
-        Node? zone = NCombatRoom.Instance?.Ui?.GetNodeOrNull(NodeName);
-        zone?.QueueFree();
+        _active?.QueueFree();
+        _active = null;
+        _attachPending = false;
+    }
+
+    private static void DeferredAttach()
+    {
+        _attachPending = false;
+        TryAttach();
+    }
+
+    private static void OnCombatEnded(CombatRoom room)
+    {
+        Detach();
+    }
+
+    private static void OnCombatWon(CombatRoom room)
+    {
+        Detach();
     }
 
     private void Refresh()
     {
-        foreach (Node child in GetChildren())
+        if (_player == null)
         {
-            child.QueueFree();
+            return;
         }
 
-        CombatState? combatState = CombatManager.Instance.DebugOnlyGetState();
-        Player? player = LocalContext.GetMe(combatState);
-        IReadOnlyList<PlantedSeed> planted = player == null
-            ? []
-            : QgsCultivation.GetPlanted(player);
+        int capacity = QgsCultivation.GetCapacity(_player);
+        int previousCapacity = _layoutCapacity == 0 ? capacity : _layoutCapacity;
+        IReadOnlyList<PlantedSeed> planted = QgsCultivation.GetPlanted(_player);
 
-        for (int i = 0; i < QgsCultivation.Capacity; i++)
-        {
-            AddChild(CreateSlot(i < planted.Count ? planted[i] : null));
-        }
+        _layoutTween?.Kill();
+        _layoutTween = CreateTween().SetParallel();
+
+        SyncSeedOrbs(planted, previousCapacity, capacity);
+        SyncEmptyOrbs(planted.Count, capacity);
+        _layoutCapacity = capacity;
     }
 
-    private static Control CreateSlot(PlantedSeed? planted)
+    private void SyncSeedOrbs(
+        IReadOnlyList<PlantedSeed> planted,
+        int previousCapacity,
+        int capacity)
     {
-        PanelContainer slot = new()
+        HashSet<PlantedSeed> activeSeeds = [.. planted];
+        foreach (KeyValuePair<PlantedSeed, NQgsCultivationOrb> entry in new List<KeyValuePair<PlantedSeed, NQgsCultivationOrb>>(_seedOrbs))
         {
-            CustomMinimumSize = new Vector2(200, 132),
-            MouseFilter = MouseFilterEnum.Ignore
-        };
-        slot.AddThemeStyleboxOverride("panel", CreateSlotStyle(planted != null));
-
-        VBoxContainer contents = new()
-        {
-            MouseFilter = MouseFilterEnum.Ignore
-        };
-        contents.AddThemeConstantOverride("separation", 4);
-        slot.AddChild(contents);
-
-        if (planted == null)
-        {
-            contents.AddChild(CreateLabel("空位", 18, new Color(0.75f, 0.85f, 0.8f, 0.7f)));
-            contents.AddChild(CreateLabel("培养区", 14, new Color(0.65f, 0.75f, 0.7f, 0.6f)));
-            return slot;
-        }
-
-        contents.AddChild(CreateLabel(planted.Card.Title, 20, new Color(0.93f, 0.97f, 0.9f)));
-        contents.AddChild(CreateRequirementRow(planted));
-        contents.AddChild(CreateLabel("成熟时：" + planted.Card.RipenSummary, 14, new Color(1f, 0.86f, 0.45f)));
-        return slot;
-    }
-
-    private static Control CreateRequirementRow(PlantedSeed planted)
-    {
-        HBoxContainer row = new()
-        {
-            Alignment = AlignmentMode.Center,
-            MouseFilter = MouseFilterEnum.Ignore
-        };
-        row.AddThemeConstantOverride("separation", 8);
-
-        foreach (KeyValuePair<QgsElement, int> requirement in planted.Card.Requirements)
-        {
-            HBoxContainer pair = new()
+            if (activeSeeds.Contains(entry.Key))
             {
-                MouseFilter = MouseFilterEnum.Ignore
-            };
-            pair.AddThemeConstantOverride("separation", 2);
-
-            Texture2D? texture = QgsArt.Load(requirement.Key.IconPath());
-            if (texture != null)
-            {
-                pair.AddChild(new TextureRect
-                {
-                    Texture = texture,
-                    CustomMinimumSize = new Vector2(22, 22),
-                    ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-                    StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
-                    MouseFilter = MouseFilterEnum.Ignore
-                });
+                continue;
             }
 
-            int remaining = planted.Remaining.GetValueOrDefault(requirement.Key);
-            pair.AddChild(CreateLabel($"{remaining}/{requirement.Value}{requirement.Key.DisplayName()}", 16, new Color(0.95f, 0.93f, 0.78f)));
-            row.AddChild(pair);
+            _seedOrbs.Remove(entry.Key);
+            _seedIndices.Remove(entry.Key);
+            AnimateOut(entry.Value);
         }
 
-        return row;
+        for (int seedIndex = 0; seedIndex < planted.Count; seedIndex++)
+        {
+            PlantedSeed seed = planted[seedIndex];
+            if (!_seedOrbs.TryGetValue(seed, out NQgsCultivationOrb? orb))
+            {
+                orb = CreateSeedOrb(seed, SlotPosition(seedIndex, capacity));
+                _seedOrbs[seed] = orb;
+                _seedIndices[seed] = seedIndex;
+                continue;
+            }
+
+            int previousIndex = _seedIndices.GetValueOrDefault(seed, seedIndex);
+            orb.SetPlanted(seed);
+            AnimateSeedAlongArc(orb, previousIndex, previousCapacity, seedIndex, capacity);
+            _seedIndices[seed] = seedIndex;
+        }
     }
 
-    private static Label CreateLabel(string text, int size, Color color)
+    private void SyncEmptyOrbs(int seedCount, int capacity)
     {
-        Label label = new()
+        HashSet<int> desiredIndices = [];
+        for (int index = seedCount; index < capacity; index++)
         {
-            Text = text,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            AutowrapMode = TextServer.AutowrapMode.WordSmart,
-            MouseFilter = MouseFilterEnum.Ignore
-        };
-        label.AddThemeColorOverride("font_color", color);
-        label.AddThemeFontSizeOverride("font_size", size);
-        return label;
+            desiredIndices.Add(index);
+        }
+
+        foreach (KeyValuePair<NQgsCultivationOrb, int> entry in new List<KeyValuePair<NQgsCultivationOrb, int>>(_emptyOrbs))
+        {
+            if (desiredIndices.Contains(entry.Value))
+            {
+                continue;
+            }
+
+            _emptyOrbs.Remove(entry.Key);
+            AnimateOut(entry.Key);
+        }
+
+        for (int index = seedCount; index < capacity; index++)
+        {
+            NQgsCultivationOrb? orb = null;
+            foreach (KeyValuePair<NQgsCultivationOrb, int> entry in _emptyOrbs)
+            {
+                if (entry.Value == index)
+                {
+                    orb = entry.Key;
+                    break;
+                }
+            }
+
+            if (orb == null)
+            {
+                orb = CreateEmptyOrb();
+                _emptyOrbs[orb] = index;
+            }
+
+            orb.SetPlanted(null);
+            TweenToSlot(orb, SlotPosition(index, capacity));
+        }
     }
 
-    private static StyleBoxFlat CreateSlotStyle(bool filled)
+    private NQgsCultivationOrb CreateEmptyOrb()
     {
-        return new StyleBoxFlat
+        NQgsCultivationOrb orb = new();
+        orb.Initialize(null);
+        orb.Position = EmptySlotOrigin();
+        AddChild(orb);
+        return orb;
+    }
+
+    private NQgsCultivationOrb CreateSeedOrb(PlantedSeed planted, Vector2 target)
+    {
+        NQgsCultivationOrb orb = new();
+        orb.Initialize(planted);
+        orb.Position = target;
+        orb.Scale = Vector2.Zero;
+        orb.Modulate = new Color(1f, 1f, 1f, 0f);
+        AddChild(orb);
+
+        _layoutTween?.Parallel().TweenProperty(orb, "scale", Vector2.One, 0.3f)
+            .SetTrans(Tween.TransitionType.Back)
+            .SetEase(Tween.EaseType.Out);
+        _layoutTween?.Parallel().TweenProperty(orb, "modulate", Colors.White, 0.2f);
+        return orb;
+    }
+
+    private void AnimateSeedAlongArc(
+        NQgsCultivationOrb orb,
+        int previousIndex,
+        int previousCapacity,
+        int nextIndex,
+        int nextCapacity)
+    {
+        if (previousIndex == nextIndex && previousCapacity == nextCapacity)
         {
-            BgColor = filled ? new Color(0.09f, 0.16f, 0.12f, 0.88f) : new Color(0.07f, 0.1f, 0.09f, 0.55f),
-            BorderColor = filled ? new Color(0.72f, 0.86f, 0.45f, 0.95f) : new Color(0.45f, 0.55f, 0.48f, 0.55f),
-            BorderWidthLeft = 2,
-            BorderWidthTop = 2,
-            BorderWidthRight = 2,
-            BorderWidthBottom = 2,
-            CornerRadiusTopLeft = 10,
-            CornerRadiusTopRight = 10,
-            CornerRadiusBottomRight = 10,
-            CornerRadiusBottomLeft = 10,
-            ContentMarginLeft = 10,
-            ContentMarginTop = 10,
-            ContentMarginRight = 10,
-            ContentMarginBottom = 10
-        };
+            TweenToSlot(orb, SlotPosition(nextIndex, nextCapacity));
+            return;
+        }
+
+        _layoutTween?.Parallel().TweenMethod(
+            Callable.From<float>(t =>
+            {
+                float index = Mathf.Lerp(previousIndex, nextIndex, t);
+                float capacity = Mathf.Lerp(previousCapacity, nextCapacity, t);
+                orb.Position = SlotPosition(index, capacity);
+            }),
+            0f,
+            1f,
+            LayoutDuration)
+            .SetTrans(Tween.TransitionType.Sine)
+            .SetEase(Tween.EaseType.InOut);
+    }
+
+    private void TweenToSlot(NQgsCultivationOrb orb, Vector2 target)
+    {
+        _layoutTween?.Parallel().TweenProperty(orb, "position", target, LayoutDuration)
+            .SetTrans(Tween.TransitionType.Sine)
+            .SetEase(Tween.EaseType.InOut);
+    }
+
+    private void AnimateOut(NQgsCultivationOrb orb)
+    {
+        Tween tween = CreateTween().SetParallel();
+        tween.TweenProperty(orb, "scale", Vector2.Zero, 0.25f)
+            .SetTrans(Tween.TransitionType.Back)
+            .SetEase(Tween.EaseType.In);
+        tween.TweenProperty(orb, "modulate", new Color(1f, 1f, 1f, 0f), 0.2f);
+        tween.Chain().TweenCallback(Callable.From(orb.QueueFree));
+    }
+
+    private Vector2 SlotPosition(float visualIndex, float capacity)
+    {
+        float capacitySpread = Mathf.Clamp(
+            (capacity - 3f) / (QgsCultivation.MaxCapacity - 3f),
+            0f,
+            1f);
+        float radius = Mathf.Lerp(225f, 300f, capacitySpread);
+        float span = 125f;
+        float step = capacity > 1f ? span / (capacity - 1f) : 0f;
+        float angle = Mathf.DegToRad(-25f - span + visualIndex * step);
+        float verticalDirection = _flipArc ? -1f : 1f;
+        Vector2 arcOffset = new(
+            -Mathf.Cos(angle) * radius,
+            195f + verticalDirection * Mathf.Sin(angle) * radius);
+        return ZoneCenter + arcOffset - new Vector2(OrbWidth / 2f, 32f);
+    }
+
+    private Vector2 SlotPosition(int visualIndex, int capacity)
+    {
+        return SlotPosition((float)visualIndex, capacity);
+    }
+
+    private static Vector2 EmptySlotOrigin()
+    {
+        return ZoneCenter + new Vector2(0f, 195f) - new Vector2(OrbWidth / 2f, 32f);
     }
 }

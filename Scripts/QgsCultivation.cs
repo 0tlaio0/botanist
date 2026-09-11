@@ -24,11 +24,13 @@ public sealed class PlantedSeed
 
 public sealed class QgsCultivation : CustomSingletonModel
 {
-    public const int Capacity = 3;
+    public const int InitialCapacity = 3;
+    public const int MaxCapacity = 10;
 
     public static QgsCultivation? Instance { get; private set; }
 
     private readonly Dictionary<ulong, List<PlantedSeed>> _plantedByPlayer = new();
+    private readonly Dictionary<ulong, int> _capacityByPlayer = new();
     private readonly Dictionary<ulong, CardPile> _piles = new();
 
     public event Action? Changed;
@@ -45,7 +47,7 @@ public sealed class QgsCultivation : CustomSingletonModel
             return false;
         }
 
-        return GetPlanted(player).Count < Capacity;
+        return GetPlanted(player).Count < GetCapacity(player);
     }
 
     public static IReadOnlyList<PlantedSeed> GetPlanted(Player player)
@@ -56,6 +58,59 @@ public sealed class QgsCultivation : CustomSingletonModel
         }
 
         return Instance.GetOrCreate(player);
+    }
+
+    public static int GetCapacity(Player player)
+    {
+        return Instance?._capacityByPlayer.GetValueOrDefault(player.NetId, InitialCapacity)
+            ?? InitialCapacity;
+    }
+
+    public static void AddCapacity(Player player, int amount)
+    {
+        if (Instance == null || amount <= 0)
+        {
+            return;
+        }
+
+        int current = GetCapacity(player);
+        int next = Math.Min(MaxCapacity, current + amount);
+        if (next == current)
+        {
+            return;
+        }
+
+        Instance._capacityByPlayer[player.NetId] = next;
+        Instance.Changed?.Invoke();
+    }
+
+    public static async Task RemoveCapacity(Player player, int amount)
+    {
+        if (Instance == null || amount <= 0)
+        {
+            return;
+        }
+
+        int current = GetCapacity(player);
+        int next = Math.Max(0, current - amount);
+        if (next == current)
+        {
+            return;
+        }
+
+        List<PlantedSeed> planted = Instance.GetOrCreate(player);
+        while (planted.Count > next)
+        {
+            PlantedSeed removed = planted[^1];
+            planted.RemoveAt(planted.Count - 1);
+            if (removed.Card.Pile != null)
+            {
+                await CardPileCmd.Add(removed.Card, PileType.Discard);
+            }
+        }
+
+        Instance._capacityByPlayer[player.NetId] = next;
+        Instance.Changed?.Invoke();
     }
 
     public override Task BeforeCombatStart()
@@ -103,7 +158,7 @@ public sealed class QgsCultivation : CustomSingletonModel
     {
         Player player = seed.Owner;
         List<PlantedSeed> planted = GetOrCreate(player);
-        if (planted.Count >= Capacity || planted.Any(item => item.Card == seed))
+        if (planted.Count >= GetCapacity(player) || planted.Any(item => item.Card == seed))
         {
             return;
         }
@@ -187,6 +242,7 @@ public sealed class QgsCultivation : CustomSingletonModel
     private void ResetCombatState()
     {
         _plantedByPlayer.Clear();
+        _capacityByPlayer.Clear();
         _piles.Clear();
         Changed?.Invoke();
     }

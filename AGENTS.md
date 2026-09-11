@@ -48,3 +48,11 @@
 - 文案必须区分「播种时」「培养中」「成熟时」「离开培养区后」。
 
 改卡牌、遗物、药水、UI 或战斗补丁前，先核对本文件与需求文档是否被改动行为打破。
+
+## 美术工具链
+
+- 角色立绘、透明部件和特效贴图优先使用已安装的 `imagegen`、`transparent-visual-assets`、`sprite-animation-assets` 技能。
+- 角色动作和 Spine VFX 使用 `spine-animation`、`2d-character-rig-animation` 技能，并以游戏当前 Spine 4.2 资源格式为准。
+- `spine-animation` 技能采用 PolyForm Noncommercial 1.0.0；商业用途不得直接使用，需另行取得授权。
+- 技能脚本统一使用 Codex 内置 Python：`C:\Users\tlaio\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe`。
+- 项目级 MCP 配置位于 `.codex/config.toml`，已接入官方 Comfy Cloud MCP；本地 ComfyUI 未安装。
