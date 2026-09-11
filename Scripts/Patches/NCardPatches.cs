@@ -1,4 +1,3 @@
-using Godot;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Nodes.Cards;
@@ -21,21 +20,6 @@ public static class NCardChromePoolPatch
     public static void Postfix(NCard __instance)
     {
         QgsCardChrome.Clear(__instance);
-    }
-}
-
-[HarmonyPatch(typeof(NCard), "UpdateTypePlaque")]
-public static class NCardSeedTypePatch
-{
-    public static void Postfix(NCard __instance)
-    {
-        if (__instance.Model is not QgsSeedCardModel)
-        {
-            return;
-        }
-
-        MegaCrit.Sts2.addons.mega_text.MegaLabel typeLabel = __instance.GetNode<MegaCrit.Sts2.addons.mega_text.MegaLabel>("%TypeLabel");
-        typeLabel.SetTextAutoSize("种子");
     }
 }
 

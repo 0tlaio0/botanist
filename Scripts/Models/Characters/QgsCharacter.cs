@@ -40,7 +40,7 @@ public class QgsCharacter : PlaceholderCharacterModel
         ModelDb.Card<QgsDefend>(),
         ModelDb.Card<QgsDefend>(),
         ModelDb.Card<QgsDefend>(),
-        ModelDb.Card<QgsAether>()
+        ModelDb.Card<QgsHumus>()
     ];
 
     public override IReadOnlyList<RelicModel> StartingRelics =>

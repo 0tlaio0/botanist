@@ -11,10 +11,16 @@ namespace Qgs.Scripts;
 [Pool(typeof(QgsCardPool))]
 public class QgsAether : QgsCardModel
 {
+    public override bool CanBeGeneratedInCombat => false;
     public override QgsElement Element => QgsElement.Aether;
     public override string PortraitPath => "res://qgs/images/qgs_character.svg";
 
-    public QgsAether() : base(2, CardType.Skill, CardRarity.Basic, TargetType.Self, true)
+    public override IEnumerable<CardKeyword> CanonicalKeywords =>
+    [
+        CardKeyword.Exhaust
+    ];
+
+    public QgsAether() : base(1, CardType.Skill, CardRarity.Token, TargetType.Self, true)
     {
     }
 

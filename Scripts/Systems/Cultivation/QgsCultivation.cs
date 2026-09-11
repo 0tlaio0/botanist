@@ -4,11 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using BaseLib.Abstracts;
 using Godot;
+using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Helpers;
+using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Rooms;
 
@@ -16,7 +18,8 @@ namespace Qgs.Scripts;
 
 public sealed class PlantedSeed
 {
-    public required QgsSeedCardModel Card { get; init; }
+    public required IQgsSeedCard Seed { get; init; }
+    public CardModel Card => Seed.Card;
     public Dictionary<QgsElement, int> Remaining { get; } = new();
 
     public bool IsRipe => Remaining.Values.All(count => count <= 0);
@@ -31,7 +34,7 @@ public sealed class QgsCultivation : CustomSingletonModel
 
     private readonly Dictionary<ulong, List<PlantedSeed>> _plantedByPlayer = new();
     private readonly Dictionary<ulong, int> _capacityByPlayer = new();
-    private readonly Dictionary<ulong, CardPile> _piles = new();
+    private readonly HashSet<CardModel> _pendingSeedPlays = [];
 
     public event Action? Changed;
 
@@ -113,6 +116,41 @@ public sealed class QgsCultivation : CustomSingletonModel
         Instance.Changed?.Invoke();
     }
 
+    public static Task ReduceFirstSeedGrowth(
+        PlayerChoiceContext choiceContext,
+        Player player,
+        int amount = 1)
+    {
+        if (Instance == null || amount <= 0)
+        {
+            return Task.CompletedTask;
+        }
+
+        List<PlantedSeed> planted = Instance.GetOrCreate(player);
+        if (planted.Count == 0)
+        {
+            return Task.CompletedTask;
+        }
+
+        return Instance.ReduceGrowth(choiceContext, player, [planted[0]], amount);
+    }
+
+    public static Task ReduceAllSeedsGrowth(
+        PlayerChoiceContext choiceContext,
+        Player player,
+        int amount = 1)
+    {
+        if (Instance == null || amount <= 0)
+        {
+            return Task.CompletedTask;
+        }
+
+        List<PlantedSeed> planted = Instance.GetOrCreate(player);
+        return planted.Count == 0
+            ? Task.CompletedTask
+            : Instance.ReduceGrowth(choiceContext, player, planted.ToList(), amount);
+    }
+
     public override Task BeforeCombatStart()
     {
         ResetCombatState();
@@ -147,31 +185,59 @@ public sealed class QgsCultivation : CustomSingletonModel
         // 结算顺序：先把这张牌的元素给培养区里已有的种子，再把新种子放进去。
         // 这样种子不会用自己的元素给自己扣点，但会喂到场上其他种子。
         await ApplyElement(choiceContext, qgsCard.Owner, qgsCard.Element);
+    }
 
-        if (qgsCard is QgsSeedCardModel seed)
+    public override Task BeforeCardPlayed(CardPlay cardPlay)
+    {
+        if (cardPlay.Card.IsSeed())
+        {
+            _pendingSeedPlays.Add(cardPlay.Card);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public override async Task AfterCardChangedPiles(
+        CardModel card,
+        PileType oldPileType,
+        AbstractModel? clonedBy)
+    {
+        if (oldPileType != PileType.Play || !_pendingSeedPlays.Remove(card))
+        {
+            return;
+        }
+
+        if (card.Pile?.Type == PileType.Play && card.AsSeed() is { } seed)
         {
             await TryPlant(seed);
         }
     }
 
-    private async Task TryPlant(QgsSeedCardModel seed)
+    private async Task TryPlant(IQgsSeedCard seed)
     {
-        Player player = seed.Owner;
+        CardModel card = seed.Card;
+        Player player = card.Owner;
         List<PlantedSeed> planted = GetOrCreate(player);
-        if (planted.Count >= GetCapacity(player) || planted.Any(item => item.Card == seed))
+        if (planted.Any(item => item.Card == card))
         {
             return;
         }
 
-        NCard? node = NCard.FindOnTable(seed);
-        CardPile pile = GetOrCreatePile(player);
-        await CardPileCmd.Add(seed, pile, CardPilePosition.Bottom, null, skipVisuals: true);
-        if (node != null && GodotObject.IsInstanceValid(node))
+        // 打出效果和元素结算完成后才判断空位，确保同一次结算中成熟的种子会先腾出位置。
+        if (planted.Count >= GetCapacity(player))
         {
-            node.QueueFreeSafely();
+            if (card.Pile?.Type == PileType.Play)
+            {
+                await CardPileCmd.Add(card, PileType.Discard);
+            }
+
+            return;
         }
 
-        PlantedSeed plantedSeed = new() { Card = seed };
+        // 卡牌模型留在标准 PlayPile 中作为战斗内的隐藏培育存储。
+        // 这样 card.Pile 可正常解析，成熟时才能稳定地移入弃牌堆。
+        NCard? node = NCard.FindOnTable(card);
+        PlantedSeed plantedSeed = new() { Seed = seed };
         foreach (KeyValuePair<QgsElement, int> requirement in seed.Requirements)
         {
             plantedSeed.Remaining[requirement.Key] = requirement.Value;
@@ -179,6 +245,11 @@ public sealed class QgsCultivation : CustomSingletonModel
 
         planted.Add(plantedSeed);
         Changed?.Invoke();
+
+        if (node != null && GodotObject.IsInstanceValid(node))
+        {
+            node.QueueFreeSafely();
+        }
     }
 
     private async Task ApplyElement(PlayerChoiceContext choiceContext, Player player, QgsElement element)
@@ -213,6 +284,38 @@ public sealed class QgsCultivation : CustomSingletonModel
         await RipenReady(choiceContext, player);
     }
 
+    private async Task ReduceGrowth(
+        PlayerChoiceContext choiceContext,
+        Player player,
+        IReadOnlyList<PlantedSeed> seeds,
+        int amount)
+    {
+        bool changed = false;
+        foreach (PlantedSeed seed in seeds)
+        {
+            foreach (KeyValuePair<QgsElement, int> requirement in seed.Seed.Requirements)
+            {
+                int current = seed.Remaining.GetValueOrDefault(requirement.Key);
+                int next = Math.Max(0, current - amount);
+                if (next == current)
+                {
+                    continue;
+                }
+
+                seed.Remaining[requirement.Key] = next;
+                changed = true;
+            }
+        }
+
+        if (!changed)
+        {
+            return;
+        }
+
+        Changed?.Invoke();
+        await RipenReady(choiceContext, player);
+    }
+
     private async Task RipenReady(PlayerChoiceContext choiceContext, Player player)
     {
         List<PlantedSeed> planted = GetOrCreate(player);
@@ -220,10 +323,18 @@ public sealed class QgsCultivation : CustomSingletonModel
         foreach (PlantedSeed seed in ripe)
         {
             planted.Remove(seed);
-            await seed.Card.OnRipen(choiceContext);
+            await seed.Seed.OnRipen(choiceContext);
             if (seed.Card.Pile != null)
             {
                 await CardPileCmd.Add(seed.Card, PileType.Discard);
+            }
+
+            if (player.Creature.GetPower<QgsSpecimenCasePower>() is { } specimenCase)
+            {
+                for (int i = 0; i < specimenCase.Amount; i++)
+                {
+                    await AddSpecimenToDraw(player, seed.Seed);
+                }
             }
 
             QgsHeavenPalmBottle? bottle = player.GetRelic<QgsHeavenPalmBottle>();
@@ -239,11 +350,28 @@ public sealed class QgsCultivation : CustomSingletonModel
         }
     }
 
+    private static async Task AddSpecimenToDraw(Player player, IQgsSeedCard seed)
+    {
+        ICombatState? combatState = player.Creature.CombatState;
+        if (combatState == null)
+        {
+            return;
+        }
+
+        QgsSpecimen specimen = combatState.CreateCard<QgsSpecimen>(player);
+        specimen.SetCopiedSeed(seed);
+        await CardPileCmd.AddGeneratedCardToCombat(
+            specimen,
+            PileType.Draw,
+            player,
+            CardPilePosition.Random);
+    }
+
     private void ResetCombatState()
     {
         _plantedByPlayer.Clear();
         _capacityByPlayer.Clear();
-        _piles.Clear();
+        _pendingSeedPlays.Clear();
         Changed?.Invoke();
     }
 
@@ -256,16 +384,5 @@ public sealed class QgsCultivation : CustomSingletonModel
         }
 
         return planted;
-    }
-
-    private CardPile GetOrCreatePile(Player player)
-    {
-        if (!_piles.TryGetValue(player.NetId, out CardPile? pile))
-        {
-            pile = new CardPile(PileType.Play);
-            _piles[player.NetId] = pile;
-        }
-
-        return pile;
     }
 }

@@ -1,0 +1,40 @@
+// 中文卡名：标本夹
+// 卡面描述：打出此牌后，你在这个回合内每成长一颗[gold]种子[/gold]，将一张[gold]标本[/gold]加入你的抽牌堆。
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using BaseLib.Utils;
+using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.HoverTips;
+
+namespace Qgs.Scripts;
+
+[Pool(typeof(QgsCardPool))]
+public class QgsFieldSpecimenCase : QgsCardModel
+{
+    public override QgsElement Element => QgsElement.Fire;
+    public override string PortraitPath => "res://qgs/images/qgs_character.svg";
+
+    protected override IEnumerable<IHoverTip> ExtraHoverTips =>
+        [HoverTipFactory.FromCard<QgsSpecimen>()];
+
+    public QgsFieldSpecimenCase() : base(1, CardType.Skill, CardRarity.Common, TargetType.Self, true)
+    {
+    }
+
+    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
+    {
+        await PowerCmd.Apply<QgsSpecimenCasePower>(
+            choiceContext,
+            Owner.Creature,
+            1m,
+            Owner.Creature,
+            this);
+    }
+
+    protected override void OnUpgrade()
+    {
+        EnergyCost.UpgradeBy(-1);
+    }
+}

@@ -10,12 +10,12 @@ using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Relics;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
-using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Rooms;
 
 namespace Qgs.Scripts;
 
-/// <summary>同一回合培育三颗种子后，生成一张参天造化露。</summary>
+/// <summary>同一回合培育三颗种子后，生成一张升级后的以太。</summary>
 [Pool(typeof(QgsRelicPool))]
 public class QgsHeavenPalmBottle : CustomRelicModel
 {
@@ -66,8 +66,9 @@ public class QgsHeavenPalmBottle : CustomRelicModel
             return;
         }
 
-        CardModel dew = combatState.CreateCard<QgsCreationDew>(Owner);
-        await CardPileCmd.AddGeneratedCardToCombat(dew, PileType.Hand, Owner);
+        QgsAether aether = combatState.CreateCard<QgsAether>(Owner);
+        CardCmd.Upgrade(aether, CardPreviewStyle.None);
+        await CardPileCmd.AddGeneratedCardToCombat(aether, PileType.Hand, Owner);
     }
 
     public override Task AfterCombatEnd(CombatRoom room)

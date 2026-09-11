@@ -53,7 +53,7 @@ public static class QgsCardChrome
             AttachPlayElement(card, qgsCard);
         }
 
-        if (qgsCard is QgsSeedCardModel seed)
+        if (qgsCard.AsSeed() is { } seed)
         {
             AttachSeedStack(card, seed);
         }
@@ -92,7 +92,7 @@ public static class QgsCardChrome
         return new Vector2(PlayNudgeX, PlayNudgeY);
     }
 
-    private static void AttachSeedStack(NCard card, QgsSeedCardModel seed)
+    private static void AttachSeedStack(NCard card, IQgsSeedCard seed)
     {
         // 挂到 NCard 本身：它的原点在卡面中心。挂到 Body 时 TitleBanner 的本地 X
         // 不在同一空间，整组会贴到卡面左侧。

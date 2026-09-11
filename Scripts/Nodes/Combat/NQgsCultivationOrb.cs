@@ -160,7 +160,7 @@ public partial class NQgsCultivationOrb : NClickableControl
             return;
         }
 
-        Color primary = ElementColor(_planted.Card.Requirements[0].Key);
+        Color primary = ElementColor(_planted.Seed.Requirements[0].Key);
         _orbShell.AddThemeStyleboxOverride("panel", CreateOrbStyle(
             new Color(0.08f, 0.12f, 0.11f, 0.96f),
             primary.Lightened(0.32f),
@@ -178,7 +178,7 @@ public partial class NQgsCultivationOrb : NClickableControl
         BuildElementIcons();
 
         int remaining = _planted.Remaining.Values.Sum();
-        int required = _planted.Card.Requirements.Sum(requirement => requirement.Value);
+        int required = _planted.Seed.Requirements.Sum(requirement => requirement.Value);
         _progressLabel.Text = $"{remaining}/{required}";
         _progressLabel.Visible = true;
         _titleLabel.Text = _planted.Card.Title;
@@ -203,7 +203,7 @@ public partial class NQgsCultivationOrb : NClickableControl
         };
         row.AddThemeConstantOverride("separation", 2);
 
-        foreach (KeyValuePair<QgsElement, int> requirement in _planted!.Card.Requirements)
+        foreach (KeyValuePair<QgsElement, int> requirement in _planted!.Seed.Requirements)
         {
             Texture2D? texture = QgsArt.Load(requirement.Key.IconPath());
             if (texture == null)
@@ -235,14 +235,14 @@ public partial class NQgsCultivationOrb : NClickableControl
         PlantedSeed planted = _planted!;
         List<string> lines = [];
 
-        foreach (KeyValuePair<QgsElement, int> requirement in planted.Card.Requirements)
+        foreach (KeyValuePair<QgsElement, int> requirement in planted.Seed.Requirements)
         {
             int remaining = planted.Remaining.GetValueOrDefault(requirement.Key);
             lines.Add($"{requirement.Key.DisplayName()}：{remaining}/{requirement.Value}");
         }
 
         lines.Add(string.Empty);
-        lines.Add($"成熟时：{planted.Card.RipenSummary}");
+        lines.Add($"成熟时：{planted.Seed.RipenSummary}");
         return string.Join("\n", lines);
     }
 
@@ -250,7 +250,7 @@ public partial class NQgsCultivationOrb : NClickableControl
     {
         return _planted == null
             ? null
-            : QgsArt.Load(_planted.Card.Requirements[0].Key.IconPath());
+            : QgsArt.Load(_planted.Seed.Requirements[0].Key.IconPath());
     }
 
     private static Label CreateLabel(string text, int size, Color color)
