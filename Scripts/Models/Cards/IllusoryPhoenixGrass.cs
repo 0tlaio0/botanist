@@ -35,7 +35,7 @@ public class BotanistIllusoryPhoenixGrass : BotanistSeedCardModel
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
         [HoverTipFactory.FromPower<IntangiblePower>()];
 
-    public BotanistIllusoryPhoenixGrass() : base(2, CardType.Skill, CardRarity.Rare, TargetType.Self, true)
+    public BotanistIllusoryPhoenixGrass() : base(3, CardType.Skill, CardRarity.Rare, TargetType.Self, true)
     {
     }
 
