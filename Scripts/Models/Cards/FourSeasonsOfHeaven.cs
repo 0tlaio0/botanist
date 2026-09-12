@@ -22,7 +22,7 @@ public class BotanistFourSeasonsOfHeaven : BotanistCardModel
     public override string PortraitPath => "res://botanist/images/botanist_character.svg";
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
-        [new DamageVar(7, ValueProp.Move)];
+        [new DamageVar(5, ValueProp.Move)];
 
     public BotanistFourSeasonsOfHeaven() : base(2, CardType.Attack, CardRarity.Rare, TargetType.AnyEnemy, true)
     {

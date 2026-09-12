@@ -4,8 +4,5 @@
   "BOTANIST-BOTANIST_SUNWARD_POWER.smartDescription": "每两回合开始时，获得[blue]{Amount}[/blue]点能量。",
   "BOTANIST-BOTANIST_SPECIMEN_CASE_POWER.title": "标本夹",
   "BOTANIST-BOTANIST_SPECIMEN_CASE_POWER.description": "本回合内，每成长一颗种子，将1张标本加入你的抽牌堆。",
-  "BOTANIST-BOTANIST_SPECIMEN_CASE_POWER.smartDescription": "本回合内，每成长一颗种子，将[blue]{Amount}[/blue]张标本加入你的抽牌堆。",
-  "BOTANIST-BOTANIST_WORLD_TREE_BRANCH_POWER.title": "世界树枝条",
-  "BOTANIST-BOTANIST_WORLD_TREE_BRANCH_POWER.description": "在你的回合开始时，将1张以太加入你的手牌。",
-  "BOTANIST-BOTANIST_WORLD_TREE_BRANCH_POWER.smartDescription": "在你的回合开始时，将[blue]{Amount}[/blue]张以太加入你的手牌。"
+  "BOTANIST-BOTANIST_SPECIMEN_CASE_POWER.smartDescription": "本回合内，每成长一颗种子，将[blue]{Amount}[/blue]张标本加入你的抽牌堆。"
 }
