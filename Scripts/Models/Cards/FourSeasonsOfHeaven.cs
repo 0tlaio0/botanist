@@ -13,18 +13,18 @@ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.ValueProps;
 
-namespace Qgs.Scripts;
+namespace Botanist.Scripts;
 
-[Pool(typeof(QgsCardPool))]
-public class QgsFourSeasonsOfHeaven : QgsCardModel
+[Pool(typeof(BotanistCardPool))]
+public class BotanistFourSeasonsOfHeaven : BotanistCardModel
 {
-    public override QgsElement Element => QgsElement.Aether;
-    public override string PortraitPath => "res://qgs/images/qgs_character.svg";
+    public override BotanistElement Element => BotanistElement.Aether;
+    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
         [new DamageVar(7, ValueProp.Move)];
 
-    public QgsFourSeasonsOfHeaven() : base(2, CardType.Attack, CardRarity.Rare, TargetType.AnyEnemy, true)
+    public BotanistFourSeasonsOfHeaven() : base(2, CardType.Attack, CardRarity.Rare, TargetType.AnyEnemy, true)
     {
     }
 
@@ -37,9 +37,9 @@ public class QgsFourSeasonsOfHeaven : QgsCardModel
                 entry.CardPlay.Card.Owner == Owner &&
                 entry.HappenedThisTurn(CombatState))
             .Select(entry => entry.CardPlay.Card)
-            .OfType<QgsCardModel>()
+            .OfType<BotanistCardModel>()
             .Select(card => card.Element)
-            .Where(element => element != QgsElement.None)
+            .Where(element => element != BotanistElement.None)
             .Distinct()
             .Count();
 

@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>植物学家内容实现盘点</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f6f3;
+      --surface: #ffffff;
+      --surface-alt: #eef1ec;
+      --text: #1f2922;
+      --muted: #667168;
+      --line: #d9ded7;
+      --accent: #2f6f4e;
+      --accent-soft: #dceade;
+      --warn: #9a6115;
+      --warn-soft: #f5ead6;
+      --danger: #a13b32;
+      --danger-soft: #f4deda;
+      --target: #a8b0aa;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.5 "Microsoft YaHei", "PingFang SC", sans-serif;
+    }
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 24px; }
+    h2 { margin-bottom: 14px; font-size: 18px; }
+    h3 { margin-bottom: 10px; font-size: 15px; }
+    .muted { color: var(--muted); }
+    .small { font-size: 12px; }
+    .stack { display: grid; gap: 12px; }
+    .section { margin-top: 28px; }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 20px;
+    }
+    .metric {
+      padding: 16px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .metric-value { font-size: 25px; font-weight: 700; }
+    .metric-label { margin-top: 4px; color: var(--muted); }
+    .banner {
+      margin-top: 18px;
+      padding: 14px 16px;
+      background: var(--danger-soft);
+      border-left: 4px solid var(--danger);
+      border-radius: 4px;
+    }
+    .banner strong { display: block; margin-bottom: 4px; color: var(--danger); }
+    .progress-row { display: grid; gap: 6px; }
+    .progress-head { display: flex; justify-content: space-between; gap: 16px; }
+    .track {
+      height: 10px;
+      overflow: hidden;
+      background: var(--surface-alt);
+      border-radius: 999px;
+    }
+    .fill { height: 100%; background: var(--accent); border-radius: inherit; }
+    .charts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+    }
+    .chart {
+      padding: 16px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .chart-row { display: grid; gap: 7px; margin-bottom: 14px; }
+    .chart-row:last-child { margin-bottom: 0; }
+    .bar-label { display: flex; justify-content: space-between; gap: 12px; }
+    .bar-pair { display: grid; gap: 4px; }
+    .bar {
+      min-width: 2px;
+      height: 8px;
+      border-radius: 2px;
+    }
+    .bar.current { background: var(--accent); }
+    .bar.target { background: var(--target); }
+    .legend { display: flex; gap: 16px; margin-top: 10px; color: var(--muted); font-size: 12px; }
+    .legend span::before {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      margin-right: 5px;
+      border-radius: 2px;
+      content: "";
+    }
+    .legend .current::before { background: var(--accent); }
+    .legend .target::before { background: var(--target); }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    button {
+      min-height: 30px;
+      padding: 0 12px;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    button.active { color: #fff; background: var(--accent); border-color: var(--accent); }
+    .table-wrap { overflow: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    th { position: sticky; top: 0; background: var(--surface-alt); font-size: 12px; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:nth-child(even) { background: #fafbf9; }
+    .numeric { text-align: right; }
+    .tag { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 12px; }
+    .tag.warn { color: var(--warn); background: var(--warn-soft); }
+    .tag.danger { color: var(--danger); background: var(--danger-soft); }
+    .notice { margin-top: 12px; padding: 12px 14px; background: var(--surface-alt); border-radius: 4px; }
+    @media (max-width: 760px) {
+      .metrics, .charts { grid-template-columns: 1fr; }
+      th, td { padding: 9px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>植物学家内容实现盘点</h1>
+    <p class="muted">按当前源代码统计唯一卡牌模型，不按初始卡组中的重复张数计算。</p>
+
+    <section class="metrics">
+      <div class="metric">
+        <div class="metric-value">15 / 85</div>
+        <div class="metric-label">卡牌实现 / 中央目标，完成 17.6%，缺 70 张</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value" style="color: var(--warn)">2 / 9</div>
+        <div class="metric-label">专属遗物 / 目标，完成 22.2%，缺 7 件</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value" style="color: var(--danger)">0 / 3</div>
+        <div class="metric-label">专属药水 / 目标，尚未开始</div>
+      </div>
+    </section>
+
+    <div class="banner">
+      <strong>核心机制缺口：初始卡组尚未包含种子</strong>
+      当前初始卡组为 4 张打击、4 张防御和 1 张腐殖质，共 9 张；需求目标是 10 张，并要求至少包含 1 张种子牌。
+    </div>
+
+    <section class="section stack">
+      <h2>总体完成度</h2>
+      <div class="progress-row">
+        <div class="progress-head"><span>卡牌</span><span>15 / 85 · 17.6% · 缺 70</span></div>
+        <div class="track"><div class="fill" style="width: 17.6%"></div></div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-head"><span>遗物</span><span>2 / 9 · 22.2% · 缺 7</span></div>
+        <div class="track"><div class="fill" style="width: 22.2%"></div></div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-head"><span>药水</span><span style="color: var(--danger)">0 / 3 · 0% · 缺 3</span></div>
+        <div class="track"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>卡牌结构偏差</h2>
+      <div class="charts">
+        <div class="chart">
+          <h3>按真实卡牌类型</h3>
+          <div id="type-chart"></div>
+          <div class="legend"><span class="current">当前</span><span class="target">文档目标</span></div>
+          <p class="muted small">横轴为卡牌数量，纵轴为真实卡牌类型。</p>
+        </div>
+        <div class="chart">
+          <h3>按普通、罕见、稀有稀有度</h3>
+          <div id="rarity-chart"></div>
+          <div class="legend"><span class="current">当前</span><span class="target">文档目标</span></div>
+          <p class="muted small">横轴为卡牌数量，纵轴为稀有度；不含基础、衍生和先古牌。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>当前卡牌明细</h2>
+      <div class="filters" id="filters"></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>中文名</th><th>真实类型</th><th>稀有度</th><th>种子</th><th>定位</th></tr>
+          </thead>
+          <tbody id="card-rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>遗物与药水</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>名称</th><th>稀有度</th><th>效果</th><th>状态</th></tr></thead>
+          <tbody>
+            <tr><td>异界烙印</td><td>初始遗物</td><td>战斗开始时生成 1 张以太</td><td>已实现</td></tr>
+            <tr><td>掌天瓶</td><td>稀有</td><td>同回合培育 3 颗种子后生成升级以太</td><td>已实现</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="notice">需求文档指定 9 件遗物并包含初始遗物及其升级版，但未列出其余 7 件名单。</div>
+      <div class="notice">目标为 3 件专属药水，当前为 0；药水池已建立，但需求文档没有名称、稀有度或效果。</div>
+    </section>
+
+    <section class="section">
+      <h2>差距总表</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>内容</th><th class="numeric">当前</th><th class="numeric">计划</th><th class="numeric">缺口</th><th>判断</th></tr></thead>
+          <tbody id="gap-rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const cards = [
+      ["打击", "攻击", "基础", "否", "初始攻击"],
+      ["防御", "技能", "基础", "否", "初始防御"],
+      ["腐殖质", "攻击", "基础", "否", "初始攻击；古老牙齿转化源"],
+      ["向日葵", "技能", "罕见", "是", "播种格挡；成熟获得向阳"],
+      ["以太", "技能", "衍生", "否", "万能元素；消耗"],
+      ["土壤开掘", "能力", "罕见", "否", "增加培育区容量"],
+      ["组培瓶", "技能", "稀有", "否", "生成植物组织；检索种子"],
+      ["植物组织", "技能", "衍生", "是", "复制第一颗种子的成熟效果"],
+      ["虚凰草", "技能", "稀有", "是", "播种格挡；成熟获得无实体并降费"],
+      ["野外调查", "技能", "普通", "否", "抽牌与格挡"],
+      ["标本夹", "技能", "普通", "否", "本回合种子成长时生成标本"],
+      ["标本", "技能", "衍生", "否", "复制成标本种子的成熟效果"],
+      ["天有四时", "攻击", "稀有", "否", "按本回合已用元素数量多段攻击"],
+      ["活体培养", "攻击", "先古", "否", "先古攻击；全体种子成长"],
+      ["世界树枝条", "能力", "先古", "否", "回合开始生成以太"]
+    ];
+
+    const gaps = [
+      ["全部卡牌实现", 15, "85（约 ±5）", 70, "含 3 张衍生牌；合理目标区间为 80—90 张", ""],
+      ["非衍生卡牌", 12, "85（若按主卡池口径）", 73, "不含以太、植物组织、标本", ""],
+      ["攻击牌", 4, 19, 15, "当前占全部实现约 27%，目标约 22%", "warn"],
+      ["技能牌", 9, 38, 29, "当前占全部实现约 60%，绝对缺口最大", ""],
+      ["能力牌", 2, 28, 26, "当前只占 13%，目标约 33%，明显偏少", "warn"],
+      ["普通牌", 2, 19, 17, "删除六张卡后普通牌只剩野外调查和标本夹", ""],
+      ["罕见牌", 2, 38, 36, "最大的单档缺口，当前完成度仅 5.3%", "danger"],
+      ["稀有牌", 3, 28, 25, "当前完成度约 10.7%", "warn"],
+      ["先古牌", 2, 2, 0, "活体培养与世界树枝条已覆盖文档指定方向", ""],
+      ["初始卡组", 9, 10, 1, "当前为 4 打击、4 防御、1 腐殖质；没有种子牌", "danger"],
+      ["专属遗物", 2, 9, 7, "异界烙印、掌天瓶；缺少升级版初始遗物和其余 7 件", "warn"],
+      ["专属药水", 0, 3, 3, "药水池已建立，但尚无任何药水实现", "danger"]
+    ];
+
+    const typeData = [["攻击", 4, 19], ["技能", 9, 38], ["能力", 2, 28]];
+    const rarityData = [["普通", 2, 19], ["罕见", 2, 38], ["稀有", 3, 28]];
+    const filterValues = ["全部", "攻击", "技能", "能力", "种子"];
+    let currentFilter = "全部";
+
+    function renderChart(targetId, rows) {
+      const max = Math.max(...rows.flatMap(row => row.slice(1)));
+      document.getElementById(targetId).innerHTML = rows.map(([label, current, target]) => `
+        <div class="chart-row">
+          <div class="bar-label"><strong>${label}</strong><span>${current} / ${target}</span></div>
+          <div class="bar-pair">
+            <div class="bar current" style="width:${current / max * 100}%"></div>
+            <div class="bar target" style="width:${target / max * 100}%"></div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderFilters() {
+      document.getElementById("filters").innerHTML = filterValues.map(value =>
+        `<button class="${value === currentFilter ? "active" : ""}" data-filter="${value}">${value}</button>`
+      ).join("");
+      document.querySelectorAll("[data-filter]").forEach(button => {
+        button.addEventListener("click", () => {
+          currentFilter = button.dataset.filter;
+          renderFilters();
+          renderCards();
+        });
+      });
+    }
+
+    function renderCards() {
+      const visible = cards.filter(card =>
+        currentFilter === "全部" ||
+        (currentFilter === "种子" ? card[3] === "是" : card[1] === currentFilter)
+      );
+      document.getElementById("card-rows").innerHTML = visible.map(card =>
+        `<tr><td>${card[0]}</td><td>${card[1]}</td><td>${card[2]}</td><td>${card[3]}</td><td>${card[4]}</td></tr>`
+      ).join("");
+    }
+
+    function renderGaps() {
+      document.getElementById("gap-rows").innerHTML = gaps.map(row => `
+        <tr>
+          <td>${row[0]}</td>
+          <td class="numeric">${row[1]}</td>
+          <td class="numeric">${row[2]}</td>
+          <td class="numeric">${row[3]}</td>
+          <td>${row[5] ? `<span class="tag ${row[5]}">优先</span> ` : ""}${row[4]}</td>
+        </tr>
+      `).join("");
+    }
+
+    renderChart("type-chart", typeData);
+    renderChart("rarity-chart", rarityData);
+    renderFilters();
+    renderCards();
+    renderGaps();
+  </script>
+</body>
+</html>

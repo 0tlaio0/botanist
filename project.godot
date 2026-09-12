@@ -10,12 +10,12 @@ config_version=5
 
 [application]
 
-config/name="Qgs"
+config/name="Botanist"
 config/features=PackedStringArray("4.5", "C#")
 
 [dotnet]
 
-project/assembly_name="Qgs"
+project/assembly_name="Botanist"
 
 [rendering]
 

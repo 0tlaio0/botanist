@@ -3,14 +3,14 @@ using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Combat;
 
-namespace Qgs.Scripts;
+namespace Botanist.Scripts;
 
 [HarmonyPatch(typeof(NCard), nameof(NCard.UpdateVisuals))]
 public static class NCardChromePatch
 {
     public static void Postfix(NCard __instance)
     {
-        QgsCardChrome.Refresh(__instance);
+        BotanistCardChrome.Refresh(__instance);
     }
 }
 
@@ -19,7 +19,7 @@ public static class NCardChromePoolPatch
 {
     public static void Postfix(NCard __instance)
     {
-        QgsCardChrome.Clear(__instance);
+        BotanistCardChrome.Clear(__instance);
     }
 }
 
@@ -28,6 +28,6 @@ public static class NCombatUiCultivationPatch
 {
     public static void Postfix()
     {
-        NQgsCultivationZone.TryAttach();
+        NBotanistCultivationZone.TryAttach();
     }
 }

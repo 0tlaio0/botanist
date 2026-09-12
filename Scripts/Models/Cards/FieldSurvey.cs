@@ -11,14 +11,14 @@ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.ValueProps;
 
-namespace Qgs.Scripts;
+namespace Botanist.Scripts;
 
-[Pool(typeof(QgsCardPool))]
-public class QgsFieldSurvey : QgsCardModel
+[Pool(typeof(BotanistCardPool))]
+public class BotanistFieldSurvey : BotanistCardModel
 {
     public override bool GainsBlock => true;
-    public override QgsElement Element => QgsElement.Wind;
-    public override string PortraitPath => "res://qgs/images/qgs_character.svg";
+    public override BotanistElement Element => BotanistElement.Wind;
+    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -26,7 +26,7 @@ public class QgsFieldSurvey : QgsCardModel
         new BlockVar(4, ValueProp.Move)
     ];
 
-    public QgsFieldSurvey() : base(1, CardType.Skill, CardRarity.Common, TargetType.Self, true)
+    public BotanistFieldSurvey() : base(1, CardType.Skill, CardRarity.Common, TargetType.Self, true)
     {
     }
 

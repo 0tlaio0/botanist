@@ -11,32 +11,32 @@ using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models.CardPools;
 
-namespace Qgs.Scripts;
+namespace Botanist.Scripts;
 
 [Pool(typeof(TokenCardPool))]
-public class QgsPlantTissue : QgsSeedCardModel
+public class BotanistPlantTissue : BotanistSeedCardModel
 {
-    private IQgsSeedCard? _copiedSeed;
+    private IBotanistSeedCard? _copiedSeed;
 
     public override bool CanBeGeneratedInCombat => false;
-    public override QgsElement Element => QgsElement.Water;
-    public override string PortraitPath => "res://qgs/images/qgs_character.svg";
+    public override BotanistElement Element => BotanistElement.Water;
+    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
     public override string RipenSummary => GrowthText;
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
         [new StringVar("Growth", "无效果")];
 
-    public override IReadOnlyList<KeyValuePair<QgsElement, int>> Requirements =>
+    public override IReadOnlyList<KeyValuePair<BotanistElement, int>> Requirements =>
     [
-        new(QgsElement.Fire, 1),
-        new(QgsElement.Water, 1)
+        new(BotanistElement.Fire, 1),
+        new(BotanistElement.Water, 1)
     ];
 
-    public QgsPlantTissue() : base(1, CardType.Skill, CardRarity.Token, TargetType.Self, true)
+    public BotanistPlantTissue() : base(1, CardType.Skill, CardRarity.Token, TargetType.Self, true)
     {
     }
 
-    public void SetCopiedSeed(IQgsSeedCard? seed)
+    public void SetCopiedSeed(IBotanistSeedCard? seed)
     {
         _copiedSeed = seed;
         ((StringVar)DynamicVars["Growth"]).StringValue = GrowthText;

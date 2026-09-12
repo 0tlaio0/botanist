@@ -9,20 +9,20 @@ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.ValueProps;
 
-namespace Qgs.Scripts;
+namespace Botanist.Scripts;
 
-[Pool(typeof(QgsCardPool))]
-public class QgsDefend : QgsCardModel
+[Pool(typeof(BotanistCardPool))]
+public class BotanistDefend : BotanistCardModel
 {
-    public override QgsElement Element => QgsElement.Earth;
+    public override BotanistElement Element => BotanistElement.Earth;
     public override bool GainsBlock => true;
     public override IEnumerable<CardTag> Tags => [CardTag.Defend];
-    public override string PortraitPath => "res://qgs/images/qgs_character.svg";
+    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [new BlockVar(5, ValueProp.Move)];
 
-    public QgsDefend() : base(1, CardType.Skill, CardRarity.Basic, TargetType.Self, true)
+    public BotanistDefend() : base(1, CardType.Skill, CardRarity.Basic, TargetType.Self, true)
     {
     }
 

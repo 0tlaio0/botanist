@@ -10,16 +10,16 @@ using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models.CardPools;
 
-namespace Qgs.Scripts;
+namespace Botanist.Scripts;
 
 [Pool(typeof(TokenCardPool))]
-public class QgsSpecimen : QgsCardModel
+public class BotanistSpecimen : BotanistCardModel
 {
-    private IQgsSeedCard? _copiedSeed;
+    private IBotanistSeedCard? _copiedSeed;
 
     public override bool CanBeGeneratedInCombat => false;
-    public override QgsElement Element => QgsElement.Wind;
-    public override string PortraitPath => "res://qgs/images/qgs_character.svg";
+    public override BotanistElement Element => BotanistElement.Wind;
+    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
 
     public override IEnumerable<CardKeyword> CanonicalKeywords =>
     [
@@ -29,11 +29,11 @@ public class QgsSpecimen : QgsCardModel
     protected override IEnumerable<DynamicVar> CanonicalVars =>
         [new StringVar("Growth", "无效果")];
 
-    public QgsSpecimen() : base(1, CardType.Skill, CardRarity.Token, TargetType.Self, true)
+    public BotanistSpecimen() : base(1, CardType.Skill, CardRarity.Token, TargetType.Self, true)
     {
     }
 
-    public void SetCopiedSeed(IQgsSeedCard? seed)
+    public void SetCopiedSeed(IBotanistSeedCard? seed)
     {
         _copiedSeed = seed;
         ((StringVar)DynamicVars["Growth"]).StringValue = GrowthText;

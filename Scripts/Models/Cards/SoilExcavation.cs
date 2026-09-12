@@ -7,24 +7,24 @@ using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 
-namespace Qgs.Scripts;
+namespace Botanist.Scripts;
 
-[Pool(typeof(QgsCardPool))]
-public class QgsSoilExcavation : QgsCardModel
+[Pool(typeof(BotanistCardPool))]
+public class BotanistSoilExcavation : BotanistCardModel
 {
-    public override QgsElement Element => QgsElement.Earth;
-    public override string PortraitPath => "res://qgs/images/qgs_character.svg";
+    public override BotanistElement Element => BotanistElement.Earth;
+    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
         [new IntVar("Capacity", 2m)];
 
-    public QgsSoilExcavation() : base(1, CardType.Power, CardRarity.Uncommon, TargetType.Self, true)
+    public BotanistSoilExcavation() : base(1, CardType.Power, CardRarity.Uncommon, TargetType.Self, true)
     {
     }
 
     protected override Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        QgsCultivation.AddCapacity(Owner, DynamicVars["Capacity"].IntValue);
+        BotanistCultivation.AddCapacity(Owner, DynamicVars["Capacity"].IntValue);
         return Task.CompletedTask;
     }
 

@@ -8,24 +8,24 @@ using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.HoverTips;
 
-namespace Qgs.Scripts;
+namespace Botanist.Scripts;
 
-[Pool(typeof(QgsCardPool))]
-public class QgsWorldTreeBranch : QgsCardModel
+[Pool(typeof(BotanistCardPool))]
+public class BotanistWorldTreeBranch : BotanistCardModel
 {
-    public override QgsElement Element => QgsElement.Wind;
-    public override string PortraitPath => "res://qgs/images/qgs_character.svg";
+    public override BotanistElement Element => BotanistElement.Wind;
+    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
-        [HoverTipFactory.FromCard<QgsAether>()];
+        [HoverTipFactory.FromCard<BotanistAether>()];
 
-    public QgsWorldTreeBranch() : base(3, CardType.Power, CardRarity.Ancient, TargetType.Self, true)
+    public BotanistWorldTreeBranch() : base(3, CardType.Power, CardRarity.Ancient, TargetType.Self, true)
     {
     }
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        await PowerCmd.Apply<QgsWorldTreeBranchPower>(
+        await PowerCmd.Apply<BotanistWorldTreeBranchPower>(
             choiceContext,
             Owner.Creature,
             1m,

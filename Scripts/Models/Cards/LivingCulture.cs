@@ -10,18 +10,18 @@ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.ValueProps;
 
-namespace Qgs.Scripts;
+namespace Botanist.Scripts;
 
-[Pool(typeof(QgsCardPool))]
-public class QgsLivingCulture : QgsCardModel
+[Pool(typeof(BotanistCardPool))]
+public class BotanistLivingCulture : BotanistCardModel
 {
-    public override QgsElement Element => QgsElement.Earth;
-    public override string PortraitPath => "res://qgs/images/qgs_character.svg";
+    public override BotanistElement Element => BotanistElement.Earth;
+    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
         [new DamageVar(11, ValueProp.Move)];
 
-    public QgsLivingCulture() : base(1, CardType.Attack, CardRarity.Ancient, TargetType.AnyEnemy, true)
+    public BotanistLivingCulture() : base(1, CardType.Attack, CardRarity.Ancient, TargetType.AnyEnemy, true)
     {
     }
 
@@ -34,7 +34,7 @@ public class QgsLivingCulture : QgsCardModel
             .Targeting(cardPlay.Target)
             .Execute(choiceContext);
 
-        await QgsCultivation.ReduceAllSeedsGrowth(choiceContext, Owner);
+        await BotanistCultivation.ReduceAllSeedsGrowth(choiceContext, Owner);
     }
 
     protected override void OnUpgrade()

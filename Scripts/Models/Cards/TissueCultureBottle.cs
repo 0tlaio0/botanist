@@ -13,15 +13,15 @@ using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models;
 
-namespace Qgs.Scripts;
+namespace Botanist.Scripts;
 
-[Pool(typeof(QgsCardPool))]
-public class QgsTissueCultureBottle : QgsCardModel
+[Pool(typeof(BotanistCardPool))]
+public class BotanistTissueCultureBottle : BotanistCardModel
 {
     private const int SeedDrawCount = 2;
 
-    public override QgsElement Element => QgsElement.Earth;
-    public override string PortraitPath => "res://qgs/images/qgs_character.svg";
+    public override BotanistElement Element => BotanistElement.Earth;
+    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
 
     public override IEnumerable<CardKeyword> CanonicalKeywords =>
     [
@@ -33,10 +33,10 @@ public class QgsTissueCultureBottle : QgsCardModel
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
     [
-        HoverTipFactory.FromCard<QgsPlantTissue>()
+        HoverTipFactory.FromCard<BotanistPlantTissue>()
     ];
 
-    public QgsTissueCultureBottle() : base(1, CardType.Skill, CardRarity.Rare, TargetType.Self, true)
+    public BotanistTissueCultureBottle() : base(1, CardType.Skill, CardRarity.Rare, TargetType.Self, true)
     {
     }
 
@@ -59,12 +59,12 @@ public class QgsTissueCultureBottle : QgsCardModel
             return;
         }
 
-        IQgsSeedCard? copiedSeed = QgsCultivation.GetPlanted(Owner).FirstOrDefault()?.Seed;
+        IBotanistSeedCard? copiedSeed = BotanistCultivation.GetPlanted(Owner).FirstOrDefault()?.Seed;
         List<CardModel> tissues = [];
 
         for (int i = 0; i < count; i++)
         {
-            QgsPlantTissue tissue = combatState.CreateCard<QgsPlantTissue>(Owner);
+            BotanistPlantTissue tissue = combatState.CreateCard<BotanistPlantTissue>(Owner);
             tissue.SetCopiedSeed(copiedSeed);
             tissues.Add(tissue);
         }

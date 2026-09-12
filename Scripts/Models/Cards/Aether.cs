@@ -7,21 +7,21 @@ using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models.CardPools;
 
-namespace Qgs.Scripts;
+namespace Botanist.Scripts;
 
 [Pool(typeof(TokenCardPool))]
-public class QgsAether : QgsCardModel
+public class BotanistAether : BotanistCardModel
 {
     public override bool CanBeGeneratedInCombat => false;
-    public override QgsElement Element => QgsElement.Aether;
-    public override string PortraitPath => "res://qgs/images/qgs_character.svg";
+    public override BotanistElement Element => BotanistElement.Aether;
+    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
 
     public override IEnumerable<CardKeyword> CanonicalKeywords =>
     [
         CardKeyword.Exhaust
     ];
 
-    public QgsAether() : base(1, CardType.Skill, CardRarity.Token, TargetType.Self, true)
+    public BotanistAether() : base(1, CardType.Skill, CardRarity.Token, TargetType.Self, true)
     {
     }
 

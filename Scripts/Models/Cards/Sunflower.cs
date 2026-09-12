@@ -12,20 +12,20 @@ using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.ValueProps;
 
-namespace Qgs.Scripts;
+namespace Botanist.Scripts;
 
-[Pool(typeof(QgsCardPool))]
-public class QgsSunflower : QgsSeedCardModel
+[Pool(typeof(BotanistCardPool))]
+public class BotanistSunflower : BotanistSeedCardModel
 {
     public override bool GainsBlock => true;
-    public override QgsElement Element => QgsElement.Fire;
-    public override string PortraitPath => "res://qgs/images/qgs_character.svg";
+    public override BotanistElement Element => BotanistElement.Fire;
+    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
     public override string RipenSummary => "获得1层向阳";
 
-    public override IReadOnlyList<KeyValuePair<QgsElement, int>> Requirements =>
+    public override IReadOnlyList<KeyValuePair<BotanistElement, int>> Requirements =>
     [
-        new(QgsElement.Fire, 2),
-        new(QgsElement.Earth, 1)
+        new(BotanistElement.Fire, 2),
+        new(BotanistElement.Earth, 1)
     ];
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
@@ -35,10 +35,10 @@ public class QgsSunflower : QgsSeedCardModel
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
     [
-        HoverTipFactory.FromPower<QgsSunwardPower>()
+        HoverTipFactory.FromPower<BotanistSunwardPower>()
     ];
 
-    public QgsSunflower() : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self, true)
+    public BotanistSunflower() : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self, true)
     {
     }
 
@@ -49,7 +49,7 @@ public class QgsSunflower : QgsSeedCardModel
 
     public override async Task OnRipen(PlayerChoiceContext choiceContext)
     {
-        await PowerCmd.Apply<QgsSunwardPower>(choiceContext, Owner.Creature, 1m, Owner.Creature, this);
+        await PowerCmd.Apply<BotanistSunwardPower>(choiceContext, Owner.Creature, 1m, Owner.Creature, this);
     }
 
     protected override void OnUpgrade()

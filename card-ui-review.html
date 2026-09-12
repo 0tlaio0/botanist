@@ -1,51 +1,51 @@
-<div id="qgs-card-ui-review">
+<div id="botanist-card-ui-review">
   <style>
-    #qgs-card-ui-review {
-      --qgs-cyan: #2fd0ea;
-      --qgs-ink: #101114;
-      --qgs-paper: #d0d0d2;
-      --qgs-text: #f2e7c8;
-      --qgs-gold: #e6c15a;
-      --qgs-up: #7dff7a;
-      --qgs-fire: #3a1408;
-      --qgs-fire-ink: #ffb070;
-      --qgs-earth: #2a1c0c;
-      --qgs-earth-ink: #e2c48a;
-      --qgs-sprout: #16351c;
-      --qgs-sprout-ink: #9be56f;
+    #botanist-card-ui-review {
+      --botanist-cyan: #2fd0ea;
+      --botanist-ink: #101114;
+      --botanist-paper: #d0d0d2;
+      --botanist-text: #f2e7c8;
+      --botanist-gold: #e6c15a;
+      --botanist-up: #7dff7a;
+      --botanist-fire: #3a1408;
+      --botanist-fire-ink: #ffb070;
+      --botanist-earth: #2a1c0c;
+      --botanist-earth-ink: #e2c48a;
+      --botanist-sprout: #16351c;
+      --botanist-sprout-ink: #9be56f;
       font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
       color: light-dark(#16303a, #e8eef2);
       background: transparent;
     }
-    #qgs-card-ui-review .qgs-stage {
+    #botanist-card-ui-review .botanist-stage {
       display: flex;
       flex-wrap: wrap;
       gap: 28px 36px;
       align-items: flex-end;
       justify-content: center;
     }
-    #qgs-card-ui-review .qgs-wrap {
+    #botanist-card-ui-review .botanist-wrap {
       width: 250px;
       position: relative;
       padding-top: 46px;
     }
-    #qgs-card-ui-review .qgs-card {
+    #botanist-card-ui-review .botanist-card {
       position: relative;
       width: 250px;
       height: 352px;
       border-radius: 18px;
-      background: var(--qgs-cyan);
+      background: var(--botanist-cyan);
       box-sizing: border-box;
       padding: 7px;
     }
-    #qgs-card-ui-review .qgs-inner {
+    #botanist-card-ui-review .botanist-inner {
       height: 100%;
       border-radius: 12px;
-      background: var(--qgs-ink);
+      background: var(--botanist-ink);
       overflow: hidden;
       position: relative;
     }
-    #qgs-card-ui-review .qgs-portrait {
+    #botanist-card-ui-review .botanist-portrait {
       position: absolute;
       left: 50%;
       top: 86px;
@@ -57,13 +57,13 @@
       outline: 8px solid #1ad0ea;
       outline-offset: -8px;
     }
-    #qgs-card-ui-review .qgs-star {
+    #botanist-card-ui-review .botanist-star {
       position: absolute;
       inset: 28px;
       background: #2a3f78;
       clip-path: polygon(50% 6%, 61% 38%, 96% 38%, 67% 58%, 78% 92%, 50% 72%, 22% 92%, 33% 58%, 4% 38%, 39% 38%);
     }
-    #qgs-card-ui-review .qgs-star-core {
+    #botanist-card-ui-review .botanist-star-core {
       position: absolute;
       left: 50%;
       top: 48%;
@@ -73,13 +73,13 @@
       border-radius: 50%;
       background: #d7e7ff;
     }
-    #qgs-card-ui-review .qgs-banner {
+    #botanist-card-ui-review .botanist-banner {
       position: absolute;
       top: 46px;
       left: -6px;
       right: -6px;
       height: 32px;
-      background: var(--qgs-paper);
+      background: var(--botanist-paper);
       clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%);
       display: flex;
       align-items: center;
@@ -87,7 +87,7 @@
       color: #2b2b2b;
       font-weight: 500;
     }
-    #qgs-card-ui-review .qgs-type {
+    #botanist-card-ui-review .botanist-type {
       position: absolute;
       left: 50%;
       top: 228px;
@@ -102,7 +102,7 @@
       align-items: center;
       justify-content: center;
     }
-    #qgs-card-ui-review .qgs-desc {
+    #botanist-card-ui-review .botanist-desc {
       position: absolute;
       left: 10px;
       right: 10px;
@@ -110,15 +110,15 @@
       height: 84px;
       border-radius: 4px;
       background: #1b1713;
-      color: var(--qgs-text);
+      color: var(--botanist-text);
       line-height: 1.45;
       text-align: center;
       padding: 10px 8px;
       box-sizing: border-box;
     }
-    #qgs-card-ui-review .qgs-gold { color: var(--qgs-gold); }
-    #qgs-card-ui-review .qgs-up { color: var(--qgs-up); }
-    #qgs-card-ui-review .qgs-energy {
+    #botanist-card-ui-review .botanist-gold { color: var(--botanist-gold); }
+    #botanist-card-ui-review .botanist-up { color: var(--botanist-up); }
+    #botanist-card-ui-review .botanist-energy {
       position: absolute;
       left: -8px;
       top: -8px;
@@ -133,7 +133,7 @@
       justify-content: center;
       z-index: 5;
     }
-    #qgs-card-ui-review .qgs-play-el {
+    #botanist-card-ui-review .botanist-play-el {
       position: absolute;
       left: 8px;
       top: 42px;
@@ -146,9 +146,9 @@
       z-index: 6;
       border: 2px solid #f3ead2;
     }
-    #qgs-card-ui-review .el-fire { background: var(--qgs-fire); color: var(--qgs-fire-ink); }
-    #qgs-card-ui-review .el-earth { background: var(--qgs-earth); color: var(--qgs-earth-ink); }
-    #qgs-card-ui-review .qgs-sprout-stack {
+    #botanist-card-ui-review .el-fire { background: var(--botanist-fire); color: var(--botanist-fire-ink); }
+    #botanist-card-ui-review .el-earth { background: var(--botanist-earth); color: var(--botanist-earth-ink); }
+    #botanist-card-ui-review .botanist-sprout-stack {
       position: absolute;
       left: 50%;
       top: 0;
@@ -160,23 +160,23 @@
       z-index: 8;
       pointer-events: none;
     }
-    #qgs-card-ui-review .qgs-sprout {
+    #botanist-card-ui-review .botanist-sprout {
       width: 34px;
       height: 34px;
       border-radius: 50%;
-      background: var(--qgs-sprout);
-      color: var(--qgs-sprout-ink);
+      background: var(--botanist-sprout);
+      color: var(--botanist-sprout-ink);
       display: flex;
       align-items: center;
       justify-content: center;
       border: 2px solid #b6f08a;
     }
-    #qgs-card-ui-review .qgs-req {
+    #botanist-card-ui-review .botanist-req {
       display: flex;
       gap: 4px;
       align-items: center;
     }
-    #qgs-card-ui-review .qgs-req-el {
+    #botanist-card-ui-review .botanist-req-el {
       width: 22px;
       height: 22px;
       border-radius: 50%;
@@ -186,7 +186,7 @@
       border: 1px solid #f3ead2;
       position: relative;
     }
-    #qgs-card-ui-review .qgs-count {
+    #botanist-card-ui-review .botanist-count {
       position: absolute;
       right: -6px;
       bottom: -5px;
@@ -198,59 +198,59 @@
       text-align: center;
       padding: 0 2px;
     }
-    #qgs-card-ui-review .qgs-caption {
+    #botanist-card-ui-review .botanist-caption {
       text-align: center;
       margin-top: 8px;
       opacity: 0.8;
     }
   </style>
 
-  <div class="qgs-stage">
-    <div class="qgs-wrap" id="qgs-defend">
-      <article class="qgs-card" aria-label="Defend card">
-        <div class="qgs-inner">
-          <div class="qgs-portrait"><div class="qgs-star"></div><div class="qgs-star-core"></div></div>
-          <div class="qgs-banner">防御</div>
-          <div class="qgs-type">技能</div>
-          <div class="qgs-desc">获得5点格挡。</div>
+  <div class="botanist-stage">
+    <div class="botanist-wrap" id="botanist-defend">
+      <article class="botanist-card" aria-label="Defend card">
+        <div class="botanist-inner">
+          <div class="botanist-portrait"><div class="botanist-star"></div><div class="botanist-star-core"></div></div>
+          <div class="botanist-banner">防御</div>
+          <div class="botanist-type">技能</div>
+          <div class="botanist-desc">获得5点格挡。</div>
         </div>
-        <div class="qgs-energy">1</div>
-        <div class="qgs-play-el el-earth" aria-label="earth">
+        <div class="botanist-energy">1</div>
+        <div class="botanist-play-el el-earth" aria-label="earth">
           <i data-lucide="mountain" aria-hidden="true"></i>
         </div>
       </article>
-      <div class="qgs-caption">元素在费用右下、标题横幅左端</div>
+      <div class="botanist-caption">元素在费用右下、标题横幅左端</div>
     </div>
 
-    <div class="qgs-wrap" id="qgs-sunflower">
-      <div class="qgs-sprout-stack" id="qgs-sprout-stack">
-        <div class="qgs-sprout" aria-label="seedling">
+    <div class="botanist-wrap" id="botanist-sunflower">
+      <div class="botanist-sprout-stack" id="botanist-sprout-stack">
+        <div class="botanist-sprout" aria-label="seedling">
           <i data-lucide="sprout" aria-hidden="true"></i>
         </div>
-        <div class="qgs-req" id="qgs-req-row" aria-label="growth elements"></div>
+        <div class="botanist-req" id="botanist-req-row" aria-label="growth elements"></div>
       </div>
-      <article class="qgs-card" aria-label="Sunflower card">
-        <div class="qgs-inner">
-          <div class="qgs-portrait"><div class="qgs-star"></div><div class="qgs-star-core"></div></div>
-          <div class="qgs-banner">向日葵</div>
-          <div class="qgs-type">种子</div>
-          <div class="qgs-desc" id="qgs-sun-desc"></div>
+      <article class="botanist-card" aria-label="Sunflower card">
+        <div class="botanist-inner">
+          <div class="botanist-portrait"><div class="botanist-star"></div><div class="botanist-star-core"></div></div>
+          <div class="botanist-banner">向日葵</div>
+          <div class="botanist-type">种子</div>
+          <div class="botanist-desc" id="botanist-sun-desc"></div>
         </div>
-        <div class="qgs-energy">1</div>
-        <div class="qgs-play-el el-fire" aria-label="fire">
+        <div class="botanist-energy">1</div>
+        <div class="botanist-play-el el-fire" aria-label="fire">
           <i data-lucide="flame" aria-hidden="true"></i>
         </div>
       </article>
-      <div class="qgs-caption">幼苗在正上方，成长元素在幼苗下方</div>
+      <div class="botanist-caption">幼苗在正上方，成长元素在幼苗下方</div>
     </div>
   </div>
 
   <script>
     (function () {
-      const sunflower = document.getElementById("qgs-sunflower");
-      const reqRow = document.getElementById("qgs-req-row");
-      const desc = document.getElementById("qgs-sun-desc");
-      const stack = document.getElementById("qgs-sprout-stack");
+      const sunflower = document.getElementById("botanist-sunflower");
+      const reqRow = document.getElementById("botanist-req-row");
+      const desc = document.getElementById("botanist-sun-desc");
+      const stack = document.getElementById("botanist-sprout-stack");
       const state = {
         upgraded: false,
         reqStyle: "repeat",
@@ -259,7 +259,7 @@
 
       function el(kind) {
         const node = document.createElement("div");
-        node.className = "qgs-req-el " + (kind === "fire" ? "el-fire" : "el-earth");
+        node.className = "botanist-req-el " + (kind === "fire" ? "el-fire" : "el-earth");
         node.innerHTML = kind === "fire"
           ? '<i data-lucide="flame" aria-hidden="true"></i>'
           : '<i data-lucide="mountain" aria-hidden="true"></i>';
@@ -276,19 +276,19 @@
           const fire = el("fire");
           const earth = el("earth");
           const c1 = document.createElement("span");
-          c1.className = "qgs-count";
+          c1.className = "botanist-count";
           c1.textContent = "2";
           fire.appendChild(c1);
           const c2 = document.createElement("span");
-          c2.className = "qgs-count";
+          c2.className = "botanist-count";
           c2.textContent = "1";
           earth.appendChild(c2);
           reqRow.appendChild(fire);
           reqRow.appendChild(earth);
         }
 
-        const block = state.upgraded ? '<span class="qgs-up">5</span>' : "3";
-        desc.innerHTML = "获得" + block + "点格挡。<br>成长：获得一层<span class='qgs-gold'>向阳</span>。";
+        const block = state.upgraded ? '<span class="botanist-up">5</span>' : "3";
+        desc.innerHTML = "获得" + block + "点格挡。<br>成长：获得一层<span class='botanist-gold'>向阳</span>。";
         stack.style.top = state.seedlingOnCard ? "8px" : "0px";
         sunflower.style.paddingTop = state.seedlingOnCard ? "18px" : "46px";
         if (window.lucide && typeof window.lucide.createIcons === "function") {

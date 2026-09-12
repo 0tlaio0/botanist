@@ -1,0 +1,12 @@
+{
+  "BOTANIST-BOTANIST_CHARACTER.title": "植物学家",
+  "BOTANIST-BOTANIST_CHARACTER.titleObject": "植物学家",
+  "BOTANIST-BOTANIST_CHARACTER.description": "一位踏入高塔、以耐心和专注应战的旅人。",
+  "BOTANIST-BOTANIST_CHARACTER.pronounSubject": "他",
+  "BOTANIST-BOTANIST_CHARACTER.pronounObject": "他",
+  "BOTANIST-BOTANIST_CHARACTER.pronounPossessive": "他的",
+  "BOTANIST-BOTANIST_CHARACTER.possessiveAdjective": "他的",
+  "BOTANIST-BOTANIST_CHARACTER.cardsModifierTitle": "植物学家卡牌",
+  "BOTANIST-BOTANIST_CHARACTER.cardsModifierDescription": "植物学家的卡牌会出现在奖励和商店中。",
+  "BOTANIST-BOTANIST_CHARACTER.unlockText": "用[pink]{Prerequisite}[/pink]进行一局游戏来解锁这个角色。"
+}

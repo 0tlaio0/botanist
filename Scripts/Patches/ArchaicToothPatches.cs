@@ -7,10 +7,10 @@ using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Relics;
 
-namespace Qgs.Scripts;
+namespace Botanist.Scripts;
 
 [HarmonyPatch(typeof(ArchaicTooth), "GetTranscendenceStarterCard")]
-public static class ArchaicToothQgsStarterPatch
+public static class ArchaicToothBotanistStarterPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Player player, ref CardModel? __result)
@@ -20,22 +20,22 @@ public static class ArchaicToothQgsStarterPatch
             return;
         }
 
-        __result = player.Deck.Cards.FirstOrDefault(card => card is QgsHumus);
+        __result = player.Deck.Cards.FirstOrDefault(card => card is BotanistHumus);
     }
 }
 
 [HarmonyPatch(typeof(ArchaicTooth), "GetTranscendenceTransformedCard")]
-public static class ArchaicToothQgsTransformationPatch
+public static class ArchaicToothBotanistTransformationPatch
 {
     [HarmonyPostfix]
     public static void Postfix(CardModel starterCard, ref CardModel __result)
     {
-        if (starterCard is not QgsHumus)
+        if (starterCard is not BotanistHumus)
         {
             return;
         }
 
-        CardModel replacement = starterCard.Owner.RunState.CreateCard<QgsLivingCulture>(starterCard.Owner);
+        CardModel replacement = starterCard.Owner.RunState.CreateCard<BotanistLivingCulture>(starterCard.Owner);
         if (starterCard.IsUpgraded)
         {
             CardCmd.Upgrade(replacement);
@@ -52,12 +52,12 @@ public static class ArchaicToothQgsTransformationPatch
 }
 
 [HarmonyPatch(typeof(ArchaicTooth), nameof(ArchaicTooth.TranscendenceCards), MethodType.Getter)]
-public static class ArchaicToothQgsCardListPatch
+public static class ArchaicToothBotanistCardListPatch
 {
     [HarmonyPostfix]
     public static void Postfix(ref List<CardModel> __result)
     {
-        CardModel livingCulture = ModelDb.Card<QgsLivingCulture>();
+        CardModel livingCulture = ModelDb.Card<BotanistLivingCulture>();
         if (!__result.Contains(livingCulture))
         {
             __result.Add(livingCulture);

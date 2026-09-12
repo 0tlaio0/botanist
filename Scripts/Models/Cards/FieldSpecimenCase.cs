@@ -8,24 +8,24 @@ using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.HoverTips;
 
-namespace Qgs.Scripts;
+namespace Botanist.Scripts;
 
-[Pool(typeof(QgsCardPool))]
-public class QgsFieldSpecimenCase : QgsCardModel
+[Pool(typeof(BotanistCardPool))]
+public class BotanistFieldSpecimenCase : BotanistCardModel
 {
-    public override QgsElement Element => QgsElement.Fire;
-    public override string PortraitPath => "res://qgs/images/qgs_character.svg";
+    public override BotanistElement Element => BotanistElement.Fire;
+    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
-        [HoverTipFactory.FromCard<QgsSpecimen>()];
+        [HoverTipFactory.FromCard<BotanistSpecimen>()];
 
-    public QgsFieldSpecimenCase() : base(1, CardType.Skill, CardRarity.Common, TargetType.Self, true)
+    public BotanistFieldSpecimenCase() : base(1, CardType.Skill, CardRarity.Common, TargetType.Self, true)
     {
     }
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        await PowerCmd.Apply<QgsSpecimenCasePower>(
+        await PowerCmd.Apply<BotanistSpecimenCasePower>(
             choiceContext,
             Owner.Creature,
             1m,
