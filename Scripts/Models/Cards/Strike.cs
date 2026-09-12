@@ -17,7 +17,6 @@ public class BotanistStrike : BotanistCardModel
 {
     public override BotanistElement Element => BotanistElement.Fire;
     public override IEnumerable<CardTag> Tags => [CardTag.Strike];
-    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [new DamageVar(6, ValueProp.Move)];

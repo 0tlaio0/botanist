@@ -1,6 +1,6 @@
 <Project Sdk="Godot.NET.Sdk/4.5.1">
   <PropertyGroup>
-    <!-- BaseLib 3.4.5 与当前 sts2.dll 使用 .NET 9。 -->
+    <!-- BaseLib 3.4.7 与当前 sts2.dll 使用 .NET 9。 -->
     <TargetFramework>net9.0</TargetFramework>
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <ImplicitUsings>true</ImplicitUsings>
@@ -31,6 +31,10 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
+
+  <Target Name="ValidateCardLocalization" BeforeTargets="CoreCompile">
+    <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\tools\ValidateCardLocalization.ps1&quot;" />
+  </Target>
 
   <!-- 构建后复制代码和 manifest；PCK 由 Godot 导出。 -->
   <Target Name="CopyMod" AfterTargets="Build">

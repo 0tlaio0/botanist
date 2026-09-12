@@ -19,10 +19,10 @@ public class BotanistCharacter : PlaceholderCharacterModel
 
     public override string CustomVisualPath => "res://botanist/scenes/botanist_character.tscn";
     public override string CustomEnergyCounterPath => "res://botanist/scenes/botanist_energy_counter.tscn";
-    public override string CustomIconTexturePath => "res://botanist/images/botanist_character.svg";
+    public override string CustomIconTexturePath => BotanistArt.Character;
     public override string CustomCharacterSelectBg => "res://botanist/scenes/botanist_character_select_bg.tscn";
-    public override string CustomCharacterSelectIconPath => "res://botanist/images/character_select.svg";
-    public override string CustomCharacterSelectLockedIconPath => "res://botanist/images/character_select_locked.svg";
+    public override string CustomCharacterSelectIconPath => BotanistArt.CharacterSelect;
+    public override string CustomCharacterSelectLockedIconPath => BotanistArt.CharacterSelectLocked;
 
     public override string CharacterTransitionSfx => "event:/sfx/ui/wipe_ironclad";
 
@@ -40,7 +40,8 @@ public class BotanistCharacter : PlaceholderCharacterModel
         ModelDb.Card<BotanistDefend>(),
         ModelDb.Card<BotanistDefend>(),
         ModelDb.Card<BotanistDefend>(),
-        ModelDb.Card<BotanistHumus>()
+        ModelDb.Card<BotanistHumus>(),
+        ModelDb.Card<BotanistEdelweiss>()
     ];
 
     public override IReadOnlyList<RelicModel> StartingRelics =>

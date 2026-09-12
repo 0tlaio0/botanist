@@ -14,8 +14,8 @@ public class BotanistSunwardPower : CustomPowerModel
 
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
-    public override string? CustomPackedIconPath => "res://botanist/images/powers/sunward.svg";
-    public override string? CustomBigIconPath => "res://botanist/images/powers/sunward.svg";
+    public override string? CustomPackedIconPath => BotanistArt.Sunward;
+    public override string? CustomBigIconPath => BotanistArt.Sunward;
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
     [

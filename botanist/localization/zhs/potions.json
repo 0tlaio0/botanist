@@ -1,1 +1,4 @@
-{}
+{
+  "BOTANIST-BOTANIST_GROWTH_HORMONE.title": "生长激素",
+  "BOTANIST-BOTANIST_GROWTH_HORMONE.description": "从3张随机[gold]种子[/gold]牌中选择1张加入你的手牌。这张牌在本回合内费用为0，成长需求也为0；若培养区有空间，打出后将直接成熟。"
+}

@@ -19,7 +19,6 @@ public class BotanistSpecimen : BotanistCardModel
 
     public override bool CanBeGeneratedInCombat => false;
     public override BotanistElement Element => BotanistElement.Wind;
-    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
 
     public override IEnumerable<CardKeyword> CanonicalKeywords =>
     [

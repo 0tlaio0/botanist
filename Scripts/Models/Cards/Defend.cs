@@ -17,7 +17,6 @@ public class BotanistDefend : BotanistCardModel
     public override BotanistElement Element => BotanistElement.Earth;
     public override bool GainsBlock => true;
     public override IEnumerable<CardTag> Tags => [CardTag.Defend];
-    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [new BlockVar(5, ValueProp.Move)];

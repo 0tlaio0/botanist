@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models;
@@ -12,6 +13,7 @@ public interface IBotanistSeedCard
     IReadOnlyList<KeyValuePair<BotanistElement, int>> Requirements { get; }
     string RipenSummary { get; }
     Task OnRipen(PlayerChoiceContext choiceContext);
+    Task ResolveAfterCultivation();
 }
 
 public static class BotanistSeedCardExtensions
@@ -56,4 +58,27 @@ public abstract class BotanistSeedCardModel : BotanistCardModel, IBotanistSeedCa
     protected override PileType GetResultPileTypeForCardPlay() => PileType.Play;
 
     public abstract Task OnRipen(PlayerChoiceContext choiceContext);
+
+    public async Task ResolveAfterCultivation()
+    {
+        if (Pile == null)
+        {
+            return;
+        }
+
+        // 绕过种子牌用于驻留培育区的 PlayPile 覆盖，按真实卡牌类型和关键词结算离场。
+        PileType resultPileType = base.GetResultPileTypeForCardPlay();
+        switch (resultPileType)
+        {
+            case PileType.None:
+                await CardPileCmd.RemoveFromCombat(this);
+                break;
+            case PileType.Exhaust:
+                await CardCmd.Exhaust(new ThrowingPlayerChoiceContext(), this);
+                break;
+            default:
+                await CardPileCmd.Add(this, resultPileType);
+                break;
+        }
+    }
 }

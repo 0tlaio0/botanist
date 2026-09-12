@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Botanist.Scripts;
 
 public enum BotanistElement
@@ -24,21 +22,5 @@ public static class BotanistElements
         _ => string.Empty
     };
 
-    public static string IconPath(this BotanistElement element) => element switch
-    {
-        BotanistElement.Earth => "res://botanist/images/elements/earth.svg",
-        BotanistElement.Fire => "res://botanist/images/elements/fire.svg",
-        BotanistElement.Water => "res://botanist/images/elements/water.svg",
-        BotanistElement.Wind => "res://botanist/images/elements/wind.svg",
-        BotanistElement.Aether => "res://botanist/images/elements/aether.svg",
-        _ => string.Empty
-    };
-
-    public static IEnumerable<BotanistElement> IconElements(this BotanistElement element)
-    {
-        if (element != BotanistElement.None)
-        {
-            yield return element;
-        }
-    }
+    public static string IconPath(this BotanistElement element) => BotanistArt.ElementIcon(element);
 }

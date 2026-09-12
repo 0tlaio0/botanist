@@ -4,5 +4,14 @@
   "BOTANIST-BOTANIST_SUNWARD_POWER.smartDescription": "每两回合开始时，获得[blue]{Amount}[/blue]点能量。",
   "BOTANIST-BOTANIST_SPECIMEN_CASE_POWER.title": "标本夹",
   "BOTANIST-BOTANIST_SPECIMEN_CASE_POWER.description": "本回合内，每成长一颗种子，将1张标本加入你的抽牌堆。",
-  "BOTANIST-BOTANIST_SPECIMEN_CASE_POWER.smartDescription": "本回合内，每成长一颗种子，将[blue]{Amount}[/blue]张标本加入你的抽牌堆。"
+  "BOTANIST-BOTANIST_SPECIMEN_CASE_POWER.smartDescription": "本回合内，每成长一颗种子，将[blue]{Amount}[/blue]张标本加入你的抽牌堆。",
+  "BOTANIST-BOTANIST_SEED_BANK_POWER.title": "种质库",
+  "BOTANIST-BOTANIST_SEED_BANK_POWER.description": "种子在第一次成长后，在本场战斗的耗能减少1。",
+  "BOTANIST-BOTANIST_SEED_BANK_POWER.smartDescription": "种子在第一次成长后，在本场战斗的耗能减少[blue]{Amount}[/blue]。",
+  "BOTANIST-BOTANIST_STAR_FRUIT_POWER.title": "星之果实",
+  "BOTANIST-BOTANIST_STAR_FRUIT_POWER.description": "战斗结束后，回复{Amount}点生命。",
+  "BOTANIST-BOTANIST_STAR_FRUIT_POWER.smartDescription": "战斗结束后，回复[blue]{Amount}[/blue]点生命。",
+  "BOTANIST-BOTANIST_STAGGER_POWER.title": "蹒跚",
+  "BOTANIST-BOTANIST_STAGGER_POWER.description": "本回合失去{Amount}点[gold]力量[/gold]。",
+  "BOTANIST-BOTANIST_STAGGER_POWER.smartDescription": "本回合失去[blue]{Amount}[/blue]点[gold]力量[/gold]。"
 }

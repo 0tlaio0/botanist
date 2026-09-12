@@ -7,6 +7,7 @@ using Godot;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Helpers;
@@ -16,15 +17,6 @@ using MegaCrit.Sts2.Core.Rooms;
 
 namespace Botanist.Scripts;
 
-public sealed class PlantedSeed
-{
-    public required IBotanistSeedCard Seed { get; init; }
-    public CardModel Card => Seed.Card;
-    public Dictionary<BotanistElement, int> Remaining { get; } = new();
-
-    public bool IsRipe => Remaining.Values.All(count => count <= 0);
-}
-
 public sealed class BotanistCultivation : CustomSingletonModel
 {
     public const int InitialCapacity = 3;
@@ -32,9 +24,7 @@ public sealed class BotanistCultivation : CustomSingletonModel
 
     public static BotanistCultivation? Instance { get; private set; }
 
-    private readonly Dictionary<ulong, List<PlantedSeed>> _plantedByPlayer = new();
-    private readonly Dictionary<ulong, int> _capacityByPlayer = new();
-    private readonly HashSet<CardModel> _pendingSeedPlays = [];
+    private readonly BotanistCultivationState _state = new();
 
     public event Action? Changed;
 
@@ -55,18 +45,14 @@ public sealed class BotanistCultivation : CustomSingletonModel
 
     public static IReadOnlyList<PlantedSeed> GetPlanted(Player player)
     {
-        if (Instance == null)
-        {
-            return Array.Empty<PlantedSeed>();
-        }
-
-        return Instance.GetOrCreate(player);
+        return Instance == null
+            ? Array.Empty<PlantedSeed>()
+            : Instance._state.GetOrCreatePlanted(player);
     }
 
     public static int GetCapacity(Player player)
     {
-        return Instance?._capacityByPlayer.GetValueOrDefault(player.NetId, InitialCapacity)
-            ?? InitialCapacity;
+        return Instance?._state.GetCapacity(player) ?? InitialCapacity;
     }
 
     public static void AddCapacity(Player player, int amount)
@@ -83,8 +69,28 @@ public sealed class BotanistCultivation : CustomSingletonModel
             return;
         }
 
-        Instance._capacityByPlayer[player.NetId] = next;
+        Instance._state.SetCapacity(player, next);
         Instance.Changed?.Invoke();
+    }
+
+    public static void MarkGrowthFree(CardModel card)
+    {
+        if (Instance == null || !card.IsSeed())
+        {
+            return;
+        }
+
+        Instance._state.MarkGrowthFree(card);
+    }
+
+    public static bool IsGrowthFree(CardModel card)
+    {
+        return Instance?._state.IsGrowthFree(card) ?? false;
+    }
+
+    public static int GetSeedsCultivatedThisTurn(Player player)
+    {
+        return Instance?._state.GetSeedsCultivatedThisTurn(player) ?? 0;
     }
 
     public static async Task RemoveCapacity(Player player, int amount)
@@ -101,18 +107,15 @@ public sealed class BotanistCultivation : CustomSingletonModel
             return;
         }
 
-        List<PlantedSeed> planted = Instance.GetOrCreate(player);
+        List<PlantedSeed> planted = Instance._state.GetOrCreatePlanted(player);
         while (planted.Count > next)
         {
             PlantedSeed removed = planted[^1];
             planted.RemoveAt(planted.Count - 1);
-            if (removed.Card.Pile != null)
-            {
-                await CardPileCmd.Add(removed.Card, PileType.Discard);
-            }
+            await removed.Seed.ResolveAfterCultivation();
         }
 
-        Instance._capacityByPlayer[player.NetId] = next;
+        Instance._state.SetCapacity(player, next);
         Instance.Changed?.Invoke();
     }
 
@@ -126,7 +129,7 @@ public sealed class BotanistCultivation : CustomSingletonModel
             return Task.CompletedTask;
         }
 
-        List<PlantedSeed> planted = Instance.GetOrCreate(player);
+        List<PlantedSeed> planted = Instance._state.GetOrCreatePlanted(player);
         if (planted.Count == 0)
         {
             return Task.CompletedTask;
@@ -145,7 +148,7 @@ public sealed class BotanistCultivation : CustomSingletonModel
             return Task.CompletedTask;
         }
 
-        List<PlantedSeed> planted = Instance.GetOrCreate(player);
+        List<PlantedSeed> planted = Instance._state.GetOrCreatePlanted(player);
         return planted.Count == 0
             ? Task.CompletedTask
             : Instance.ReduceGrowth(choiceContext, player, planted.ToList(), amount);
@@ -175,6 +178,30 @@ public sealed class BotanistCultivation : CustomSingletonModel
         return Task.CompletedTask;
     }
 
+    public override Task BeforeSideTurnEnd(
+        PlayerChoiceContext choiceContext,
+        CombatSide side,
+        IEnumerable<Creature> participants)
+    {
+        if (side == CombatSide.Player)
+        {
+            foreach (Creature participant in participants)
+            {
+                if (!participant.IsPlayer || participant.Player is not { } player)
+                {
+                    continue;
+                }
+
+                _state.ResetSeedsCultivatedThisTurn(player);
+                BotanistSeedBank.RefreshInHand(player);
+            }
+
+            _state.ClearTurnState();
+        }
+
+        return Task.CompletedTask;
+    }
+
     public override async Task AfterCardPlayed(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         if (cardPlay.Card is not BotanistCardModel botanistCard)
@@ -185,13 +212,32 @@ public sealed class BotanistCultivation : CustomSingletonModel
         // 结算顺序：先把这张牌的元素给培养区里已有的种子，再把新种子放进去。
         // 这样种子不会用自己的元素给自己扣点，但会喂到场上其他种子。
         await ApplyElement(choiceContext, botanistCard.Owner, botanistCard.Element);
+
+        if (!IsGrowthFree(botanistCard) ||
+            botanistCard.AsSeed() is not { } seed ||
+            !HasSpace(botanistCard.Owner))
+        {
+            return;
+        }
+
+        // 成长需求已视为 0：像正常种子一样检查空位，成功入场后立即成熟。
+        _state.ConsumeGrowthFree(botanistCard);
+        PlantedSeed ripeSeed = new() { Seed = seed };
+        foreach (KeyValuePair<BotanistElement, int> requirement in seed.Requirements)
+        {
+            ripeSeed.Remaining[requirement.Key] = 0;
+        }
+
+        _state.GetOrCreatePlanted(botanistCard.Owner).Add(ripeSeed);
+        Changed?.Invoke();
+        await RipenReady(choiceContext, botanistCard.Owner);
     }
 
     public override Task BeforeCardPlayed(CardPlay cardPlay)
     {
         if (cardPlay.Card.IsSeed())
         {
-            _pendingSeedPlays.Add(cardPlay.Card);
+            _state.MarkPendingSeed(cardPlay.Card);
         }
 
         return Task.CompletedTask;
@@ -202,7 +248,7 @@ public sealed class BotanistCultivation : CustomSingletonModel
         PileType oldPileType,
         AbstractModel? clonedBy)
     {
-        if (oldPileType != PileType.Play || !_pendingSeedPlays.Remove(card))
+        if (oldPileType != PileType.Play || !_state.ConsumePendingSeed(card))
         {
             return;
         }
@@ -217,7 +263,7 @@ public sealed class BotanistCultivation : CustomSingletonModel
     {
         CardModel card = seed.Card;
         Player player = card.Owner;
-        List<PlantedSeed> planted = GetOrCreate(player);
+        List<PlantedSeed> planted = _state.GetOrCreatePlanted(player);
         if (planted.Any(item => item.Card == card))
         {
             return;
@@ -226,11 +272,7 @@ public sealed class BotanistCultivation : CustomSingletonModel
         // 打出效果和元素结算完成后才判断空位，确保同一次结算中成熟的种子会先腾出位置。
         if (planted.Count >= GetCapacity(player))
         {
-            if (card.Pile?.Type == PileType.Play)
-            {
-                await CardPileCmd.Add(card, PileType.Discard);
-            }
-
+            await seed.ResolveAfterCultivation();
             return;
         }
 
@@ -259,7 +301,7 @@ public sealed class BotanistCultivation : CustomSingletonModel
             return;
         }
 
-        List<PlantedSeed> planted = GetOrCreate(player);
+        List<PlantedSeed> planted = _state.GetOrCreatePlanted(player);
         if (planted.Count == 0)
         {
             return;
@@ -318,30 +360,16 @@ public sealed class BotanistCultivation : CustomSingletonModel
 
     private async Task RipenReady(PlayerChoiceContext choiceContext, Player player)
     {
-        List<PlantedSeed> planted = GetOrCreate(player);
+        List<PlantedSeed> planted = _state.GetOrCreatePlanted(player);
         List<PlantedSeed> ripe = planted.Where(seed => seed.IsRipe).ToList();
         foreach (PlantedSeed seed in ripe)
         {
             planted.Remove(seed);
             await seed.Seed.OnRipen(choiceContext);
-            if (seed.Card.Pile != null)
-            {
-                await CardPileCmd.Add(seed.Card, PileType.Discard);
-            }
+            await seed.Seed.ResolveAfterCultivation();
 
-            if (player.Creature.GetPower<BotanistSpecimenCasePower>() is { } specimenCase)
-            {
-                for (int i = 0; i < specimenCase.Amount; i++)
-                {
-                    await AddSpecimenToDraw(player, seed.Seed);
-                }
-            }
-
-            BotanistHeavenPalmBottle? bottle = player.GetRelic<BotanistHeavenPalmBottle>();
-            if (bottle != null)
-            {
-                await bottle.OnSeedCultivated(choiceContext);
-            }
+            MarkSeedCultivated(player);
+            await BotanistSeedCultivationEffects.TriggerAsync(choiceContext, player, seed);
         }
 
         if (ripe.Count > 0)
@@ -350,39 +378,15 @@ public sealed class BotanistCultivation : CustomSingletonModel
         }
     }
 
-    private static async Task AddSpecimenToDraw(Player player, IBotanistSeedCard seed)
+    private void MarkSeedCultivated(Player player)
     {
-        ICombatState? combatState = player.Creature.CombatState;
-        if (combatState == null)
-        {
-            return;
-        }
-
-        BotanistSpecimen specimen = combatState.CreateCard<BotanistSpecimen>(player);
-        specimen.SetCopiedSeed(seed);
-        await CardPileCmd.AddGeneratedCardToCombat(
-            specimen,
-            PileType.Draw,
-            player,
-            CardPilePosition.Random);
+        _state.IncrementSeedsCultivatedThisTurn(player);
+        BotanistSeedBank.RefreshInHand(player);
     }
 
     private void ResetCombatState()
     {
-        _plantedByPlayer.Clear();
-        _capacityByPlayer.Clear();
-        _pendingSeedPlays.Clear();
+        _state.Reset();
         Changed?.Invoke();
-    }
-
-    private List<PlantedSeed> GetOrCreate(Player player)
-    {
-        if (!_plantedByPlayer.TryGetValue(player.NetId, out List<PlantedSeed>? planted))
-        {
-            planted = new List<PlantedSeed>();
-            _plantedByPlayer[player.NetId] = planted;
-        }
-
-        return planted;
     }
 }

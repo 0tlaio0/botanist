@@ -16,7 +16,6 @@ namespace Botanist.Scripts;
 public class BotanistLivingCulture : BotanistCardModel
 {
     public override BotanistElement Element => BotanistElement.Earth;
-    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
         [new DamageVar(11, ValueProp.Move)];

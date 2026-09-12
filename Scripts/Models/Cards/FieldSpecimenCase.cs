@@ -14,7 +14,6 @@ namespace Botanist.Scripts;
 public class BotanistFieldSpecimenCase : BotanistCardModel
 {
     public override BotanistElement Element => BotanistElement.Fire;
-    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
         [HoverTipFactory.FromCard<BotanistSpecimen>()];

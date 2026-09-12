@@ -2,13 +2,13 @@
   "id": "botanist",
   "name": "植物学家",
   "author": "植物学家 Mod Team",
-  "description": "植物学家角色 Mod 的基础框架。",
+  "description": "以种子培育、工具与植物联动为核心玩法的植物学家角色 Mod。",
   "version": "0.1.0",
   "min_game_version": "0.107.1",
   "has_pck": true,
   "has_dll": true,
   "dependencies": [
-    { "id": "BaseLib", "min_version": "3.4.5" }
+    { "id": "BaseLib", "min_version": "3.4.7" }
   ],
   "affects_gameplay": true
 }

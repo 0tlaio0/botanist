@@ -20,7 +20,6 @@ public class BotanistPlantTissue : BotanistSeedCardModel
 
     public override bool CanBeGeneratedInCombat => false;
     public override BotanistElement Element => BotanistElement.Water;
-    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
     public override string RipenSummary => GrowthText;
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>

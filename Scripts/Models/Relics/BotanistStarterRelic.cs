@@ -14,9 +14,9 @@ public class BotanistStarterRelic : CustomRelicModel
 {
     public override RelicRarity Rarity => RelicRarity.Starter;
 
-    public override string PackedIconPath => "res://botanist/images/botanist_character.svg";
-    protected override string PackedIconOutlinePath => "res://botanist/images/botanist_character.svg";
-    protected override string BigIconPath => "res://botanist/images/botanist_character.svg";
+    public override string PackedIconPath => BotanistArt.Character;
+    protected override string PackedIconOutlinePath => BotanistArt.Character;
+    protected override string BigIconPath => BotanistArt.Character;
 
     public override async Task BeforeCombatStart()
     {

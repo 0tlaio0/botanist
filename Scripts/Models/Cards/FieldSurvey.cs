@@ -18,7 +18,6 @@ public class BotanistFieldSurvey : BotanistCardModel
 {
     public override bool GainsBlock => true;
     public override BotanistElement Element => BotanistElement.Wind;
-    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [

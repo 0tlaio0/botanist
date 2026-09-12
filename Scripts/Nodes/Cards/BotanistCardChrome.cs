@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using MegaCrit.Sts2.Core.Entities.UI;
@@ -25,6 +26,7 @@ public static class BotanistCardChrome
     // 卡牌正上方的幼苗组。幼苗必须明显大于需求元素。
     private const float SproutSize = 34f;
     private const float ReqIconSize = 20f;
+    private const float CountLabelHeight = 14f;
     private const float StackGap = 4f;
     private const float AboveCardGap = 0f; // 整组底边到卡顶的空隙，0 贴住卡顶
     private const float StackOffsetX = 0f; // 正数整组右移
@@ -99,10 +101,15 @@ public static class BotanistCardChrome
         Control host = card;
         host.ClipContents = false;
 
-        int reqCount = seed.Requirements.Sum(req => req.Value);
+        bool growthFree = BotanistCultivation.IsGrowthFree(seed.Card);
+        List<KeyValuePair<BotanistElement, int>> requirements = seed.Requirements
+            .Where(requirement => requirement.Value > 0)
+            .ToList();
+        bool showCountLabels = growthFree || requirements.Any(requirement => requirement.Value > 1);
+        int reqCount = requirements.Count;
         float reqWidth = reqCount * ReqIconSize + Math.Max(0, reqCount - 1) * StackGap;
         float stackWidth = Math.Max(SproutSize, reqWidth);
-        float stackHeight = StackHeight;
+        float stackHeight = StackHeight(showCountLabels);
 
         Control stack = new()
         {
@@ -112,34 +119,56 @@ public static class BotanistCardChrome
         };
         ForceBox(stack, stackWidth, stackHeight);
 
-        Control sprout = MakeIcon("res://botanist/images/elements/sprout.svg", SproutSize, "BotanistSprout");
+        Control sprout = MakeIcon(BotanistArt.Sprout, SproutSize, "BotanistSprout");
         sprout.Position = new Vector2((stackWidth - SproutSize) / 2f, 0f);
         stack.AddChild(sprout);
 
         float reqX = (stackWidth - reqWidth) / 2f;
-        foreach (var requirement in seed.Requirements)
+        foreach (KeyValuePair<BotanistElement, int> requirement in requirements)
         {
-            for (int i = 0; i < requirement.Value; i++)
+            Control icon = MakeIcon(requirement.Key.IconPath(), ReqIconSize);
+            icon.Position = new Vector2(reqX, SproutSize + StackGap);
+            stack.AddChild(icon);
+
+            int displayedCount = growthFree ? 0 : requirement.Value;
+            if (growthFree || displayedCount > 1)
             {
-                Control icon = MakeIcon(requirement.Key.IconPath(), ReqIconSize);
-                icon.Position = new Vector2(reqX, SproutSize + StackGap);
-                stack.AddChild(icon);
-                reqX += ReqIconSize + StackGap;
+                Label countLabel = new()
+                {
+                    Text = displayedCount.ToString(),
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    MouseFilter = Control.MouseFilterEnum.Ignore
+                };
+                countLabel.AddThemeFontSizeOverride("font_size", 12);
+                countLabel.AddThemeColorOverride("font_color", Colors.White);
+                countLabel.AddThemeColorOverride("font_outline_color", new Color(0f, 0f, 0f, 0.9f));
+                countLabel.AddThemeConstantOverride("outline_size", 3);
+                ForceBox(countLabel, ReqIconSize, CountLabelHeight);
+                countLabel.Position = new Vector2(
+                    reqX,
+                    SproutSize + StackGap + ReqIconSize);
+                stack.AddChild(countLabel);
             }
+
+            reqX += ReqIconSize + StackGap;
         }
 
-        stack.Position = SeedStackPosition(stackWidth);
+        stack.Position = SeedStackPosition(stackWidth, stackHeight);
         host.AddChild(stack);
     }
 
-    private static float StackHeight => SproutSize + StackGap + ReqIconSize;
+    private static float StackHeight(bool hasStackedCounts)
+    {
+        return SproutSize + StackGap + ReqIconSize + (hasStackedCounts ? CountLabelHeight : 0f);
+    }
 
-    private static Vector2 SeedStackPosition(float stackWidth)
+    private static Vector2 SeedStackPosition(float stackWidth, float stackHeight)
     {
         // 以卡面中心为原点：X=0 是正中，Y 负半高是卡顶。
         return new Vector2(
             -stackWidth * 0.5f + StackOffsetX,
-            -NCard.defaultSize.Y * 0.5f - StackHeight - AboveCardGap + StackOffsetY);
+            -NCard.defaultSize.Y * 0.5f - stackHeight - AboveCardGap + StackOffsetY);
     }
 
     private static Control MakeIcon(string path, float size, string? name = null)

@@ -21,7 +21,6 @@ public class BotanistTissueCultureBottle : BotanistCardModel
     private const int SeedDrawCount = 2;
 
     public override BotanistElement Element => BotanistElement.Earth;
-    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
 
     public override IEnumerable<CardKeyword> CanonicalKeywords =>
     [

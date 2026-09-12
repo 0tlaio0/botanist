@@ -107,7 +107,7 @@ public partial class NBotanistCultivationOrb : NClickableControl
 
         _emptyVisual = new TextureRect
         {
-            Texture = BotanistArt.Load("res://images/orbs/empty_orb.png"),
+            Texture = BotanistArt.Load(BotanistArt.EmptyOrb),
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
             CustomMinimumSize = new Vector2(EmptyOrbSize, EmptyOrbSize),

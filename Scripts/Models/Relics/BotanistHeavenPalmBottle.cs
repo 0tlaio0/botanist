@@ -30,9 +30,9 @@ public class BotanistHeavenPalmBottle : CustomRelicModel
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [new CardsVar(SeedsPerReward)];
 
-    public override string PackedIconPath => "res://botanist/images/botanist_character.svg";
-    protected override string PackedIconOutlinePath => "res://botanist/images/botanist_character.svg";
-    protected override string BigIconPath => "res://botanist/images/botanist_character.svg";
+    public override string PackedIconPath => BotanistArt.Character;
+    protected override string PackedIconOutlinePath => BotanistArt.Character;
+    protected override string BigIconPath => BotanistArt.Character;
 
     public override Task BeforeSideTurnStart(
         PlayerChoiceContext choiceContext,

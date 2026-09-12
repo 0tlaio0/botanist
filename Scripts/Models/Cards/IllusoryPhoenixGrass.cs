@@ -20,7 +20,6 @@ public class BotanistIllusoryPhoenixGrass : BotanistSeedCardModel
 {
     public override bool GainsBlock => true;
     public override BotanistElement Element => BotanistElement.Wind;
-    public override string PortraitPath => "res://botanist/images/botanist_character.svg";
     public override string RipenSummary => "获得1层无实体，这张卡的费用减少1";
 
     public override IReadOnlyList<KeyValuePair<BotanistElement, int>> Requirements =>

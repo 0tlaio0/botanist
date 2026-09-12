@@ -13,8 +13,8 @@ public class BotanistSpecimenCasePower : CustomPowerModel
 {
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
-    public override string? CustomPackedIconPath => "res://botanist/images/elements/fire.svg";
-    public override string? CustomBigIconPath => "res://botanist/images/elements/fire.svg";
+    public override string? CustomPackedIconPath => BotanistArt.ElementIcon(BotanistElement.Fire);
+    public override string? CustomBigIconPath => BotanistArt.ElementIcon(BotanistElement.Fire);
 
     public override async Task AfterSideTurnEnd(
         PlayerChoiceContext choiceContext,
