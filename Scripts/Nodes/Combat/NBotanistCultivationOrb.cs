@@ -242,7 +242,7 @@ public partial class NBotanistCultivationOrb : NClickableControl
         }
 
         lines.Add(string.Empty);
-        lines.Add($"成熟时：{planted.Seed.RipenSummary}");
+        lines.Add($"成长：{planted.Seed.RipenSummary}");
         return string.Join("\n", lines);
     }
 

@@ -43,7 +43,9 @@ public class BotanistPlantTissue : BotanistSeedCardModel
 
     public override Task OnRipen(PlayerChoiceContext choiceContext)
     {
-        return _copiedSeed?.OnRipen(choiceContext) ?? Task.CompletedTask;
+        return _copiedSeed == null
+            ? Task.CompletedTask
+            : BotanistGrowthResolution.ResolveAsync(_copiedSeed, choiceContext);
     }
 
     protected override void OnUpgrade()

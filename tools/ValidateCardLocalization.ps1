@@ -40,8 +40,10 @@ function Get-DeclaredVariableName(
         "OstyDamageVar" { return "OstyDamage" }
         "BlockVar" { return "Block" }
         "CardsVar" { return "Cards" }
+        "EnergyVar" { return "Energy" }
         "HealVar" { return "Heal" }
         "RepeatVar" { return "Repeat" }
+        "ScryVar" { return "Scry" }
     }
 
     return $null
@@ -73,6 +75,7 @@ foreach ($file in Get-ChildItem -LiteralPath $cardsDirectory -Filter "*.cs" -Fil
 
     $declaredVariables = [System.Collections.Generic.HashSet[string]]::new(
         [System.StringComparer]::Ordinal)
+    $declaredVariables.Add("IfUpgraded") | Out-Null
     $variablePattern = 'new\s+(?<type>[A-Za-z0-9_]+Var)(?:<(?<generic>[^>]+)>)?\s*\(\s*(?<first>[^,\)]+)'
     foreach ($match in [regex]::Matches($source, $variablePattern)) {
         $variableType = $match.Groups["type"].Value

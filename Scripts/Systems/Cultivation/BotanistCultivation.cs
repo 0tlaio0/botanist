@@ -365,7 +365,7 @@ public sealed class BotanistCultivation : CustomSingletonModel
         foreach (PlantedSeed seed in ripe)
         {
             planted.Remove(seed);
-            await seed.Seed.OnRipen(choiceContext);
+            await BotanistGrowthResolution.ResolveAsync(seed.Seed, choiceContext);
             await seed.Seed.ResolveAfterCultivation();
 
             MarkSeedCultivated(player);

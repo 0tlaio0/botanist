@@ -36,10 +36,8 @@
     <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\tools\ValidateCardLocalization.ps1&quot;" />
   </Target>
 
-  <!-- 构建后复制代码和 manifest；PCK 由 Godot 导出。 -->
-  <Target Name="CopyMod" AfterTargets="Build" Condition="'$(SkipCopyMod)' != 'true'">
-    <MakeDir Directories="$(Sts2Dir)\mods\$(MSBuildProjectName)" />
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(Sts2Dir)\mods\$(MSBuildProjectName)" />
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\$(MSBuildProjectName).json" DestinationFolder="$(Sts2Dir)\mods\$(MSBuildProjectName)" />
-  </Target>
+  <!--
+    不在普通构建中复制到游戏目录。部署必须使用 tools/DeployBotanist.ps1，
+    由脚本同时生成并校验 DLL、manifest 与 PCK，避免产生半更新安装。
+  -->
 </Project>

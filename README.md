@@ -6,9 +6,15 @@
 
 1. 打开 `botanist.csproj`，把 `Sts2Dir` 改为本机游戏安装目录。
 2. 安装与游戏版本匹配的 BaseLib，并确认 `mods/BaseLib/BaseLib.dll` 存在。
-3. 使用 Godot 4.5.1 Mono 导入本项目，添加 Windows Desktop 导出预设并导出 `botanist.pck`。
-4. 执行 `dotnet build` 编译 DLL。构建脚本会把 DLL 和 `botanist.json` 复制到游戏的 `mods/botanist/`。
-5. 确认 `botanist.pck` 也位于 `mods/botanist/`，启动游戏后在角色选择界面测试。
+3. 确认本机已安装 Godot 4.5.1 Mono，并确保 `botanist.csproj` 中的 `Sts2Dir` 指向游戏目录。
+4. 执行 `powershell -ExecutionPolicy Bypass -File tools\DeployBotanist.ps1`。脚本会自动定位本机 Godot，重新编译并导出 PCK，校验 DLL、manifest、PCK 和本地化键后，将三项产物一起复制到 `mods/Botanist/`。
+5. 启动游戏后在角色选择界面测试。不要使用 `dotnet build` 后手工复制文件，这会造成 PCK 陈旧或安装不完整。
+
+如 Godot 不在常见安装位置，可显式指定：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\DeployBotanist.ps1 -GodotPath "D:\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64_console.exe"
+```
 
 当前代码使用占位卡牌、遗物和视觉资源，适合先验证加载流程。实际游戏版本或 BaseLib API 发生变化时，应以本机 DLL 和模板为准调整签名。
 
@@ -39,6 +45,7 @@ botanist/
 
 | 日期 | 分支 | 变更 |
 | --- | --- | --- |
+| 2026-09-14 | `main` | 新增蒲公英、夜光草、缠结倒刺、紫颂花、紫颂果与爆裂紫颂果；加入成长伤害结算与禁锢能力；调整野外调查和卡面文案规则；加入统一部署脚本并发布 v0.1.2 安装包。 |
 | 2026-09-13 | `main` | 新增罕见能力牌「仙人掌」，补齐火绒草与虚凰草卡图；调整元素角标、种苗根须和卡面资源缓存；收紧 Godot 导出与 Git 忽略范围；发布仅含 DLL、manifest 和 PCK 的 v0.1.1 安装包。 |
 | 2026-09-13 | `main` | 新增星之果实、雾菇、飞蝇菌子、闪光贾克斯果、藤蔓蹒跚者、海洋混混、火绒草及蹒跚能力；火绒草加入初始卡组；加入卡面变量构建校验；发布 v0.1.0 游戏安装包。 |
 | 2026-09-12 | `main` | 重构培育系统：拆分培育状态、成熟奖励结算与卡牌费用刷新；统一美术资源常量与卡牌默认卡图；项目依赖升级到 BaseLib 3.4.7。 |

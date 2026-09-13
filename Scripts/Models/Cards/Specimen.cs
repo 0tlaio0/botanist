@@ -40,7 +40,9 @@ public class BotanistSpecimen : BotanistCardModel
 
     protected override Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        return _copiedSeed?.OnRipen(choiceContext) ?? Task.CompletedTask;
+        return _copiedSeed == null
+            ? Task.CompletedTask
+            : BotanistGrowthResolution.ResolveAsync(_copiedSeed, choiceContext);
     }
 
     protected override void AddExtraArgsToDescription(LocString description)

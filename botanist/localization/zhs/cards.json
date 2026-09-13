@@ -18,7 +18,7 @@
   "BOTANIST-BOTANIST_ILLUSORY_PHOENIX_GRASS.title": "虚凰草",
   "BOTANIST-BOTANIST_ILLUSORY_PHOENIX_GRASS.description": "获得{Block:diff()}点[gold]格挡[/gold]。\n[gold]成长[/gold]：获得1层[gold]无实体[/gold]，这张卡的费用减少1。",
   "BOTANIST-BOTANIST_FIELD_SURVEY.title": "野外调查",
-  "BOTANIST-BOTANIST_FIELD_SURVEY.description": "抽{Cards:diff()}张牌。\n获得{Block:diff()}点[gold]格挡[/gold]。",
+  "BOTANIST-BOTANIST_FIELD_SURVEY.description": "获得{Block:diff()}点[gold]格挡[/gold]。\n抽{Cards:diff()}张牌。",
   "BOTANIST-BOTANIST_FIELD_SPECIMEN_CASE.title": "标本夹",
   "BOTANIST-BOTANIST_FIELD_SPECIMEN_CASE.description": "打出此牌后，你在这个回合内每成长一颗[gold]种子[/gold]，将一张[gold]标本[/gold]加入你的抽牌堆。",
   "BOTANIST-BOTANIST_SPECIMEN.title": "标本",
@@ -46,5 +46,17 @@
   "BOTANIST-BOTANIST_EDELWEISS.title": "火绒草",
   "BOTANIST-BOTANIST_EDELWEISS.description": "获得{Block:diff()}点[gold]格挡[/gold]。\n[gold]成长[/gold]：造成{Damage:diff()}点伤害，抽{Cards:diff()}张牌。",
   "BOTANIST-BOTANIST_CACTUS.title": "仙人掌",
-  "BOTANIST-BOTANIST_CACTUS.description": "打出时：获得{Block:diff()}点[gold]格挡[/gold]。\n[gold]成长[/gold]：获得{ThornsPower:diff()}层[gold]荆棘[/gold]。"
+  "BOTANIST-BOTANIST_CACTUS.description": "获得{Block:diff()}点[gold]格挡[/gold]。\n[gold]成长[/gold]：获得{ThornsPower:diff()}层[gold]荆棘[/gold]。",
+  "BOTANIST-BOTANIST_DANDELION.title": "蒲公英",
+  "BOTANIST-BOTANIST_DANDELION.description": "抽{Cards:diff()}张牌。\n[gold]成长[/gold]：随机对敌人造成{Damage:diff()}点伤害，将一张此牌的复制品加入你的弃牌堆。",
+  "BOTANIST-BOTANIST_NIGHT_GLOW_GRASS.title": "夜光草",
+  "BOTANIST-BOTANIST_NIGHT_GLOW_GRASS.description": "[gold]预见[/gold]{Scry:diff()}。\n[gold]成长[/gold]：抽{Cards:diff()}张牌。",
+  "BOTANIST-BOTANIST_TANGLED_THORNS.title": "缠结倒刺",
+  "BOTANIST-BOTANIST_TANGLED_THORNS.description": "给予敌人{Binding:diff()}回合[gold]禁锢[/gold]。\n给予所有敌人{VulnerablePower:diff()}层[gold]易伤[/gold]。",
+  "BOTANIST-BOTANIST_CHORUS_FLOWER.title": "紫颂花",
+  "BOTANIST-BOTANIST_CHORUS_FLOWER.description": "只有在你的培育区中没有[gold]种子[/gold]时才能打出。\n[gold]成长[/gold]：将等于你培育区中[gold]种子[/gold]数{IfUpgraded:show:+1|}的[gold]紫颂果[/gold]加入你的手牌。",
+  "BOTANIST-BOTANIST_CHORUS_FRUIT.title": "紫颂果",
+  "BOTANIST-BOTANIST_CHORUS_FRUIT.description": "将你[gold]弃牌堆[/gold]中的牌重新洗牌放入[gold]抽牌堆[/gold]，抽{Cards:diff()}张牌，获得{Energy:diff()}点能量。当这张牌被保留时变为[gold]爆裂紫颂果[/gold]。",
+  "BOTANIST-BOTANIST_EXPLOSIVE_CHORUS_FRUIT.title": "爆裂紫颂果",
+  "BOTANIST-BOTANIST_EXPLOSIVE_CHORUS_FRUIT.description": "造成{Damage:diff()}点伤害，回复{Heal:diff()}点生命。"
 }

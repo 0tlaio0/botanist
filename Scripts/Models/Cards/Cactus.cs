@@ -1,6 +1,6 @@
 // 中文卡名：仙人掌
 // 卡面描述：
-// 打出时：获得{Block:diff()}点[gold]格挡[/gold]。
+// 获得{Block:diff()}点[gold]格挡[/gold]。
 // [gold]成长[/gold]：获得{ThornsPower:diff()}层[gold]荆棘[/gold]。
 using System.Collections.Generic;
 using System.Threading.Tasks;

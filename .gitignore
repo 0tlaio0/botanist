@@ -34,6 +34,7 @@ skills-lock.json
 tmp/
 card-ui-review.html
 docs/*.html
+docs/imagegen/
 
 # Release staging
 release/
