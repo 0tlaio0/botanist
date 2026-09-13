@@ -44,5 +44,7 @@
   "BOTANIST-BOTANIST_OCEAN_PUNK.title": "海洋混混",
   "BOTANIST-BOTANIST_OCEAN_PUNK.description": "造成{Damage:diff()}点伤害。\n[gold]成长[/gold]：随机对敌人造成{Damage:diff()}点伤害{Repeat:diff()}次。",
   "BOTANIST-BOTANIST_EDELWEISS.title": "火绒草",
-  "BOTANIST-BOTANIST_EDELWEISS.description": "获得{Block:diff()}点[gold]格挡[/gold]。\n[gold]成长[/gold]：造成{Damage:diff()}点伤害，抽{Cards:diff()}张牌。"
+  "BOTANIST-BOTANIST_EDELWEISS.description": "获得{Block:diff()}点[gold]格挡[/gold]。\n[gold]成长[/gold]：造成{Damage:diff()}点伤害，抽{Cards:diff()}张牌。",
+  "BOTANIST-BOTANIST_CACTUS.title": "仙人掌",
+  "BOTANIST-BOTANIST_CACTUS.description": "打出时：获得{Block:diff()}点[gold]格挡[/gold]。\n[gold]成长[/gold]：获得{ThornsPower:diff()}层[gold]荆棘[/gold]。"
 }

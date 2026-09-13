@@ -17,14 +17,15 @@ public static class BotanistCardChrome
     // 坐标：X 向右为正，Y 向下为正，单位是卡面像素。能量球按 64x64 计。
     // ---------------------------------------------------------------------------
 
-    // 费用左下角的元素角标。元素 SVG 原生就是 64x64，必须用槽位强制缩小，
+    // 费用球左上角的元素角标。元素图必须用槽位强制缩小，
     // 否则会和费用球一样大。这个值应明显小于 64。
-    private const float PlayIconSize = 22f;
-    private const float PlayNudgeX = -8f; // 负数往左，正数往右
-    private const float PlayNudgeY = -8f; // 负数往上，贴在费用球左上角外沿
+    private const float PlayIconSize = 42f;
+    private const float PlayNudgeX = -10f; // 负数往左，正数往右
+    private const float PlayNudgeY = -14f; // 负数往上，向费用球中心靠近
 
-    // 卡牌正上方的幼苗组。幼苗必须明显大于需求元素。
-    private const float SproutSize = 34f;
+    // 卡牌正上方的幼苗组。根须先落到卡顶，再以需求元素收尾。
+    private const float RootEffectWidth = 84f;
+    private const float RootEffectHeight = 38f;
     private const float ReqIconSize = 20f;
     private const float CountLabelHeight = 14f;
     private const float StackGap = 4f;
@@ -108,7 +109,7 @@ public static class BotanistCardChrome
         bool showCountLabels = growthFree || requirements.Any(requirement => requirement.Value > 1);
         int reqCount = requirements.Count;
         float reqWidth = reqCount * ReqIconSize + Math.Max(0, reqCount - 1) * StackGap;
-        float stackWidth = Math.Max(SproutSize, reqWidth);
+        float stackWidth = Math.Max(RootEffectWidth, reqWidth);
         float stackHeight = StackHeight(showCountLabels);
 
         Control stack = new()
@@ -119,15 +120,19 @@ public static class BotanistCardChrome
         };
         ForceBox(stack, stackWidth, stackHeight);
 
-        Control sprout = MakeIcon(BotanistArt.Sprout, SproutSize, "BotanistSprout");
-        sprout.Position = new Vector2((stackWidth - SproutSize) / 2f, 0f);
-        stack.AddChild(sprout);
+        Control roots = MakeIcon(
+            BotanistArt.SeedlingRoot(reqCount),
+            RootEffectWidth,
+            RootEffectHeight,
+            "BotanistSeedlingRoot");
+        roots.Position = new Vector2((stackWidth - RootEffectWidth) / 2f, 0f);
+        stack.AddChild(roots);
 
         float reqX = (stackWidth - reqWidth) / 2f;
         foreach (KeyValuePair<BotanistElement, int> requirement in requirements)
         {
             Control icon = MakeIcon(requirement.Key.IconPath(), ReqIconSize);
-            icon.Position = new Vector2(reqX, SproutSize + StackGap);
+            icon.Position = new Vector2(reqX, RootEffectHeight + StackGap);
             stack.AddChild(icon);
 
             int displayedCount = growthFree ? 0 : requirement.Value;
@@ -147,7 +152,7 @@ public static class BotanistCardChrome
                 ForceBox(countLabel, ReqIconSize, CountLabelHeight);
                 countLabel.Position = new Vector2(
                     reqX,
-                    SproutSize + StackGap + ReqIconSize);
+                    RootEffectHeight + StackGap + ReqIconSize);
                 stack.AddChild(countLabel);
             }
 
@@ -160,7 +165,7 @@ public static class BotanistCardChrome
 
     private static float StackHeight(bool hasStackedCounts)
     {
-        return SproutSize + StackGap + ReqIconSize + (hasStackedCounts ? CountLabelHeight : 0f);
+        return RootEffectHeight + StackGap + ReqIconSize + (hasStackedCounts ? CountLabelHeight : 0f);
     }
 
     private static Vector2 SeedStackPosition(float stackWidth, float stackHeight)
@@ -173,12 +178,17 @@ public static class BotanistCardChrome
 
     private static Control MakeIcon(string path, float size, string? name = null)
     {
+        return MakeIcon(path, size, size, name);
+    }
+
+    private static Control MakeIcon(string path, float width, float height, string? name = null)
+    {
         Control slot = new()
         {
             Name = name ?? "BotanistIcon",
             MouseFilter = Control.MouseFilterEnum.Ignore
         };
-        ForceSize(slot, size);
+        ForceBox(slot, width, height);
 
         TextureRect icon = new()
         {
@@ -194,11 +204,6 @@ public static class BotanistCardChrome
         icon.OffsetBottom = 0;
         slot.AddChild(icon);
         return slot;
-    }
-
-    private static void ForceSize(Control node, float size)
-    {
-        ForceBox(node, size, size);
     }
 
     private static void ForceBox(Control node, float width, float height)

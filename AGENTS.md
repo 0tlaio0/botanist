@@ -63,4 +63,7 @@
 - 角色动作和 Spine VFX 使用 `spine-animation`、`2d-character-rig-animation` 技能，并以游戏当前 Spine 4.2 资源格式为准。
 - `spine-animation` 技能采用 PolyForm Noncommercial 1.0.0；商业用途不得直接使用，需另行取得授权。
 - 技能脚本统一使用 Codex 内置 Python：`C:\Users\tlaio\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe`。
-- 项目级 MCP 配置位于 `.codex/config.toml`，已接入官方 Comfy Cloud MCP；本地 ComfyUI 未安装。
+- 本地 ComfyUI 位于 `D:\ComfyUI\ComfyUI`，使用 `D:\ComfyUI\ComfyUI\.venv`（PyTorch 2.11.0 + CUDA 12.8）；项目级 `.codex/config.toml` 已接入 `comfy-cloud` 和 `comfy-local` MCP。
+- 生成卡图前先核对卡名对应的现实原型、卡面效果、元素归属与名称意象，并检索《杀戮尖塔 2》原版中主题、效果或气质相近的多张卡图作为视觉参考；综合参考其画风、构图、光影、笔触、材质表现和背景处理，但不得照搬原卡主体或构图。现实植物优先保留可辨识特征，再通过构图和光效表达卡牌机制，不得只按牌名做字面联想。
+- 卡图以《杀戮尖塔 2》原版卡牌的视觉语言为目标：二维厚涂结合大块影、粗重深色轮廓、强烈剪影和有限配色。最终卡图不含卡框、文字、UI、水印或数字。
+- 每张卡默认一次生成至少 4 张风格统一但主题表现、构图和光效差异明确的候选图供用户选择；未确认选中方案前，不覆盖正式卡图资源或 `PortraitPath`。

@@ -18,6 +18,7 @@ public class BotanistEdelweiss : BotanistTargetedSeedCardModel
 {
     public override bool GainsBlock => true;
     public override BotanistElement Element => BotanistElement.Fire;
+    public override string PortraitPath => BotanistArt.Edelweiss;
 
     public override string RipenSummary =>
         $"造成{DynamicVars.Damage.IntValue}点伤害，抽{DynamicVars.Cards.IntValue}张牌";

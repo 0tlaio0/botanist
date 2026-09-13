@@ -37,7 +37,7 @@
   </Target>
 
   <!-- 构建后复制代码和 manifest；PCK 由 Godot 导出。 -->
-  <Target Name="CopyMod" AfterTargets="Build">
+  <Target Name="CopyMod" AfterTargets="Build" Condition="'$(SkipCopyMod)' != 'true'">
     <MakeDir Directories="$(Sts2Dir)\mods\$(MSBuildProjectName)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(Sts2Dir)\mods\$(MSBuildProjectName)" />
     <Copy SourceFiles="$(MSBuildProjectDirectory)\$(MSBuildProjectName).json" DestinationFolder="$(Sts2Dir)\mods\$(MSBuildProjectName)" />

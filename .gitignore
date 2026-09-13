@@ -25,6 +25,19 @@ text_editor_themes/
 *.user
 *.suo
 
+# Codex and local agent tooling
+.agents/
+.codex/
+skills-lock.json
+
+# Local previews, audits and browser work directories
+tmp/
+card-ui-review.html
+docs/*.html
+
+# Release staging
+release/
+
 # OS files
 .DS_Store
 Thumbs.db
