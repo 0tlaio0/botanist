@@ -4,6 +4,7 @@ obj/
 build/
 dist/
 out/
+output/
 .godot/
 .dotnet-home/
 

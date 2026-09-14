@@ -12,6 +12,7 @@ public interface IBotanistSeedCard
     CardModel Card { get; }
     IReadOnlyList<KeyValuePair<BotanistElement, int>> Requirements { get; }
     string RipenSummary { get; }
+    bool StealsPreviousSeedGrowth { get; }
     Task OnRipen(PlayerChoiceContext choiceContext);
     Task ResolveAfterCultivation();
 }
@@ -35,6 +36,7 @@ public abstract class BotanistSeedCardModel : BotanistCardModel, IBotanistSeedCa
     public CardModel Card => this;
     public abstract IReadOnlyList<KeyValuePair<BotanistElement, int>> Requirements { get; }
     public abstract string RipenSummary { get; }
+    public virtual bool StealsPreviousSeedGrowth => false;
 
     public override IEnumerable<CardKeyword> CanonicalKeywords =>
     [

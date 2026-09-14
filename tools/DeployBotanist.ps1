@@ -198,16 +198,14 @@ try {
     $startInfo.Arguments = "--headless --path `"$root`" --export-pack `"$exportPreset`" `"$temporaryPckPath`""
     $startInfo.UseShellExecute = $false
     $startInfo.CreateNoWindow = $true
-    $startInfo.RedirectStandardOutput = $true
-    $startInfo.RedirectStandardError = $true
+    $startInfo.Environment["DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER"] = "1"
+    $startInfo.Environment["DOTNET_CLI_USE_MSBUILD_SERVER"] = "0"
+    $startInfo.Environment["UseSharedCompilation"] = "false"
+    $startInfo.Environment["MSBUILDDISABLENODEREUSE"] = "1"
 
     $exportProcess = [System.Diagnostics.Process]::Start($startInfo)
-    $exportStandardOutput = $exportProcess.StandardOutput.ReadToEnd()
-    $exportStandardError = $exportProcess.StandardError.ReadToEnd()
     $exportProcess.WaitForExit()
     if ($exportProcess.ExitCode -ne 0) {
-        $exportStandardOutput | Write-Host
-        $exportStandardError | Write-Host
         throw "Godot PCK export failed with exit code $($exportProcess.ExitCode)"
     }
 

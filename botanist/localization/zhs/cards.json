@@ -58,5 +58,7 @@
   "BOTANIST-BOTANIST_CHORUS_FRUIT.title": "紫颂果",
   "BOTANIST-BOTANIST_CHORUS_FRUIT.description": "将你[gold]弃牌堆[/gold]中的牌重新洗牌放入[gold]抽牌堆[/gold]，抽{Cards:diff()}张牌，获得{Energy:diff()}点能量。当这张牌被保留时变为[gold]爆裂紫颂果[/gold]。",
   "BOTANIST-BOTANIST_EXPLOSIVE_CHORUS_FRUIT.title": "爆裂紫颂果",
-  "BOTANIST-BOTANIST_EXPLOSIVE_CHORUS_FRUIT.description": "造成{Damage:diff()}点伤害，回复{Heal:diff()}点生命。"
+  "BOTANIST-BOTANIST_EXPLOSIVE_CHORUS_FRUIT.description": "造成{Damage:diff()}点伤害，回复{Heal:diff()}点生命。",
+  "BOTANIST-BOTANIST_DEVOURING_GOLD_VINE.title": "噬元金藤",
+  "BOTANIST-BOTANIST_DEVOURING_GOLD_VINE.description": "夺取前一颗[gold]种子[/gold]将吸取的元素。\n[gold]成长[/gold]：给予敌人{Parasite:diff()}层[gold]寄生[/gold]。"
 }

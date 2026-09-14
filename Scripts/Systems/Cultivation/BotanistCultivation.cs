@@ -307,44 +307,110 @@ public sealed class BotanistCultivation : CustomSingletonModel
             return;
         }
 
-        foreach (PlantedSeed seed in planted)
+        Dictionary<PlantedSeed, Dictionary<BotanistElement, int>> reductions = [];
+        for (int index = 0; index < planted.Count; index++)
         {
             if (element == BotanistElement.Aether)
             {
-                foreach (BotanistElement required in seed.Remaining.Keys.ToList())
+                foreach (BotanistElement required in planted[index].Remaining.Keys.ToList())
                 {
-                    seed.Remaining[required] = Math.Max(0, seed.Remaining[required] - 1);
+                    ScheduleGrowthReduction(planted, index, required, 1, reductions);
                 }
             }
-            else if (seed.Remaining.ContainsKey(element))
+            else
             {
-                seed.Remaining[element] = Math.Max(0, seed.Remaining[element] - 1);
+                ScheduleGrowthReduction(planted, index, element, 1, reductions);
             }
         }
 
-        Changed?.Invoke();
-        await RipenReady(choiceContext, player);
+        await ApplyScheduledGrowthReductions(choiceContext, player, reductions);
     }
 
     private async Task ReduceGrowth(
         PlayerChoiceContext choiceContext,
         Player player,
-        IReadOnlyList<PlantedSeed> seeds,
+        IReadOnlyList<PlantedSeed> targets,
         int amount)
     {
-        bool changed = false;
-        foreach (PlantedSeed seed in seeds)
+        List<PlantedSeed> planted = _state.GetOrCreatePlanted(player);
+        Dictionary<PlantedSeed, Dictionary<BotanistElement, int>> reductions = [];
+        foreach (PlantedSeed target in targets)
         {
-            foreach (KeyValuePair<BotanistElement, int> requirement in seed.Seed.Requirements)
+            int index = planted.IndexOf(target);
+            if (index < 0)
             {
-                int current = seed.Remaining.GetValueOrDefault(requirement.Key);
-                int next = Math.Max(0, current - amount);
+                continue;
+            }
+
+            foreach (KeyValuePair<BotanistElement, int> requirement in target.Seed.Requirements)
+            {
+                ScheduleGrowthReduction(planted, index, requirement.Key, amount, reductions);
+            }
+        }
+
+        await ApplyScheduledGrowthReductions(choiceContext, player, reductions);
+    }
+
+    private static void ScheduleGrowthReduction(
+        IReadOnlyList<PlantedSeed> planted,
+        int seedIndex,
+        BotanistElement element,
+        int amount,
+        Dictionary<PlantedSeed, Dictionary<BotanistElement, int>> reductions)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        PlantedSeed source = planted[seedIndex];
+        int sourceAvailable = source.Remaining.GetValueOrDefault(element);
+        if (sourceAvailable <= 0)
+        {
+            return;
+        }
+
+        int requested = Math.Min(amount, sourceAvailable);
+        int pending = requested;
+
+        // 夺取只作用于紧邻的后一颗种子，且不会抵消后一颗种子自己的元素结算。
+        if (seedIndex + 1 < planted.Count && planted[seedIndex + 1].Seed.StealsPreviousSeedGrowth)
+        {
+            PlantedSeed thief = planted[seedIndex + 1];
+            int thiefAvailable = thief.Remaining.GetValueOrDefault(element);
+            int thiefPending = thiefAvailable - GetScheduledReduction(reductions, thief, element);
+            int stolen = Math.Min(pending, Math.Max(0, thiefPending));
+            if (stolen > 0)
+            {
+                AddScheduledReduction(reductions, thief, element, stolen);
+                pending -= stolen;
+            }
+        }
+
+        if (pending > 0)
+        {
+            AddScheduledReduction(reductions, source, element, pending);
+        }
+    }
+
+    private async Task ApplyScheduledGrowthReductions(
+        PlayerChoiceContext choiceContext,
+        Player player,
+        Dictionary<PlantedSeed, Dictionary<BotanistElement, int>> reductions)
+    {
+        bool changed = false;
+        foreach (KeyValuePair<PlantedSeed, Dictionary<BotanistElement, int>> entry in reductions)
+        {
+            foreach (KeyValuePair<BotanistElement, int> reduction in entry.Value)
+            {
+                int current = entry.Key.Remaining.GetValueOrDefault(reduction.Key);
+                int next = Math.Max(0, current - reduction.Value);
                 if (next == current)
                 {
                     continue;
                 }
 
-                seed.Remaining[requirement.Key] = next;
+                entry.Key.Remaining[reduction.Key] = next;
                 changed = true;
             }
         }
@@ -356,6 +422,31 @@ public sealed class BotanistCultivation : CustomSingletonModel
 
         Changed?.Invoke();
         await RipenReady(choiceContext, player);
+    }
+
+    private static int GetScheduledReduction(
+        Dictionary<PlantedSeed, Dictionary<BotanistElement, int>> reductions,
+        PlantedSeed seed,
+        BotanistElement element)
+    {
+        return reductions.TryGetValue(seed, out Dictionary<BotanistElement, int>? elements)
+            ? elements.GetValueOrDefault(element)
+            : 0;
+    }
+
+    private static void AddScheduledReduction(
+        Dictionary<PlantedSeed, Dictionary<BotanistElement, int>> reductions,
+        PlantedSeed seed,
+        BotanistElement element,
+        int amount)
+    {
+        if (!reductions.TryGetValue(seed, out Dictionary<BotanistElement, int>? elements))
+        {
+            elements = [];
+            reductions[seed] = elements;
+        }
+
+        elements[element] = elements.GetValueOrDefault(element) + amount;
     }
 
     private async Task RipenReady(PlayerChoiceContext choiceContext, Player player)

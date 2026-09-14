@@ -19,6 +19,7 @@ namespace Botanist.Scripts;
 public class BotanistNightGlowGrass : BotanistSeedCardModel
 {
     public override BotanistElement Element => BotanistElement.Wind;
+    public override string PortraitPath => BotanistArt.NightGlowGrass;
 
     public override string RipenSummary =>
         $"抽{DynamicVars.Cards.IntValue}张牌";

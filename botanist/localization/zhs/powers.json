@@ -16,5 +16,8 @@
   "BOTANIST-BOTANIST_STAGGER_POWER.smartDescription": "本回合失去[blue]{Amount}[/blue]点[gold]力量[/gold]。",
   "BOTANIST-BOTANIST_BINDING_POWER.title": "禁锢",
   "BOTANIST-BOTANIST_BINDING_POWER.description": "从[gold]成长[/gold]效果受到的伤害增加50%。持续{Amount}回合。",
-  "BOTANIST-BOTANIST_BINDING_POWER.smartDescription": "从[gold]成长[/gold]效果受到的伤害增加[blue]50%[/blue]。持续[blue]{Amount}[/blue]回合。"
+  "BOTANIST-BOTANIST_BINDING_POWER.smartDescription": "从[gold]成长[/gold]效果受到的伤害增加[blue]50%[/blue]。持续[blue]{Amount}[/blue]回合。",
+  "BOTANIST-BOTANIST_PARASITE_POWER.title": "寄生",
+  "BOTANIST-BOTANIST_PARASITE_POWER.description": "回合结束时受到{Amount}点伤害，为你回复等量生命值。",
+  "BOTANIST-BOTANIST_PARASITE_POWER.smartDescription": "回合结束时受到[blue]{Amount}[/blue]点伤害，为你回复等量生命值。"
 }

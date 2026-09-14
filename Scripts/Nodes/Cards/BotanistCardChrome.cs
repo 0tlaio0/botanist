@@ -23,15 +23,16 @@ public static class BotanistCardChrome
     private const float PlayNudgeX = -10f; // 负数往左，正数往右
     private const float PlayNudgeY = -14f; // 负数往上，向费用球中心靠近
 
-    // 卡牌正上方的幼苗组。根须先落到卡顶，再以需求元素收尾。
-    private const float RootEffectWidth = 84f;
-    private const float RootEffectHeight = 38f;
-    private const float ReqIconSize = 20f;
-    private const float CountLabelHeight = 14f;
-    private const float StackGap = 4f;
+    // 卡牌正上方的种子幼苗。需求元素覆盖在三根主根末端。
+    private const float SeedlingWidth = 252f;
+    private const float SeedlingHeight = 139f;
+    private const float ReqIconSize = 36f;
+    private const float ReqIconTop = SeedlingHeight - ReqIconSize * 0.82f;
+    private const float SeedlingDepth = 14f;
+    private const float CountLabelHeight = 18f;
     private const float AboveCardGap = 0f; // 整组底边到卡顶的空隙，0 贴住卡顶
-    private const float StackOffsetX = 0f; // 正数整组右移
-    private const float StackOffsetY = 0f; // 正数整组下移
+    private const float StackOffsetX = -14f; // 负数整组左移
+    private const float StackOffsetY = 18f; // 正数整组下移，让根须压入卡牌上边缘
 
     // card.tscn 里 EnergyIcon 相对卡面中心的左上角。
     private static readonly Vector2 EnergyOrbTopLeft = new(-166f, -227f);
@@ -108,9 +109,8 @@ public static class BotanistCardChrome
             .ToList();
         bool showCountLabels = growthFree || requirements.Any(requirement => requirement.Value > 1);
         int reqCount = requirements.Count;
-        float reqWidth = reqCount * ReqIconSize + Math.Max(0, reqCount - 1) * StackGap;
-        float stackWidth = Math.Max(RootEffectWidth, reqWidth);
-        float stackHeight = StackHeight(showCountLabels);
+        float stackWidth = SeedlingWidth;
+        float stackHeight = StackHeight();
 
         Control stack = new()
         {
@@ -120,19 +120,21 @@ public static class BotanistCardChrome
         };
         ForceBox(stack, stackWidth, stackHeight);
 
-        Control roots = MakeIcon(
-            BotanistArt.SeedlingRoot(reqCount),
-            RootEffectWidth,
-            RootEffectHeight,
-            "BotanistSeedlingRoot");
-        roots.Position = new Vector2((stackWidth - RootEffectWidth) / 2f, 0f);
-        stack.AddChild(roots);
+        Control seedling = MakeIcon(
+            BotanistArt.SeedlingSeed,
+            SeedlingWidth,
+            SeedlingHeight,
+            "BotanistSeedling");
+        seedling.Position = new Vector2(0f, SeedlingDepth);
+        stack.AddChild(seedling);
 
-        float reqX = (stackWidth - reqWidth) / 2f;
-        foreach (KeyValuePair<BotanistElement, int> requirement in requirements)
+        IReadOnlyList<float> anchorCenters = RequirementAnchorCenters(reqCount);
+        for (int index = 0; index < requirements.Count; index++)
         {
+            KeyValuePair<BotanistElement, int> requirement = requirements[index];
             Control icon = MakeIcon(requirement.Key.IconPath(), ReqIconSize);
-            icon.Position = new Vector2(reqX, RootEffectHeight + StackGap);
+            float reqX = anchorCenters[index] - ReqIconSize * 0.5f;
+            icon.Position = new Vector2(reqX, ReqIconTop);
             stack.AddChild(icon);
 
             int displayedCount = growthFree ? 0 : requirement.Value;
@@ -145,27 +147,35 @@ public static class BotanistCardChrome
                     VerticalAlignment = VerticalAlignment.Center,
                     MouseFilter = Control.MouseFilterEnum.Ignore
                 };
-                countLabel.AddThemeFontSizeOverride("font_size", 12);
+                countLabel.AddThemeFontSizeOverride("font_size", 16);
                 countLabel.AddThemeColorOverride("font_color", Colors.White);
-                countLabel.AddThemeColorOverride("font_outline_color", new Color(0f, 0f, 0f, 0.9f));
-                countLabel.AddThemeConstantOverride("outline_size", 3);
+                countLabel.AddThemeColorOverride("font_outline_color", Colors.Black);
+                countLabel.AddThemeConstantOverride("outline_size", 4);
                 ForceBox(countLabel, ReqIconSize, CountLabelHeight);
                 countLabel.Position = new Vector2(
                     reqX,
-                    RootEffectHeight + StackGap + ReqIconSize);
+                    ReqIconTop + ReqIconSize - CountLabelHeight * 0.5f);
                 stack.AddChild(countLabel);
             }
-
-            reqX += ReqIconSize + StackGap;
         }
 
         stack.Position = SeedStackPosition(stackWidth, stackHeight);
         host.AddChild(stack);
     }
 
-    private static float StackHeight(bool hasStackedCounts)
+    private static float StackHeight()
     {
-        return RootEffectHeight + StackGap + ReqIconSize + (hasStackedCounts ? CountLabelHeight : 0f);
+        return ReqIconTop + ReqIconSize;
+    }
+
+    private static IReadOnlyList<float> RequirementAnchorCenters(int requirementCount)
+    {
+        return requirementCount switch
+        {
+            <= 1 => [SeedlingWidth * 0.54f],
+            2 => [SeedlingWidth * 0.27f, SeedlingWidth * 0.81f],
+            _ => [SeedlingWidth * 0.27f, SeedlingWidth * 0.54f, SeedlingWidth * 0.81f]
+        };
     }
 
     private static Vector2 SeedStackPosition(float stackWidth, float stackHeight)

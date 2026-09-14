@@ -11,9 +11,12 @@ public static class BotanistArt
     public const string Energy = "res://botanist/images/energy.svg";
     public const string BigEnergy = "res://botanist/images/energy_big.svg";
     public const string Sprout = "res://botanist/images/elements/sprout.svg";
+    public const string SeedlingSeed = "res://botanist/images/elements/seedling_seed.png";
     public const string Sunward = "res://botanist/images/powers/sunward.svg";
     public const string Edelweiss = "res://botanist/images/cards/botanist/edelweiss.png";
     public const string IllusoryPhoenixGrass = "res://botanist/images/cards/botanist/illusory_phoenix_grass.png";
+    public const string DevouringGoldVine = "res://botanist/images/cards/botanist/devouring_gold_vine.png";
+    public const string NightGlowGrass = "res://botanist/images/cards/botanist/night_glow_grass.png";
     public const string EmptyOrb = "res://images/orbs/empty_orb.png";
 
     private static readonly Dictionary<string, Texture2D?> Cache = new();
@@ -26,13 +29,6 @@ public static class BotanistArt
         BotanistElement.Wind => "res://botanist/images/elements/wind.png",
         BotanistElement.Aether => "res://botanist/images/elements/aether.png",
         _ => string.Empty
-    };
-
-    public static string SeedlingRoot(int requirementCount) => requirementCount switch
-    {
-        <= 1 => "res://botanist/images/elements/seedling_root_one.svg",
-        2 => "res://botanist/images/elements/seedling_root_two.svg",
-        _ => "res://botanist/images/elements/seedling_root_three.svg"
     };
 
     public static Texture2D? Load(string path)
