@@ -42,14 +42,14 @@ powershell -ExecutionPolicy Bypass -File tools\ProjectProgress.ps1 -GenerateOnly
 
 ## 公网静态托管
 
-项目使用 GitHub Pages 发布只读进度页面，更新由手动触发，不会在普通代码推送时自动发布：
+项目使用 GitHub Pages 发布只读进度页面。工作流每 6 小时自动执行一次，也可以手动立即触发：
 
 1. 打开仓库的 `Actions` 页面。
 2. 选择左侧的「发布项目进度」工作流。
 3. 点击 `Run workflow`，选择 `main` 后执行。
 4. 发布完成后访问 [https://0tlaio0.github.io/botanist/](https://0tlaio0.github.io/botanist/)。
 
-工作流会重新扫描当次提交中的源码与本地化，再生成并发布静态页面。需要在内容更新后手动重新运行一次。
+工作流会重新扫描默认分支中的源码与本地化，再生成并发布静态页面。GitHub 的定时任务可能因平台负载延迟开始，具体时间不保证精确到分钟。
 
 ## 安装包
 

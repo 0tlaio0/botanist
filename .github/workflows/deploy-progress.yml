@@ -2,6 +2,9 @@ name: 发布项目进度
 
 on:
   workflow_dispatch:
+  schedule:
+    # GitHub Actions 使用 UTC；每 6 小时执行一次。
+    - cron: "0 */6 * * *"
 
 permissions:
   contents: read
