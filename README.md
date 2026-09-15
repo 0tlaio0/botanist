@@ -18,6 +18,39 @@ powershell -ExecutionPolicy Bypass -File tools\DeployBotanist.ps1 -GodotPath "D:
 
 当前代码使用占位卡牌、遗物和视觉资源，适合先验证加载流程。实际游戏版本或 BaseLib API 发生变化时，应以本机 DLL 和模板为准调整签名。
 
+## 项目进度统计
+
+进度页面会扫描 `Scripts/Models` 与 `botanist/localization/zhs`，统计卡牌、遗物、药水、种子、元素和内容缺口。启动局域网访问服务：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\ProjectProgress.ps1
+```
+
+脚本会监听 `0.0.0.0:8765`，并在终端输出本机、Wi-Fi 和虚拟网地址。其他电脑使用同一网络时，打开对应地址即可访问；页面每 60 秒自动重新扫描源码。若 Windows 防火墙拦截连接，可用管理员 PowerShell 执行：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\ProjectProgress.ps1 -OpenFirewall -GenerateOnly
+```
+
+只生成静态页面而不启动服务：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\ProjectProgress.ps1 -GenerateOnly
+```
+
+静态页面输出到 `build/project-progress/index.html`。
+
+## 公网静态托管
+
+项目使用 GitHub Pages 发布只读进度页面，更新由手动触发，不会在普通代码推送时自动发布：
+
+1. 打开仓库的 `Actions` 页面。
+2. 选择左侧的「发布项目进度」工作流。
+3. 点击 `Run workflow`，选择 `main` 后执行。
+4. 发布完成后访问 [https://0tlaio0.github.io/botanist/](https://0tlaio0.github.io/botanist/)。
+
+工作流会重新扫描当次提交中的源码与本地化，再生成并发布静态页面。需要在内容更新后手动重新运行一次。
+
 ## 安装包
 
 从 GitHub Releases 下载最新 `Botanist-v*.zip`，将其中的 `botanist` 文件夹解压到游戏的 `mods` 目录。安装包仅包含运行所需的三个文件：

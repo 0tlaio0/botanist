@@ -30,6 +30,7 @@ text_editor_themes/
 .agents/
 .codex/
 skills-lock.json
+tools/bin/
 
 # Local previews, audits and browser work directories
 tmp/
