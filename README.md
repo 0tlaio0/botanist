@@ -20,7 +20,7 @@ powershell -ExecutionPolicy Bypass -File tools\DeployBotanist.ps1 -GodotPath "D:
 
 ## 项目进度统计
 
-进度页面会扫描 `Scripts/Models` 与 `botanist/localization/zhs`，统计卡牌、遗物、药水、种子、元素和内容缺口。启动局域网访问服务：
+进度页面会扫描 `Scripts/Models` 与 `botanist/localization/zhs`，统计卡牌、遗物、药水、种子、元素和内容缺口。`CardRarity.Token` 衍生牌只列入卡牌明细和衍生牌计数，不计入卡牌完成度、类型、稀有度、元素或种子覆盖率。启动局域网访问服务：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools\ProjectProgress.ps1

@@ -291,6 +291,7 @@ function New-ProgressData {
 
     $cardCatalog = Get-CardCatalog -Localization $cardsLocalization
     $cards = @($cardCatalog.items)
+    $progressCards = @($cards | Where-Object { $_.rarity -ne "Token" })
     $relics = @(Get-RelicCatalog -Localization $relicsLocalization)
     $potions = @(Get-PotionCatalog -Localization $potionsLocalization)
     $startingDeck = Get-StartingDeckInfo -SeedClassNames $cardCatalog.seedClassNames
@@ -305,15 +306,14 @@ function New-ProgressData {
         Uncommon = 38
         Rare = 28
     }
-    $typeTotals = New-CardsByField -Cards $cards -Field "type" -Keys @("Attack", "Skill", "Power")
-    $rarityTotals = New-CardsByField -Cards $cards -Field "rarity" -Keys @("Common", "Uncommon", "Rare")
-    $elementTotals = New-CardsByField -Cards $cards -Field "element" -Keys @("Earth", "Fire", "Water", "Wind", "Aether")
+    $typeTotals = New-CardsByField -Cards $progressCards -Field "type" -Keys @("Attack", "Skill", "Power")
+    $rarityTotals = New-CardsByField -Cards $progressCards -Field "rarity" -Keys @("Common", "Uncommon", "Rare")
+    $elementTotals = New-CardsByField -Cards $progressCards -Field "element" -Keys @("Earth", "Fire", "Water", "Wind", "Aether")
 
-    $nonTokenCount = @($cards | Where-Object { $_.rarity -ne "Token" }).Count
-    $basicCount = @($cards | Where-Object { $_.rarity -eq "Basic" }).Count
+    $basicCount = @($progressCards | Where-Object { $_.rarity -eq "Basic" }).Count
     $tokenCount = @($cards | Where-Object { $_.rarity -eq "Token" }).Count
-    $ancientCount = @($cards | Where-Object { $_.rarity -eq "Ancient" }).Count
-    $seedCount = @($cards | Where-Object { $_.seed }).Count
+    $ancientCount = @($progressCards | Where-Object { $_.rarity -eq "Ancient" }).Count
+    $seedCount = @($progressCards | Where-Object { $_.seed }).Count
 
     return [ordered]@{
         generatedAt = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss zzz")
@@ -328,9 +328,9 @@ function New-ProgressData {
         }
         summary = [ordered]@{
             cards = [ordered]@{
-                current = $cards.Count
+                current = $progressCards.Count
                 target = 85
-                nonToken = $nonTokenCount
+                token = $tokenCount
             }
             relics = [ordered]@{
                 current = $relics.Count

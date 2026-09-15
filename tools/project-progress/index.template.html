@@ -572,7 +572,7 @@
       document.getElementById("card-metric").textContent =
         `${cards.current} / ${cards.target}`;
       document.getElementById("card-metric-note").textContent =
-        `完成 ${formatPercent(cards.current, cards.target)}，缺 ${Math.max(0, cards.target - cards.current)} 张；非衍生牌 ${cards.nonToken} 张`;
+        `完成 ${formatPercent(cards.current, cards.target)}，缺 ${Math.max(0, cards.target - cards.current)} 张；衍生牌 ${cards.token} 张另列，不计入进度`;
 
       document.getElementById("relic-metric").textContent =
         `${relics.current} / ${relics.target}`;
@@ -785,7 +785,7 @@
         name: `${typeLabels[key]}牌`,
         current: Number(data.types[key] ?? 0),
         target: Number(data.targets.types[key] ?? 0),
-        note: `${typeLabels[key]}牌在全部实现中占 ${formatPercent(data.types[key] ?? 0, data.cards.length)}`
+        note: `${typeLabels[key]}牌在进度卡牌中占 ${formatPercent(data.types[key] ?? 0, data.summary.cards.current)}`
       }));
       const rarityRows = Object.keys(rarityLabels)
         .filter(key => ["Common", "Uncommon", "Rare"].includes(key))
@@ -797,10 +797,10 @@
         }));
       const rows = [
         {
-          name: "全部卡牌",
+          name: "可收集卡牌",
           current: data.summary.cards.current,
           target: data.targets.cards,
-          note: `非衍生牌 ${data.summary.cards.nonToken} 张`
+          note: `仅统计可收集卡牌；${data.summary.cards.token} 张衍生牌不计入`
         },
         ...typeRows,
         ...rarityRows,
