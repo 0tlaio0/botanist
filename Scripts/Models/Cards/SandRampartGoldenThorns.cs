@@ -1,4 +1,4 @@
-// 中文卡名：仙人掌
+// 中文卡名：砂垒金棘
 // 卡面描述：
 // 获得{Block:diff()}点[gold]格挡[/gold]。
 // [gold]成长[/gold]：获得{ThornsPower:diff()}层[gold]荆棘[/gold]。
@@ -16,10 +16,11 @@ using MegaCrit.Sts2.Core.ValueProps;
 namespace Botanist.Scripts;
 
 [Pool(typeof(BotanistCardPool))]
-public class BotanistCactus : BotanistSeedCardModel
+public class BotanistSandRampartGoldenThorns : BotanistSeedCardModel
 {
     public override bool GainsBlock => true;
     public override BotanistElement Element => BotanistElement.Earth;
+    public override string PortraitPath => BotanistArt.SandRampartGoldenThorns;
 
     public override string RipenSummary =>
         $"获得{DynamicVars["ThornsPower"].IntValue}层荆棘";
@@ -39,7 +40,7 @@ public class BotanistCactus : BotanistSeedCardModel
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
         [HoverTipFactory.FromPower<ThornsPower>()];
 
-    public BotanistCactus() : base(1, CardType.Power, CardRarity.Uncommon, TargetType.Self, true)
+    public BotanistSandRampartGoldenThorns() : base(1, CardType.Power, CardRarity.Uncommon, TargetType.Self, true)
     {
     }
 

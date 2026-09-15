@@ -16,6 +16,7 @@ namespace Botanist.Scripts;
 public class BotanistWorldTreeBranch : BotanistCardModel
 {
     public override BotanistElement Element => BotanistElement.Wind;
+    public override string PortraitPath => BotanistArt.WorldTreeBranch;
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
         [HoverTipFactory.FromCard<BotanistAether>()];

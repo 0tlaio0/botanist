@@ -165,6 +165,22 @@ function Assert-PckContainsLocalization {
     }
 }
 
+function Assert-PckExcludesPaths {
+    param(
+        [string] $PckPath,
+        [string[]] $ExcludedPaths
+    )
+
+    $encoding = [System.Text.Encoding]::GetEncoding(28591)
+    $pckText = $encoding.GetString([System.IO.File]::ReadAllBytes($PckPath))
+    foreach ($excludedPath in $ExcludedPaths) {
+        $resourcePrefix = "res://" + ($excludedPath -replace "\\", "/") + "/"
+        if ($pckText.Contains($resourcePrefix)) {
+            throw "PCK contains excluded project content: $resourcePrefix"
+        }
+    }
+}
+
 function Assert-HashMatches {
     param(
         [string] $ExpectedPath,
@@ -192,7 +208,30 @@ if (Test-Path -LiteralPath $temporaryPckPath) {
     Remove-Item -LiteralPath $temporaryPckPath -Force
 }
 
+$excludedExportPaths = @(
+    "output",
+    "docs\imagegen"
+)
+$excludedExportRoot = Join-Path $env:TEMP "botanist-export-exclusions-$PID"
+$relocatedExportPaths = [System.Collections.Generic.List[object]]::new()
+
 try {
+    New-Item -ItemType Directory -Path $excludedExportRoot -Force | Out-Null
+    foreach ($relativePath in $excludedExportPaths) {
+        $sourcePath = Join-Path $root $relativePath
+        if (-not (Test-Path -LiteralPath $sourcePath)) {
+            continue
+        }
+
+        $destinationPath = Join-Path $excludedExportRoot $relativePath
+        New-Item -ItemType Directory -Path (Split-Path -Parent $destinationPath) -Force | Out-Null
+        Move-Item -LiteralPath $sourcePath -Destination $destinationPath
+        $relocatedExportPaths.Add([pscustomobject]@{
+            Source = $sourcePath
+            Destination = $destinationPath
+        })
+    }
+
     $startInfo = New-Object System.Diagnostics.ProcessStartInfo
     $startInfo.FileName = $godotExecutable
     $startInfo.Arguments = "--headless --path `"$root`" --export-pack `"$exportPreset`" `"$temporaryPckPath`""
@@ -219,6 +258,7 @@ try {
 
     Assert-NewestSourceWasBuilt -AssemblyPath $exportAssembly.FullName -SourceDirectory (Join-Path $root "Scripts")
     Assert-PckContainsLocalization -PckPath $temporaryPckPath -LocalizationPath $localizationDirectory
+    Assert-PckExcludesPaths -PckPath $temporaryPckPath -ExcludedPaths $excludedExportPaths
 
     $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
     $backupDirectory = Join-Path $env:TEMP "botanist-backup-$timestamp"
@@ -259,6 +299,17 @@ try {
     Write-Host "Backup: $backupDirectory"
 }
 finally {
+    foreach ($entry in ($relocatedExportPaths | Sort-Object { $_.Source.Length } -Descending)) {
+        if (-not (Test-Path -LiteralPath $entry.Destination)) {
+            continue
+        }
+
+        New-Item -ItemType Directory -Path (Split-Path -Parent $entry.Source) -Force | Out-Null
+        Move-Item -LiteralPath $entry.Destination -Destination $entry.Source
+    }
+    if (Test-Path -LiteralPath $excludedExportRoot) {
+        Remove-Item -LiteralPath $excludedExportRoot -Recurse -Force
+    }
     if (Test-Path -LiteralPath $temporaryPckPath) {
         Remove-Item -LiteralPath $temporaryPckPath -Force
     }

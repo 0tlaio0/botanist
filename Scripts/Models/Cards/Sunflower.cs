@@ -19,6 +19,7 @@ public class BotanistSunflower : BotanistSeedCardModel
 {
     public override bool GainsBlock => true;
     public override BotanistElement Element => BotanistElement.Fire;
+    public override string PortraitPath => BotanistArt.Sunflower;
     public override string RipenSummary => "获得1层向阳";
 
     public override IReadOnlyList<KeyValuePair<BotanistElement, int>> Requirements =>

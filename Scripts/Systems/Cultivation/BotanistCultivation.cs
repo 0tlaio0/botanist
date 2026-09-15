@@ -88,9 +88,24 @@ public sealed class BotanistCultivation : CustomSingletonModel
         return Instance?._state.IsGrowthFree(card) ?? false;
     }
 
+    public static int GetPendingSeedRequirementReduction(CardModel card)
+    {
+        if (Instance == null || card.Pile == null)
+        {
+            return 0;
+        }
+
+        return card.Owner.Creature.GetPower<BotanistSlowReleaseFertilizerPower>()?.Amount ?? 0;
+    }
+
     public static int GetSeedsCultivatedThisTurn(Player player)
     {
         return Instance?._state.GetSeedsCultivatedThisTurn(player) ?? 0;
+    }
+
+    public static int GetFireAbsorbedThisTurn(Player player)
+    {
+        return Instance?._state.GetFireAbsorbedThisTurn(player) ?? 0;
     }
 
     public static async Task RemoveCapacity(Player player, int amount)
@@ -154,6 +169,16 @@ public sealed class BotanistCultivation : CustomSingletonModel
             : Instance.ReduceGrowth(choiceContext, player, planted.ToList(), amount);
     }
 
+    public static Task AbsorbElement(
+        PlayerChoiceContext choiceContext,
+        Player player,
+        BotanistElement element)
+    {
+        return Instance == null
+            ? Task.CompletedTask
+            : Instance.ApplyElement(choiceContext, player, element);
+    }
+
     public override Task BeforeCombatStart()
     {
         ResetCombatState();
@@ -213,6 +238,14 @@ public sealed class BotanistCultivation : CustomSingletonModel
         // 这样种子不会用自己的元素给自己扣点，但会喂到场上其他种子。
         await ApplyElement(choiceContext, botanistCard.Owner, botanistCard.Element);
 
+        if (botanistCard.AsSeed() is not null &&
+            botanistCard.Owner.Creature.GetPower<BotanistSlowReleaseFertilizerPower>() is { } fertilizer)
+        {
+            _state.MarkSeedRequirementReduction(botanistCard, fertilizer.Amount);
+            await PowerCmd.Remove(fertilizer);
+            BotanistCardChrome.RefreshSeedPreviews(botanistCard.Owner);
+        }
+
         if (!IsGrowthFree(botanistCard) ||
             botanistCard.AsSeed() is not { } seed ||
             !HasSpace(botanistCard.Owner))
@@ -222,6 +255,7 @@ public sealed class BotanistCultivation : CustomSingletonModel
 
         // 成长需求已视为 0：像正常种子一样检查空位，成功入场后立即成熟。
         _state.ConsumeGrowthFree(botanistCard);
+        _state.ConsumeSeedRequirementReduction(botanistCard);
         PlantedSeed ripeSeed = new() { Seed = seed };
         foreach (KeyValuePair<BotanistElement, int> requirement in seed.Requirements)
         {
@@ -263,6 +297,7 @@ public sealed class BotanistCultivation : CustomSingletonModel
     {
         CardModel card = seed.Card;
         Player player = card.Owner;
+        int requirementReduction = _state.ConsumeSeedRequirementReduction(card);
         List<PlantedSeed> planted = _state.GetOrCreatePlanted(player);
         if (planted.Any(item => item.Card == card))
         {
@@ -282,11 +317,13 @@ public sealed class BotanistCultivation : CustomSingletonModel
         PlantedSeed plantedSeed = new() { Seed = seed };
         foreach (KeyValuePair<BotanistElement, int> requirement in seed.Requirements)
         {
-            plantedSeed.Remaining[requirement.Key] = requirement.Value;
+            plantedSeed.Remaining[requirement.Key] =
+                Math.Max(0, requirement.Value - requirementReduction);
         }
 
         planted.Add(plantedSeed);
         Changed?.Invoke();
+        await RipenReady(choiceContext: new ThrowingPlayerChoiceContext(), player);
 
         if (node != null && GodotObject.IsInstanceValid(node))
         {
@@ -299,6 +336,12 @@ public sealed class BotanistCultivation : CustomSingletonModel
         if (element == BotanistElement.None)
         {
             return;
+        }
+
+        if (element == BotanistElement.Fire)
+        {
+            _state.IncrementFireAbsorbedThisTurn(player);
+            BotanistSunlightObservation.RefreshInHand(player);
         }
 
         List<PlantedSeed> planted = _state.GetOrCreatePlanted(player);

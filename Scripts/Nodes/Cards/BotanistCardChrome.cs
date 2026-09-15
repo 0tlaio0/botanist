@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Entities.UI;
+using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 
 namespace Botanist.Scripts;
@@ -72,6 +75,14 @@ public static class BotanistCardChrome
         card.Body?.GetNodeOrNull(SeedStackName)?.Free();
     }
 
+    public static void RefreshSeedPreviews(Player player)
+    {
+        foreach (CardModel card in PileType.Hand.GetPile(player).Cards.Where(card => card.IsSeed()))
+        {
+            NCard.FindOnTable(card)?.UpdateVisuals(PileType.Hand, CardPreviewMode.Normal);
+        }
+    }
+
     private static void AttachPlayElement(NCard card, BotanistCardModel botanistCard)
     {
         Control playIcon = MakeIcon(botanistCard.Element.IconPath(), PlayIconSize, PlayElementName);
@@ -104,10 +115,15 @@ public static class BotanistCardChrome
         host.ClipContents = false;
 
         bool growthFree = BotanistCultivation.IsGrowthFree(seed.Card);
+        int pendingReduction = BotanistCultivation.GetPendingSeedRequirementReduction(seed.Card);
         List<KeyValuePair<BotanistElement, int>> requirements = seed.Requirements
             .Where(requirement => requirement.Value > 0)
+            .Select(requirement => new KeyValuePair<BotanistElement, int>(
+                requirement.Key,
+                growthFree ? 0 : Math.Max(0, requirement.Value - pendingReduction)))
             .ToList();
-        bool showCountLabels = growthFree || requirements.Any(requirement => requirement.Value > 1);
+        bool showCountLabels =
+            growthFree || pendingReduction > 0 || requirements.Any(requirement => requirement.Value > 1);
         int reqCount = requirements.Count;
         float stackWidth = SeedlingWidth;
         float stackHeight = StackHeight();
@@ -137,8 +153,8 @@ public static class BotanistCardChrome
             icon.Position = new Vector2(reqX, ReqIconTop);
             stack.AddChild(icon);
 
-            int displayedCount = growthFree ? 0 : requirement.Value;
-            if (growthFree || displayedCount > 1)
+            int displayedCount = requirement.Value;
+            if (showCountLabels)
             {
                 Label countLabel = new()
                 {

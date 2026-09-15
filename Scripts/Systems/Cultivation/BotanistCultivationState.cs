@@ -10,8 +10,10 @@ internal sealed class BotanistCultivationState
     private readonly Dictionary<ulong, List<PlantedSeed>> _plantedByPlayer = new();
     private readonly Dictionary<ulong, int> _capacityByPlayer = new();
     private readonly Dictionary<ulong, int> _seedsCultivatedThisTurn = new();
+    private readonly Dictionary<ulong, int> _fireAbsorbedThisTurn = new();
     private readonly HashSet<CardModel> _pendingSeedPlays = [];
     private readonly HashSet<CardModel> _growthFreeCards = [];
+    private readonly Dictionary<CardModel, int> _seedRequirementReductions = [];
 
     public List<PlantedSeed> GetOrCreatePlanted(Player player)
     {
@@ -49,6 +51,16 @@ internal sealed class BotanistCultivationState
         _seedsCultivatedThisTurn.Remove(player.NetId);
     }
 
+    public int GetFireAbsorbedThisTurn(Player player)
+    {
+        return _fireAbsorbedThisTurn.GetValueOrDefault(player.NetId);
+    }
+
+    public void IncrementFireAbsorbedThisTurn(Player player)
+    {
+        _fireAbsorbedThisTurn[player.NetId] = GetFireAbsorbedThisTurn(player) + 1;
+    }
+
     public void MarkPendingSeed(CardModel card)
     {
         _pendingSeedPlays.Add(card);
@@ -74,9 +86,23 @@ internal sealed class BotanistCultivationState
         return _growthFreeCards.Remove(card);
     }
 
+    public void MarkSeedRequirementReduction(CardModel card, int amount)
+    {
+        if (amount > 0)
+        {
+            _seedRequirementReductions[card] = amount;
+        }
+    }
+
+    public int ConsumeSeedRequirementReduction(CardModel card)
+    {
+        return _seedRequirementReductions.Remove(card, out int amount) ? amount : 0;
+    }
+
     public void ClearTurnState()
     {
         _seedsCultivatedThisTurn.Clear();
+        _fireAbsorbedThisTurn.Clear();
         _growthFreeCards.Clear();
     }
 
@@ -85,7 +111,9 @@ internal sealed class BotanistCultivationState
         _plantedByPlayer.Clear();
         _capacityByPlayer.Clear();
         _seedsCultivatedThisTurn.Clear();
+        _fireAbsorbedThisTurn.Clear();
         _pendingSeedPlays.Clear();
         _growthFreeCards.Clear();
+        _seedRequirementReductions.Clear();
     }
 }

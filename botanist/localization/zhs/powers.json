@@ -19,5 +19,14 @@
   "BOTANIST-BOTANIST_BINDING_POWER.smartDescription": "从[gold]成长[/gold]效果受到的伤害增加[blue]50%[/blue]。持续[blue]{Amount}[/blue]回合。",
   "BOTANIST-BOTANIST_PARASITE_POWER.title": "寄生",
   "BOTANIST-BOTANIST_PARASITE_POWER.description": "回合结束时受到{Amount}点伤害，为你回复等量生命值。",
-  "BOTANIST-BOTANIST_PARASITE_POWER.smartDescription": "回合结束时受到[blue]{Amount}[/blue]点伤害，为你回复等量生命值。"
+  "BOTANIST-BOTANIST_PARASITE_POWER.smartDescription": "回合结束时受到[blue]{Amount}[/blue]点伤害，为你回复等量生命值。",
+  "BOTANIST-BOTANIST_AUTO_DRIP_POWER.title": "自动滴灌",
+  "BOTANIST-BOTANIST_AUTO_DRIP_POWER.description": "回合开始时，自动吸取一次水元素。",
+  "BOTANIST-BOTANIST_AUTO_DRIP_POWER.smartDescription": "回合开始时，自动吸取[blue]{Amount}[/blue]次水元素。",
+  "BOTANIST-BOTANIST_CROP_ROTATION_POWER.title": "轮作",
+  "BOTANIST-BOTANIST_CROP_ROTATION_POWER.description": "使用与本回合上一张牌不同元素的牌时，抽1张牌。",
+  "BOTANIST-BOTANIST_CROP_ROTATION_POWER.smartDescription": "使用与本回合上一张牌不同元素的牌时，抽[blue]{Amount}[/blue]张牌。",
+  "BOTANIST-BOTANIST_SLOW_RELEASE_FERTILIZER_POWER.title": "缓释肥",
+  "BOTANIST-BOTANIST_SLOW_RELEASE_FERTILIZER_POWER.description": "下一张种子牌的每种成长需求减少1。",
+  "BOTANIST-BOTANIST_SLOW_RELEASE_FERTILIZER_POWER.smartDescription": "下一张种子牌的每种成长需求减少[blue]{Amount}[/blue]。"
 }

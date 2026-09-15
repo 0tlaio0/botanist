@@ -17,6 +17,9 @@ public static class BotanistArt
     public const string IllusoryPhoenixGrass = "res://botanist/images/cards/botanist/illusory_phoenix_grass.png";
     public const string DevouringGoldVine = "res://botanist/images/cards/botanist/devouring_gold_vine.png";
     public const string NightGlowGrass = "res://botanist/images/cards/botanist/night_glow_grass.png";
+    public const string SandRampartGoldenThorns = "res://botanist/images/cards/botanist/sand_rampart_golden_thorns.png";
+    public const string Sunflower = "res://botanist/images/cards/botanist/sunflower.png";
+    public const string WorldTreeBranch = "res://botanist/images/cards/botanist/world_tree_branch.png";
     public const string EmptyOrb = "res://images/orbs/empty_orb.png";
 
     private static readonly Dictionary<string, Texture2D?> Cache = new();
