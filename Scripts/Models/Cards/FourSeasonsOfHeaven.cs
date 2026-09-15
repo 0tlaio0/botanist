@@ -19,6 +19,7 @@ namespace Botanist.Scripts;
 public class BotanistFourSeasonsOfHeaven : BotanistCardModel
 {
     public override BotanistElement Element => BotanistElement.Aether;
+    public override string PortraitPath => BotanistArt.FourSeasonsOfHeaven;
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
         [new DamageVar(5, ValueProp.Move)];

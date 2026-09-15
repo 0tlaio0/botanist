@@ -20,6 +20,10 @@ public static class BotanistArt
     public const string SandRampartGoldenThorns = "res://botanist/images/cards/botanist/sand_rampart_golden_thorns.png";
     public const string Sunflower = "res://botanist/images/cards/botanist/sunflower.png";
     public const string WorldTreeBranch = "res://botanist/images/cards/botanist/world_tree_branch.png";
+    public const string FourSeasonsOfHeaven = "res://botanist/images/cards/botanist/four_seasons_of_heaven.png";
+    public const string ChorusFlower = "res://botanist/images/cards/botanist/chorus_flower.png";
+    public const string ChorusFruit = "res://botanist/images/cards/botanist/chorus_fruit.png";
+    public const string ExplosiveChorusFruit = "res://botanist/images/cards/botanist/explosive_chorus_fruit.png";
     public const string EmptyOrb = "res://images/orbs/empty_orb.png";
 
     private static readonly Dictionary<string, Texture2D?> Cache = new();

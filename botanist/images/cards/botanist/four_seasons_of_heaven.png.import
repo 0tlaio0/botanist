@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ct1khswf6u4j2"
-path="res://.godot/imported/seedling_root_three.svg-04fbc3bc4de1aa3a79e36362f42a6f15.ctex"
+uid="uid://ccug5c0s5kv8n"
+path="res://.godot/imported/four_seasons_of_heaven.png-a7438611603e26c1b32da4e8b84c9ab3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://botanist/images/elements/seedling_root_three.svg"
-dest_files=["res://.godot/imported/seedling_root_three.svg-04fbc3bc4de1aa3a79e36362f42a6f15.ctex"]
+source_file="res://botanist/images/cards/botanist/four_seasons_of_heaven.png"
+dest_files=["res://.godot/imported/four_seasons_of_heaven.png-a7438611603e26c1b32da4e8b84c9ab3.ctex"]
 
 [params]
 
@@ -38,6 +38,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

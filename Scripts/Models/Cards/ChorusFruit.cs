@@ -20,6 +20,7 @@ public class BotanistChorusFruit : BotanistCardModel
 {
     public override bool CanBeGeneratedInCombat => false;
     public override BotanistElement Element => BotanistElement.Wind;
+    public override string PortraitPath => BotanistArt.ChorusFruit;
 
     public override IEnumerable<CardKeyword> CanonicalKeywords =>
     [

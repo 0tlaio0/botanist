@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://hg2t3g6os0tq"
-path="res://.godot/imported/seedling_root_two.svg-a8576fe3a3e11d2b0e0f08e91f5f9b60.ctex"
+uid="uid://bffdh26iwyo2k"
+path="res://.godot/imported/chorus_fruit.png-934cc2fc051f96ac86ff50b276ed424a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://botanist/images/elements/seedling_root_two.svg"
-dest_files=["res://.godot/imported/seedling_root_two.svg-a8576fe3a3e11d2b0e0f08e91f5f9b60.ctex"]
+source_file="res://botanist/images/cards/botanist/chorus_fruit.png"
+dest_files=["res://.godot/imported/chorus_fruit.png-934cc2fc051f96ac86ff50b276ed424a.ctex"]
 
 [params]
 
@@ -38,6 +38,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

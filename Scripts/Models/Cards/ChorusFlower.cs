@@ -17,6 +17,7 @@ namespace Botanist.Scripts;
 public class BotanistChorusFlower : BotanistSeedCardModel
 {
     public override BotanistElement Element => BotanistElement.Wind;
+    public override string PortraitPath => BotanistArt.ChorusFlower;
 
     public override string RipenSummary =>
         $"将等于培育区中种子数{(IsUpgraded ? "+1" : string.Empty)}的紫颂果加入手牌";
