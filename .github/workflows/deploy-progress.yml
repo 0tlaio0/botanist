@@ -20,17 +20,17 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: 检出仓库
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 配置 GitHub Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: 生成静态进度页面
         shell: pwsh
         run: .\tools\ProjectProgress.ps1 -GenerateOnly
 
       - name: 上传静态站点
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: build/project-progress
 
@@ -43,4 +43,4 @@ jobs:
     steps:
       - name: 发布到 GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
