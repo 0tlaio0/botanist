@@ -15,7 +15,7 @@ namespace Botanist.Scripts;
 [Pool(typeof(BotanistCardPool))]
 public class BotanistStrike : BotanistCardModel
 {
-    public override BotanistElement Element => BotanistElement.Fire;
+    public override BotanistElement Element => BotanistElement.Earth;
     public override IEnumerable<CardTag> Tags => [CardTag.Strike];
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>

@@ -14,7 +14,7 @@ public static class BotanistElements
 {
     public static string DisplayName(this BotanistElement element) => element switch
     {
-        BotanistElement.Earth => "土",
+        BotanistElement.Earth => "地",
         BotanistElement.Fire => "火",
         BotanistElement.Water => "水",
         BotanistElement.Wind => "风",

@@ -44,6 +44,9 @@ function Get-DeclaredVariableName(
         "HealVar" { return "Heal" }
         "RepeatVar" { return "Repeat" }
         "ScryVar" { return "Scry" }
+        "CalculationBaseVar" { return "CalculationBase" }
+        "ExtraDamageVar" { return "ExtraDamage" }
+        "CalculatedDamageVar" { return "CalculatedDamage" }
     }
 
     return $null

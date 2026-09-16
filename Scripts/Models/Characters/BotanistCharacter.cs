@@ -33,13 +33,13 @@ public class BotanistCharacter : PlaceholderCharacterModel
     public override IEnumerable<CardModel> StartingDeck =>
     [
         ModelDb.Card<BotanistStrike>(),
-        ModelDb.Card<BotanistStrike>(),
-        ModelDb.Card<BotanistStrike>(),
-        ModelDb.Card<BotanistStrike>(),
+        ModelDb.Card<BotanistStrikeFire>(),
+        ModelDb.Card<BotanistStrikeWater>(),
+        ModelDb.Card<BotanistStrikeWind>(),
         ModelDb.Card<BotanistDefend>(),
-        ModelDb.Card<BotanistDefend>(),
-        ModelDb.Card<BotanistDefend>(),
-        ModelDb.Card<BotanistDefend>(),
+        ModelDb.Card<BotanistDefendFire>(),
+        ModelDb.Card<BotanistDefendWater>(),
+        ModelDb.Card<BotanistDefendWind>(),
         ModelDb.Card<BotanistHumus>(),
         ModelDb.Card<BotanistEdelweiss>()
     ];

@@ -28,6 +28,16 @@ internal static class BotanistSeedCultivationEffects
             }
         }
 
+        if (player.Creature.GetPower<BotanistSlashAndBurnPower>() is { } slashAndBurn)
+        {
+            await slashAndBurn.OnSeedCultivated(choiceContext);
+        }
+
+        if (player.Creature.GetPower<BotanistAllelopathyPower>() is { } allelopathy)
+        {
+            await allelopathy.OnPlantMatured(choiceContext);
+        }
+
         if (player.GetRelic<BotanistHeavenPalmBottle>() is { } bottle)
         {
             await bottle.OnSeedCultivated(choiceContext);

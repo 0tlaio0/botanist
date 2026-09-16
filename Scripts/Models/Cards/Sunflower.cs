@@ -1,7 +1,7 @@
 // 中文卡名：向日葵
 // 卡面描述：
 // 获得{Block:diff()}点[gold]格挡[/gold]。
-// [gold]成长[/gold]：获得一层[gold]向阳[/gold]。
+// [gold]成长[/gold]：获得2层[gold]向阳[/gold]。
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BaseLib.Utils;
@@ -20,7 +20,7 @@ public class BotanistSunflower : BotanistSeedCardModel
     public override bool GainsBlock => true;
     public override BotanistElement Element => BotanistElement.Fire;
     public override string PortraitPath => BotanistArt.Sunflower;
-    public override string RipenSummary => "获得1层向阳";
+    public override string RipenSummary => "获得2层向阳";
 
     public override IReadOnlyList<KeyValuePair<BotanistElement, int>> Requirements =>
     [
@@ -38,7 +38,7 @@ public class BotanistSunflower : BotanistSeedCardModel
         HoverTipFactory.FromPower<BotanistSunwardPower>()
     ];
 
-    public BotanistSunflower() : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self, true)
+    public BotanistSunflower() : base(1, CardType.Power, CardRarity.Uncommon, TargetType.Self, true)
     {
     }
 
@@ -49,7 +49,7 @@ public class BotanistSunflower : BotanistSeedCardModel
 
     public override async Task OnRipen(PlayerChoiceContext choiceContext)
     {
-        await PowerCmd.Apply<BotanistSunwardPower>(choiceContext, Owner.Creature, 1m, Owner.Creature, this);
+        await PowerCmd.Apply<BotanistSunwardPower>(choiceContext, Owner.Creature, 2m, Owner.Creature, this);
     }
 
     protected override void OnUpgrade()

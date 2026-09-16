@@ -13,6 +13,7 @@ public static class BotanistArt
     public const string Sprout = "res://botanist/images/elements/sprout.svg";
     public const string SeedlingSeed = "res://botanist/images/elements/seedling_seed.png";
     public const string Sunward = "res://botanist/images/powers/sunward.svg";
+    public const string Antiaris = "res://botanist/images/cards/botanist/antiaris.png";
     public const string Edelweiss = "res://botanist/images/cards/botanist/edelweiss.png";
     public const string IllusoryPhoenixGrass = "res://botanist/images/cards/botanist/illusory_phoenix_grass.png";
     public const string DevouringGoldVine = "res://botanist/images/cards/botanist/devouring_gold_vine.png";

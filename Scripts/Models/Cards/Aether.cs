@@ -1,5 +1,6 @@
 // 中文卡名：以太
-// 卡面描述：抽{Cards:diff()}张牌。培养区中所有种子的每种所需元素计数各减少1。
+// 卡面描述：消耗。
+// 升级后：获得{Energy:energyIcons()}，抽{Cards:diff()}张牌。消耗。
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BaseLib.Utils;
@@ -23,19 +24,23 @@ public class BotanistAether : BotanistCardModel
     ];
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
-        [new CardsVar(1)];
+    [
+        new CardsVar(1),
+        new EnergyVar(1)
+    ];
 
-    public BotanistAether() : base(1, CardType.Skill, CardRarity.Token, TargetType.Self, true)
+    public BotanistAether() : base(0, CardType.Skill, CardRarity.Token, TargetType.Self, true)
     {
     }
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        await CardPileCmd.Draw(choiceContext, DynamicVars.Cards.BaseValue, Owner);
-    }
+        if (!IsUpgraded)
+        {
+            return;
+        }
 
-    protected override void OnUpgrade()
-    {
-        EnergyCost.UpgradeBy(-1);
+        await PlayerCmd.GainEnergy(DynamicVars.Energy.IntValue, Owner);
+        await CardPileCmd.Draw(choiceContext, DynamicVars.Cards.BaseValue, Owner);
     }
 }

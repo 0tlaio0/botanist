@@ -188,15 +188,14 @@ public partial class NBotanistCultivationZone : Control
         _layoutTween?.Kill();
         _layoutTween = CreateTween().SetParallel();
 
-        SyncSeedOrbs(planted, previousCapacity, capacity);
-        SyncEmptyOrbs(planted.Count, capacity);
+        RecycleInactiveSeedOrbs(planted);
+        EnsureOrbCount(capacity);
+        BindSeedOrbs(planted, previousCapacity, capacity);
+        LayoutEmptyOrbs(planted.Count, previousCapacity, capacity);
         _layoutCapacity = capacity;
     }
 
-    private void SyncSeedOrbs(
-        IReadOnlyList<PlantedSeed> planted,
-        int previousCapacity,
-        int capacity)
+    private void RecycleInactiveSeedOrbs(IReadOnlyList<PlantedSeed> planted)
     {
         HashSet<PlantedSeed> activeSeeds = [.. planted];
         foreach (KeyValuePair<PlantedSeed, NBotanistCultivationOrb> entry in new List<KeyValuePair<PlantedSeed, NBotanistCultivationOrb>>(_seedOrbs))
@@ -206,68 +205,135 @@ public partial class NBotanistCultivationZone : Control
                 continue;
             }
 
+            int previousIndex = _seedIndices.Remove(entry.Key, out int index) ? index : -1;
             _seedOrbs.Remove(entry.Key);
-            _seedIndices.Remove(entry.Key);
-            AnimateOut(entry.Value);
+            // 回收为空格而不是销毁节点，避免占用切换时少画一格。
+            _emptyOrbs[entry.Value] = previousIndex;
+        }
+    }
+
+    private void EnsureOrbCount(int capacity)
+    {
+        int orbCount = _seedOrbs.Count + _emptyOrbs.Count;
+        for (int index = orbCount; index < capacity; index++)
+        {
+            NBotanistCultivationOrb orb = CreateEmptyOrb();
+            _emptyOrbs[orb] = -1;
         }
 
+        int excess = orbCount - capacity;
+        foreach (NBotanistCultivationOrb orb in new List<NBotanistCultivationOrb>(_emptyOrbs.Keys))
+        {
+            if (excess <= 0)
+            {
+                break;
+            }
+
+            _emptyOrbs.Remove(orb);
+            AnimateOut(orb);
+            excess--;
+        }
+    }
+
+    private void BindSeedOrbs(
+        IReadOnlyList<PlantedSeed> planted,
+        int previousCapacity,
+        int capacity)
+    {
         for (int seedIndex = 0; seedIndex < planted.Count; seedIndex++)
         {
             PlantedSeed seed = planted[seedIndex];
             if (!_seedOrbs.TryGetValue(seed, out NBotanistCultivationOrb? orb))
             {
-                orb = CreateSeedOrb(seed, SlotPosition(seedIndex, capacity));
+                orb = AcquireEmptyOrb(seedIndex, out int newSeedPreviousIndex);
                 _seedOrbs[seed] = orb;
                 _seedIndices[seed] = seedIndex;
+                orb.SetPlanted(seed);
+                AnimateOrbAlongArc(orb, newSeedPreviousIndex, previousCapacity, seedIndex, capacity);
                 continue;
             }
 
             int previousIndex = _seedIndices.GetValueOrDefault(seed, seedIndex);
             orb.SetPlanted(seed);
-            AnimateSeedAlongArc(orb, previousIndex, previousCapacity, seedIndex, capacity);
+            AnimateOrbAlongArc(orb, previousIndex, previousCapacity, seedIndex, capacity);
             _seedIndices[seed] = seedIndex;
         }
     }
 
-    private void SyncEmptyOrbs(int seedCount, int capacity)
+    private NBotanistCultivationOrb AcquireEmptyOrb(int targetIndex, out int previousIndex)
     {
-        HashSet<int> desiredIndices = [];
-        for (int index = seedCount; index < capacity; index++)
-        {
-            desiredIndices.Add(index);
-        }
+        NBotanistCultivationOrb? bestOrb = null;
+        previousIndex = -1;
+        int bestDistance = int.MaxValue;
 
-        foreach (KeyValuePair<NBotanistCultivationOrb, int> entry in new List<KeyValuePair<NBotanistCultivationOrb, int>>(_emptyOrbs))
+        foreach (KeyValuePair<NBotanistCultivationOrb, int> entry in _emptyOrbs)
         {
-            if (desiredIndices.Contains(entry.Value))
+            int distance = entry.Value < 0
+                ? DistanceFromUnplacedOrb(targetIndex)
+                : Math.Abs(entry.Value - targetIndex);
+            if (bestOrb != null && distance >= bestDistance)
             {
                 continue;
             }
 
-            _emptyOrbs.Remove(entry.Key);
-            AnimateOut(entry.Key);
+            bestOrb = entry.Key;
+            previousIndex = entry.Value;
+            bestDistance = distance;
         }
 
+        if (bestOrb != null)
+        {
+            _emptyOrbs.Remove(bestOrb);
+            return bestOrb;
+        }
+
+        NBotanistCultivationOrb fallback = CreateEmptyOrb();
+        return fallback;
+    }
+
+    private static int DistanceFromUnplacedOrb(int targetIndex)
+    {
+        return 1000 + targetIndex;
+    }
+
+    private void LayoutEmptyOrbs(int seedCount, int previousCapacity, int capacity)
+    {
+        List<int> targetIndices = [];
         for (int index = seedCount; index < capacity; index++)
         {
-            NBotanistCultivationOrb? orb = null;
-            foreach (KeyValuePair<NBotanistCultivationOrb, int> entry in _emptyOrbs)
+            targetIndices.Add(index);
+        }
+
+        List<NBotanistCultivationOrb> unassigned = new(_emptyOrbs.Keys);
+        List<int> remainingTargets = [];
+        foreach (int targetIndex in targetIndices)
+        {
+            int matchIndex = unassigned.FindIndex(
+                orb => _emptyOrbs.GetValueOrDefault(orb, -1) == targetIndex);
+            if (matchIndex < 0)
             {
-                if (entry.Value == index)
-                {
-                    orb = entry.Key;
-                    break;
-                }
+                remainingTargets.Add(targetIndex);
+                continue;
             }
 
-            if (orb == null)
-            {
-                orb = CreateEmptyOrb();
-                _emptyOrbs[orb] = index;
-            }
-
+            NBotanistCultivationOrb orb = unassigned[matchIndex];
+            unassigned.RemoveAt(matchIndex);
+            int previousIndex = _emptyOrbs[orb];
+            _emptyOrbs[orb] = targetIndex;
             orb.SetPlanted(null);
-            TweenToSlot(orb, SlotPosition(index, capacity));
+            AnimateOrbAlongArc(orb, previousIndex, previousCapacity, targetIndex, capacity);
+        }
+
+        unassigned.Sort((left, right) =>
+            _emptyOrbs.GetValueOrDefault(left, -1).CompareTo(_emptyOrbs.GetValueOrDefault(right, -1)));
+        for (int index = 0; index < unassigned.Count && index < remainingTargets.Count; index++)
+        {
+            NBotanistCultivationOrb orb = unassigned[index];
+            int targetIndex = remainingTargets[index];
+            int previousIndex = _emptyOrbs[orb];
+            _emptyOrbs[orb] = targetIndex;
+            orb.SetPlanted(null);
+            AnimateOrbAlongArc(orb, previousIndex, previousCapacity, targetIndex, capacity);
         }
     }
 
@@ -280,29 +346,19 @@ public partial class NBotanistCultivationZone : Control
         return orb;
     }
 
-    private NBotanistCultivationOrb CreateSeedOrb(PlantedSeed planted, Vector2 target)
-    {
-        NBotanistCultivationOrb orb = new();
-        orb.Initialize(planted);
-        orb.Position = target;
-        orb.Scale = Vector2.Zero;
-        orb.Modulate = new Color(1f, 1f, 1f, 0f);
-        AddChild(orb);
-
-        _layoutTween?.Parallel().TweenProperty(orb, "scale", Vector2.One, 0.3f)
-            .SetTrans(Tween.TransitionType.Back)
-            .SetEase(Tween.EaseType.Out);
-        _layoutTween?.Parallel().TweenProperty(orb, "modulate", Colors.White, 0.2f);
-        return orb;
-    }
-
-    private void AnimateSeedAlongArc(
+    private void AnimateOrbAlongArc(
         NBotanistCultivationOrb orb,
         int previousIndex,
         int previousCapacity,
         int nextIndex,
         int nextCapacity)
     {
+        if (previousIndex < 0)
+        {
+            TweenToSlot(orb, SlotPosition(nextIndex, nextCapacity));
+            return;
+        }
+
         if (previousIndex == nextIndex && previousCapacity == nextCapacity)
         {
             TweenToSlot(orb, SlotPosition(nextIndex, nextCapacity));

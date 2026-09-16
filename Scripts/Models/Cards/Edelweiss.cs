@@ -25,13 +25,13 @@ public class BotanistEdelweiss : BotanistTargetedSeedCardModel
 
     public override IReadOnlyList<KeyValuePair<BotanistElement, int>> Requirements =>
     [
-        new(BotanistElement.Fire, 2),
-        new(BotanistElement.Earth, 2)
+        new(BotanistElement.Fire, 1),
+        new(BotanistElement.Earth, 1)
     ];
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new BlockVar(3m, ValueProp.Move),
+        new BlockVar(5m, ValueProp.Move),
         new DamageVar(6m, ValueProp.Move),
         new CardsVar(1)
     ];

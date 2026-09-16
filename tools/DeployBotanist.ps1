@@ -208,9 +208,15 @@ if (Test-Path -LiteralPath $temporaryPckPath) {
     Remove-Item -LiteralPath $temporaryPckPath -Force
 }
 
+$referenceDirectoryName = -join @(
+    [char]0x89D2,
+    [char]0x8272,
+    [char]0x53C2,
+    [char]0x8003)
 $excludedExportPaths = @(
     "output",
-    "docs\imagegen"
+    "docs\imagegen",
+    $referenceDirectoryName
 )
 $excludedExportRoot = Join-Path $env:TEMP "botanist-export-exclusions-$PID"
 $relocatedExportPaths = [System.Collections.Generic.List[object]]::new()

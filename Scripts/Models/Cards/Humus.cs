@@ -38,6 +38,6 @@ public class BotanistHumus : BotanistCardModel
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Damage.UpgradeValueBy(2);
+        EnergyCost.UpgradeBy(-1);
     }
 }

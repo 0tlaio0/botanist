@@ -1,7 +1,7 @@
 // 中文卡名：种质库
 // 卡面描述：
 // 种子在第一次成长后，在本场战斗的耗能减少1。
-// 本回合此前每成长一颗种子，这张卡的费用减少1。
+// 本场战斗此前每成长一颗种子，这张卡的费用减少1。
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -45,7 +45,7 @@ public class BotanistSeedBank : BotanistCardModel
             return false;
         }
 
-        int seedsCultivated = BotanistCultivation.GetSeedsCultivatedThisTurn(Owner);
+        int seedsCultivated = BotanistCultivation.GetSeedsCultivatedThisCombat(Owner);
         if (seedsCultivated <= 0)
         {
             return false;

@@ -103,6 +103,11 @@ public sealed class BotanistCultivation : CustomSingletonModel
         return Instance?._state.GetSeedsCultivatedThisTurn(player) ?? 0;
     }
 
+    public static int GetSeedsCultivatedThisCombat(Player player)
+    {
+        return Instance?._state.GetSeedsCultivatedThisCombat(player) ?? 0;
+    }
+
     public static int GetFireAbsorbedThisTurn(Player player)
     {
         return Instance?._state.GetFireAbsorbedThisTurn(player) ?? 0;
@@ -262,8 +267,10 @@ public sealed class BotanistCultivation : CustomSingletonModel
             ripeSeed.Remaining[requirement.Key] = 0;
         }
 
-        _state.GetOrCreatePlanted(botanistCard.Owner).Add(ripeSeed);
+        List<PlantedSeed> planted = _state.GetOrCreatePlanted(botanistCard.Owner);
+        planted.Add(ripeSeed);
         Changed?.Invoke();
+        await TriggerSeedEntryPowers(choiceContext, botanistCard.Owner, planted);
         await RipenReady(choiceContext, botanistCard.Owner);
     }
 
@@ -323,6 +330,7 @@ public sealed class BotanistCultivation : CustomSingletonModel
 
         planted.Add(plantedSeed);
         Changed?.Invoke();
+        await TriggerSeedEntryPowers(new ThrowingPlayerChoiceContext(), player, planted);
         await RipenReady(choiceContext: new ThrowingPlayerChoiceContext(), player);
 
         if (node != null && GodotObject.IsInstanceValid(node))
@@ -439,7 +447,8 @@ public sealed class BotanistCultivation : CustomSingletonModel
     private async Task ApplyScheduledGrowthReductions(
         PlayerChoiceContext choiceContext,
         Player player,
-        Dictionary<PlantedSeed, Dictionary<BotanistElement, int>> reductions)
+        Dictionary<PlantedSeed, Dictionary<BotanistElement, int>> reductions,
+        bool ripenReady = true)
     {
         bool changed = false;
         foreach (KeyValuePair<PlantedSeed, Dictionary<BotanistElement, int>> entry in reductions)
@@ -464,7 +473,52 @@ public sealed class BotanistCultivation : CustomSingletonModel
         }
 
         Changed?.Invoke();
-        await RipenReady(choiceContext, player);
+        if (ripenReady)
+        {
+            await RipenReady(choiceContext, player);
+        }
+    }
+
+    private async Task TriggerSeedEntryPowers(
+        PlayerChoiceContext choiceContext,
+        Player player,
+        IReadOnlyList<PlantedSeed> planted)
+    {
+        int newSeedIndex = planted.Count - 1;
+        if (newSeedIndex <= 0)
+        {
+            return;
+        }
+
+        Dictionary<PlantedSeed, Dictionary<BotanistElement, int>> reductions = [];
+        foreach (BotanistWitherBloomFormPower power in
+                 player.Creature.GetPowerInstances<BotanistWitherBloomFormPower>())
+        {
+            for (int trigger = 0; trigger < power.Amount; trigger++)
+            {
+                foreach (BotanistElement element in planted[newSeedIndex].Seed.Requirements.Select(
+                             requirement => requirement.Key))
+                {
+                    ScheduleGrowthReduction(
+                        planted,
+                        newSeedIndex - 1,
+                        element,
+                        1,
+                        reductions);
+                }
+            }
+        }
+
+        if (reductions.Count == 0)
+        {
+            return;
+        }
+
+        await ApplyScheduledGrowthReductions(
+            choiceContext,
+            player,
+            reductions,
+            ripenReady: false);
     }
 
     private static int GetScheduledReduction(
@@ -514,6 +568,7 @@ public sealed class BotanistCultivation : CustomSingletonModel
 
     private void MarkSeedCultivated(Player player)
     {
+        _state.IncrementSeedsCultivatedThisCombat(player);
         _state.IncrementSeedsCultivatedThisTurn(player);
         BotanistSeedBank.RefreshInHand(player);
     }

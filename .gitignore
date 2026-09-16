@@ -37,6 +37,7 @@ tmp/
 card-ui-review.html
 docs/*.html
 docs/imagegen/
+角色参考/
 
 # Release staging
 release/

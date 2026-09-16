@@ -32,8 +32,8 @@ public class BotanistStarFruit : BotanistSeedCardModel
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new PowerVar<StrengthPower>(1m),
-        new PowerVar<DexterityPower>(1m),
+        new PowerVar<StrengthPower>(2m),
+        new PowerVar<DexterityPower>(2m),
         new HealVar(6m)
     ];
 

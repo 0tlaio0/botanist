@@ -9,6 +9,7 @@ internal sealed class BotanistCultivationState
 {
     private readonly Dictionary<ulong, List<PlantedSeed>> _plantedByPlayer = new();
     private readonly Dictionary<ulong, int> _capacityByPlayer = new();
+    private readonly Dictionary<ulong, int> _seedsCultivatedThisCombat = new();
     private readonly Dictionary<ulong, int> _seedsCultivatedThisTurn = new();
     private readonly Dictionary<ulong, int> _fireAbsorbedThisTurn = new();
     private readonly HashSet<CardModel> _pendingSeedPlays = [];
@@ -39,6 +40,16 @@ internal sealed class BotanistCultivationState
     public int GetSeedsCultivatedThisTurn(Player player)
     {
         return _seedsCultivatedThisTurn.GetValueOrDefault(player.NetId);
+    }
+
+    public int GetSeedsCultivatedThisCombat(Player player)
+    {
+        return _seedsCultivatedThisCombat.GetValueOrDefault(player.NetId);
+    }
+
+    public void IncrementSeedsCultivatedThisCombat(Player player)
+    {
+        _seedsCultivatedThisCombat[player.NetId] = GetSeedsCultivatedThisCombat(player) + 1;
     }
 
     public void IncrementSeedsCultivatedThisTurn(Player player)
@@ -110,6 +121,7 @@ internal sealed class BotanistCultivationState
     {
         _plantedByPlayer.Clear();
         _capacityByPlayer.Clear();
+        _seedsCultivatedThisCombat.Clear();
         _seedsCultivatedThisTurn.Clear();
         _fireAbsorbedThisTurn.Clear();
         _pendingSeedPlays.Clear();
