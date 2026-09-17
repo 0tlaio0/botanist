@@ -38,7 +38,7 @@ public class BotanistTangledThorns : BotanistCardModel
         HoverTipFactory.FromPower<VulnerablePower>()
     ];
 
-    public BotanistTangledThorns() : base(2, CardType.Skill, CardRarity.Uncommon, TargetType.AnyEnemy, true)
+    public BotanistTangledThorns() : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.AnyEnemy, true)
     {
     }
 

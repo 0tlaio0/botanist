@@ -14,7 +14,7 @@ public interface IBotanistSeedCard
     string RipenSummary { get; }
     bool StealsPreviousSeedGrowth { get; }
     Task OnRipen(PlayerChoiceContext choiceContext);
-    Task ResolveAfterCultivation();
+    Task MoveToResultPileAfterCultivation();
 }
 
 public static class BotanistSeedCardExtensions
@@ -56,31 +56,18 @@ public abstract class BotanistSeedCardModel : BotanistCardModel, IBotanistSeedCa
     {
     }
 
-    // 打出后先保留在标准 PlayPile，待完整结算后再决定进入培养区或弃牌堆。
+    // 种子原卡要留在战斗内承载培育状态，不能被打牌流程立即送入弃牌堆。
     protected override PileType GetResultPileTypeForCardPlay() => PileType.Play;
 
     public abstract Task OnRipen(PlayerChoiceContext choiceContext);
 
-    public async Task ResolveAfterCultivation()
+    public async Task MoveToResultPileAfterCultivation()
     {
-        if (Pile == null)
+        if (Pile?.Type != PileType.Play)
         {
             return;
         }
 
-        // 绕过种子牌用于驻留培育区的 PlayPile 覆盖，按真实卡牌类型和关键词结算离场。
-        PileType resultPileType = base.GetResultPileTypeForCardPlay();
-        switch (resultPileType)
-        {
-            case PileType.None:
-                await CardPileCmd.RemoveFromCombat(this);
-                break;
-            case PileType.Exhaust:
-                await CardCmd.Exhaust(new ThrowingPlayerChoiceContext(), this);
-                break;
-            default:
-                await CardPileCmd.Add(this, resultPileType);
-                break;
-        }
+        await CardPileCmd.Add(this, PileType.Discard);
     }
 }

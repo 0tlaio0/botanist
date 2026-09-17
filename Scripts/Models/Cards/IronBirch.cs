@@ -1,44 +1,41 @@
-// 中文卡名：向日葵
+// 中文卡名：坚铁桦
 // 卡面描述：
 // 获得{Block:diff()}点[gold]格挡[/gold]。
-// [gold]成长[/gold]：获得2层[gold]向阳[/gold]。
+// [gold]成长[/gold]：获得{RipenBlock:diff()}点[gold]格挡[/gold]。
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BaseLib.Utils;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
-using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.ValueProps;
 
 namespace Botanist.Scripts;
 
 [Pool(typeof(BotanistCardPool))]
-public class BotanistSunflower : BotanistSeedCardModel
+public class BotanistIronBirch : BotanistSeedCardModel
 {
     public override bool GainsBlock => true;
-    public override BotanistElement Element => BotanistElement.Fire;
-    public override string PortraitPath => BotanistArt.Sunflower;
-    public override string RipenSummary => "获得2层向阳";
+    public override BotanistElement Element => BotanistElement.Wind;
+
+    public override string RipenSummary =>
+        $"获得{DynamicVars["RipenBlock"].IntValue}点格挡";
 
     public override IReadOnlyList<KeyValuePair<BotanistElement, int>> Requirements =>
     [
-        new(BotanistElement.Fire, 2),
-        new(BotanistElement.Earth, 1)
+        new(BotanistElement.Earth, 2),
+        new(BotanistElement.Wind, 1)
     ];
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new BlockVar(5, ValueProp.Move)
+        new BlockVar(8m, ValueProp.Move),
+        new BlockVar("RipenBlock", 8m, ValueProp.Move)
     ];
 
-    protected override IEnumerable<IHoverTip> ExtraHoverTips =>
-    [
-        HoverTipFactory.FromPower<BotanistSunwardPower>()
-    ];
-
-    public BotanistSunflower() : base(1, CardType.Power, CardRarity.Uncommon, TargetType.Self, true)
+    public BotanistIronBirch()
+        : base(2, CardType.Skill, CardRarity.Uncommon, TargetType.Self, true)
     {
     }
 
@@ -49,11 +46,15 @@ public class BotanistSunflower : BotanistSeedCardModel
 
     public override async Task OnRipen(PlayerChoiceContext choiceContext)
     {
-        await PowerCmd.Apply<BotanistSunwardPower>(choiceContext, Owner.Creature, 2m, Owner.Creature, this);
+        await CreatureCmd.GainBlock(
+            Owner.Creature,
+            DynamicVars["RipenBlock"].BaseValue,
+            ValueProp.Move,
+            null);
     }
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Block.UpgradeValueBy(3);
+        DynamicVars["RipenBlock"].UpgradeValueBy(4m);
     }
 }

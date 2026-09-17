@@ -25,6 +25,7 @@ public static class BotanistArt
     public const string ChorusFlower = "res://botanist/images/cards/botanist/chorus_flower.png";
     public const string ChorusFruit = "res://botanist/images/cards/botanist/chorus_fruit.png";
     public const string ExplosiveChorusFruit = "res://botanist/images/cards/botanist/explosive_chorus_fruit.png";
+    public const string CannonballFruit = "res://botanist/images/cards/botanist/cannonball_fruit.png";
     public const string EmptyOrb = "res://images/orbs/empty_orb.png";
 
     private static readonly Dictionary<string, Texture2D?> Cache = new();

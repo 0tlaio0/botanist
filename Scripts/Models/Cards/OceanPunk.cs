@@ -29,7 +29,7 @@ public class BotanistOceanPunk : BotanistTargetedSeedCardModel
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new DamageVar(4m, ValueProp.Move),
+        new DamageVar(5m, ValueProp.Move),
         new RepeatVar(2)
     ];
 

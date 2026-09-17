@@ -95,7 +95,10 @@ public sealed class BotanistCultivation : CustomSingletonModel
             return 0;
         }
 
-        return card.Owner.Creature.GetPower<BotanistSlowReleaseFertilizerPower>()?.Amount ?? 0;
+        int stored = Instance._state.GetSeedRequirementReduction(card);
+        return stored > 0
+            ? stored
+            : card.Owner.Creature.GetPower<BotanistSlowReleaseFertilizerPower>()?.Amount ?? 0;
     }
 
     public static int GetSeedsCultivatedThisTurn(Player player)
@@ -130,9 +133,9 @@ public sealed class BotanistCultivation : CustomSingletonModel
         List<PlantedSeed> planted = Instance._state.GetOrCreatePlanted(player);
         while (planted.Count > next)
         {
-            PlantedSeed removed = planted[^1];
+            CardModel removedCard = planted[^1].Card;
             planted.RemoveAt(planted.Count - 1);
-            await removed.Seed.ResolveAfterCultivation();
+            await Instance.MoveOriginalIfNoCultivationInstances(removedCard);
         }
 
         Instance._state.SetCapacity(player, next);
@@ -243,100 +246,88 @@ public sealed class BotanistCultivation : CustomSingletonModel
         // 这样种子不会用自己的元素给自己扣点，但会喂到场上其他种子。
         await ApplyElement(choiceContext, botanistCard.Owner, botanistCard.Element);
 
-        if (botanistCard.AsSeed() is not null &&
-            botanistCard.Owner.Creature.GetPower<BotanistSlowReleaseFertilizerPower>() is { } fertilizer)
-        {
-            _state.MarkSeedRequirementReduction(botanistCard, fertilizer.Amount);
-            await PowerCmd.Remove(fertilizer);
-            BotanistCardChrome.RefreshSeedPreviews(botanistCard.Owner);
-        }
-
-        if (!IsGrowthFree(botanistCard) ||
-            botanistCard.AsSeed() is not { } seed ||
-            !HasSpace(botanistCard.Owner))
+        if (botanistCard.AsSeed() is null)
         {
             return;
         }
 
-        // 成长需求已视为 0：像正常种子一样检查空位，成功入场后立即成熟。
-        _state.ConsumeGrowthFree(botanistCard);
-        _state.ConsumeSeedRequirementReduction(botanistCard);
-        PlantedSeed ripeSeed = new() { Seed = seed };
-        foreach (KeyValuePair<BotanistElement, int> requirement in seed.Requirements)
+        if (_state.GetSeedRequirementReduction(botanistCard) <= 0 &&
+            botanistCard.Owner.Creature.GetPower<BotanistSlowReleaseFertilizerPower>() is { } fertilizer)
         {
-            ripeSeed.Remaining[requirement.Key] = 0;
+            _state.MarkSeedRequirementReduction(botanistCard, fertilizer.Amount);
         }
 
-        List<PlantedSeed> planted = _state.GetOrCreatePlanted(botanistCard.Owner);
-        planted.Add(ripeSeed);
-        Changed?.Invoke();
-        await TriggerSeedEntryPowers(choiceContext, botanistCard.Owner, planted);
-        await RipenReady(choiceContext, botanistCard.Owner);
+        await AddCultivationInstance(choiceContext, botanistCard);
+
+        if (!cardPlay.IsLastInSeries)
+        {
+            return;
+        }
+
+        _state.ConsumeGrowthFree(botanistCard);
+        _state.ConsumeSeedRequirementReduction(botanistCard);
+        if (botanistCard.Owner.Creature.GetPower<BotanistSlowReleaseFertilizerPower>() is { } activeFertilizer)
+        {
+            await PowerCmd.Remove(activeFertilizer);
+        }
+
+        if (!HasCultivationInstances(botanistCard))
+        {
+            await MoveOriginalIfNoCultivationInstances(botanistCard);
+        }
+
+        BotanistCardChrome.RefreshSeedPreviews(botanistCard.Owner);
     }
 
-    public override Task BeforeCardPlayed(CardPlay cardPlay)
+    public override Task AfterCardChangedPiles(
+        CardModel card,
+        PileType oldPileType,
+        AbstractModel? clonedBy)
     {
-        if (cardPlay.Card.IsSeed())
+        if (card.AsSeed() != null &&
+            card.Pile?.Type == PileType.Play &&
+            HasCultivationInstances(card))
         {
-            _state.MarkPendingSeed(cardPlay.Card);
+            // 打牌流程最终会把 Play 结果牌重新写回 PlayPile；此时隐藏原卡节点。
+            NCard? node = NCard.FindOnTable(card);
+            node?.QueueFreeSafely();
         }
 
         return Task.CompletedTask;
     }
 
-    public override async Task AfterCardChangedPiles(
-        CardModel card,
-        PileType oldPileType,
-        AbstractModel? clonedBy)
+    private async Task AddCultivationInstance(
+        PlayerChoiceContext choiceContext,
+        BotanistCardModel sourceCard)
     {
-        if (oldPileType != PileType.Play || !_state.ConsumePendingSeed(card))
+        if (sourceCard.AsSeed() is not { } seed)
         {
             return;
         }
 
-        if (card.Pile?.Type == PileType.Play && card.AsSeed() is { } seed)
-        {
-            await TryPlant(seed);
-        }
-    }
-
-    private async Task TryPlant(IBotanistSeedCard seed)
-    {
-        CardModel card = seed.Card;
-        Player player = card.Owner;
-        int requirementReduction = _state.ConsumeSeedRequirementReduction(card);
+        Player player = sourceCard.Owner;
         List<PlantedSeed> planted = _state.GetOrCreatePlanted(player);
-        if (planted.Any(item => item.Card == card))
-        {
-            return;
-        }
-
-        // 打出效果和元素结算完成后才判断空位，确保同一次结算中成熟的种子会先腾出位置。
         if (planted.Count >= GetCapacity(player))
         {
-            await seed.ResolveAfterCultivation();
             return;
         }
 
-        // 卡牌模型留在标准 PlayPile 中作为战斗内的隐藏培育存储。
-        // 这样 card.Pile 可正常解析，成熟时才能稳定地移入弃牌堆。
-        NCard? node = NCard.FindOnTable(card);
+        // 重放只新增独立培育记录，不复制原卡实体。后加入的实例可以喂养此前实例。
+        bool growthFree = IsGrowthFree(sourceCard);
+        int requirementReduction = growthFree
+            ? 0
+            : _state.GetSeedRequirementReduction(sourceCard);
         PlantedSeed plantedSeed = new() { Seed = seed };
         foreach (KeyValuePair<BotanistElement, int> requirement in seed.Requirements)
         {
             plantedSeed.Remaining[requirement.Key] =
-                Math.Max(0, requirement.Value - requirementReduction);
+                growthFree ? 0 : Math.Max(0, requirement.Value - requirementReduction);
         }
 
         planted.Add(plantedSeed);
         Changed?.Invoke();
-        await TriggerSeedEntryPowers(new ThrowingPlayerChoiceContext(), player, planted);
-        await RipenReady(choiceContext: new ThrowingPlayerChoiceContext(), player);
-
-        if (node != null && GodotObject.IsInstanceValid(node))
-        {
-            node.QueueFreeSafely();
-        }
+        await TriggerSeedEntryPowers(choiceContext, player, planted);
+        await RipenReady(choiceContext, player);
     }
 
     private async Task ApplyElement(PlayerChoiceContext choiceContext, Player player, BotanistElement element)
@@ -552,9 +543,12 @@ public sealed class BotanistCultivation : CustomSingletonModel
         List<PlantedSeed> ripe = planted.Where(seed => seed.IsRipe).ToList();
         foreach (PlantedSeed seed in ripe)
         {
-            planted.Remove(seed);
+            // 「成长」关键词的固有奖励：每颗种子成熟各获得1点能量。
+            await PlayerCmd.GainEnergy(1m, player);
             await BotanistGrowthResolution.ResolveAsync(seed.Seed, choiceContext);
-            await seed.Seed.ResolveAfterCultivation();
+            planted.Remove(seed);
+            // 首次成长即让原卡离场；后续培育记录继续独立结算。
+            await MoveOriginalAfterGrowth(seed.Card);
 
             MarkSeedCultivated(player);
             await BotanistSeedCultivationEffects.TriggerAsync(choiceContext, player, seed);
@@ -563,6 +557,29 @@ public sealed class BotanistCultivation : CustomSingletonModel
         if (ripe.Count > 0)
         {
             Changed?.Invoke();
+        }
+    }
+
+    private bool HasCultivationInstances(CardModel card)
+    {
+        return _state.GetOrCreatePlanted(card.Owner).Any(seed => seed.Card == card);
+    }
+
+    private async Task MoveOriginalIfNoCultivationInstances(CardModel card)
+    {
+        if (HasCultivationInstances(card) || card.AsSeed() is not { } seed)
+        {
+            return;
+        }
+
+        await seed.MoveToResultPileAfterCultivation();
+    }
+
+    private static async Task MoveOriginalAfterGrowth(CardModel card)
+    {
+        if (card.AsSeed() is { } seed)
+        {
+            await seed.MoveToResultPileAfterCultivation();
         }
     }
 

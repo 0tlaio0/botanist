@@ -1,5 +1,6 @@
 // 中文卡名：雾菇
 // 卡面描述：
+// 给予1层[gold]虚弱[/gold]。
 // [gold]成长[/gold]：造成{Damage:diff()}点伤害并给予{WeakPower:diff()}层[gold]虚弱[/gold]。
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -30,7 +31,7 @@ public class BotanistMistMushroom : BotanistTargetedSeedCardModel
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new DamageVar(9m, ValueProp.Move),
+        new DamageVar(7m, ValueProp.Move),
         new PowerVar<WeakPower>(1m)
     ];
 
@@ -41,11 +42,16 @@ public class BotanistMistMushroom : BotanistTargetedSeedCardModel
     {
     }
 
-    protected override Task OnSow(
+    protected override async Task OnSow(
         PlayerChoiceContext choiceContext,
         CardPlay cardPlay)
     {
-        return Task.CompletedTask;
+        await PowerCmd.Apply<WeakPower>(
+            choiceContext,
+            SowTarget,
+            1m,
+            Owner.Creature,
+            this);
     }
 
     public override async Task OnRipen(PlayerChoiceContext choiceContext)

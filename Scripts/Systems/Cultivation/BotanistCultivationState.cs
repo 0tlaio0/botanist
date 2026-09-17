@@ -12,7 +12,6 @@ internal sealed class BotanistCultivationState
     private readonly Dictionary<ulong, int> _seedsCultivatedThisCombat = new();
     private readonly Dictionary<ulong, int> _seedsCultivatedThisTurn = new();
     private readonly Dictionary<ulong, int> _fireAbsorbedThisTurn = new();
-    private readonly HashSet<CardModel> _pendingSeedPlays = [];
     private readonly HashSet<CardModel> _growthFreeCards = [];
     private readonly Dictionary<CardModel, int> _seedRequirementReductions = [];
 
@@ -72,16 +71,6 @@ internal sealed class BotanistCultivationState
         _fireAbsorbedThisTurn[player.NetId] = GetFireAbsorbedThisTurn(player) + 1;
     }
 
-    public void MarkPendingSeed(CardModel card)
-    {
-        _pendingSeedPlays.Add(card);
-    }
-
-    public bool ConsumePendingSeed(CardModel card)
-    {
-        return _pendingSeedPlays.Remove(card);
-    }
-
     public void MarkGrowthFree(CardModel card)
     {
         _growthFreeCards.Add(card);
@@ -105,6 +94,11 @@ internal sealed class BotanistCultivationState
         }
     }
 
+    public int GetSeedRequirementReduction(CardModel card)
+    {
+        return _seedRequirementReductions.GetValueOrDefault(card);
+    }
+
     public int ConsumeSeedRequirementReduction(CardModel card)
     {
         return _seedRequirementReductions.Remove(card, out int amount) ? amount : 0;
@@ -124,7 +118,6 @@ internal sealed class BotanistCultivationState
         _seedsCultivatedThisCombat.Clear();
         _seedsCultivatedThisTurn.Clear();
         _fireAbsorbedThisTurn.Clear();
-        _pendingSeedPlays.Clear();
         _growthFreeCards.Clear();
         _seedRequirementReductions.Clear();
     }

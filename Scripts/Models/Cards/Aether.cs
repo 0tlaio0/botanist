@@ -1,6 +1,6 @@
 // 中文卡名：以太
-// 卡面描述：消耗。
-// 升级后：获得{Energy:energyIcons()}，抽{Cards:diff()}张牌。消耗。
+// 卡面描述：
+// {IfUpgraded:show:获得{Energy:energyIcons()}，抽{Cards:diff()}张牌。}
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BaseLib.Utils;

@@ -1,7 +1,7 @@
 // 中文卡名：飞蝇菌子
 // 卡面描述：
-// 造成{Damage:diff()}点伤害。
-// [gold]成长[/gold]：造成{RipenDamage:diff()}点伤害并给予{VulnerablePower:diff()}层[gold]易伤[/gold]。
+// 给予{VulnerablePower:diff()}层[gold]易伤[/gold]。
+// [gold]成长[/gold]：造成{Damage:diff()}点伤害。
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BaseLib.Utils;
@@ -21,7 +21,7 @@ public class BotanistFlyAgaric : BotanistTargetedSeedCardModel
     public override BotanistElement Element => BotanistElement.Earth;
 
     public override string RipenSummary =>
-        $"造成{DynamicVars["RipenDamage"].IntValue}点伤害并给予{DynamicVars.Vulnerable.IntValue}层易伤";
+        $"造成{DynamicVars.Damage.IntValue}点伤害";
 
     public override IReadOnlyList<KeyValuePair<BotanistElement, int>> Requirements =>
     [
@@ -31,8 +31,7 @@ public class BotanistFlyAgaric : BotanistTargetedSeedCardModel
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new DamageVar(4m, ValueProp.Move),
-        new DamageVar("RipenDamage", 6m, ValueProp.Move),
+        new DamageVar(6m, ValueProp.Move),
         new PowerVar<VulnerablePower>(1m)
     ];
 
@@ -47,10 +46,12 @@ public class BotanistFlyAgaric : BotanistTargetedSeedCardModel
         PlayerChoiceContext choiceContext,
         CardPlay cardPlay)
     {
-        await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
-            .FromCard(this)
-            .Targeting(SowTarget)
-            .Execute(choiceContext);
+        await PowerCmd.Apply<VulnerablePower>(
+            choiceContext,
+            SowTarget,
+            DynamicVars.Vulnerable.BaseValue,
+            Owner.Creature,
+            this);
     }
 
     public override async Task OnRipen(PlayerChoiceContext choiceContext)
@@ -60,24 +61,14 @@ public class BotanistFlyAgaric : BotanistTargetedSeedCardModel
             return;
         }
 
-        await DamageCmd.Attack(DynamicVars["RipenDamage"].BaseValue)
+        await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
             .FromCard(this)
             .Targeting(target)
             .Execute(choiceContext);
-
-        if (target.IsAlive)
-        {
-            await PowerCmd.Apply<VulnerablePower>(
-                choiceContext,
-                target,
-                DynamicVars.Vulnerable.BaseValue,
-                Owner.Creature,
-                this);
-        }
     }
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Vulnerable.UpgradeValueBy(1m);
+        DynamicVars.Damage.UpgradeValueBy(3m);
     }
 }

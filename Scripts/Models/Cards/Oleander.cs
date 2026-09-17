@@ -1,6 +1,7 @@
 // 中文卡名：夹竹桃
 // 卡面描述：
-// [gold]成长[/gold]：对所有敌人施加{PoisonPower:diff()}层[gold]中毒[/gold]和1层[gold]虚弱[/gold]。
+// 给予所有敌人1层[gold]虚弱[/gold]。
+// [gold]成长[/gold]：对所有敌人施加{PoisonPower:diff()}层[gold]中毒[/gold]。
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BaseLib.Utils;
@@ -19,7 +20,7 @@ public class BotanistOleander : BotanistSeedCardModel
     public override BotanistElement Element => BotanistElement.Water;
 
     public override string RipenSummary =>
-        $"对所有敌人施加{DynamicVars.Poison.IntValue}层中毒和1层虚弱";
+        $"对所有敌人施加{DynamicVars.Poison.IntValue}层中毒";
 
     public override IReadOnlyList<KeyValuePair<BotanistElement, int>> Requirements =>
     [
@@ -44,6 +45,21 @@ public class BotanistOleander : BotanistSeedCardModel
     {
     }
 
+    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
+    {
+        if (CombatState is not { } combatState)
+        {
+            return;
+        }
+
+        await PowerCmd.Apply<WeakPower>(
+            choiceContext,
+            combatState.HittableEnemies,
+            DynamicVars.Weak.BaseValue,
+            Owner.Creature,
+            this);
+    }
+
     public override async Task OnRipen(PlayerChoiceContext choiceContext)
     {
         if (CombatState is not { } combatState)
@@ -55,12 +71,6 @@ public class BotanistOleander : BotanistSeedCardModel
             choiceContext,
             combatState.HittableEnemies,
             DynamicVars.Poison.BaseValue,
-            Owner.Creature,
-            this);
-        await PowerCmd.Apply<WeakPower>(
-            choiceContext,
-            combatState.HittableEnemies,
-            DynamicVars.Weak.BaseValue,
             Owner.Creature,
             this);
     }
