@@ -2,54 +2,6 @@
 
 这是一个基于 BaseLib 的《杀戮尖塔 2》角色 Mod，当前按 BaseLib 3.4.7 和 .NET 9 配置。
 
-## 使用
-
-1. 打开 `botanist.csproj`，把 `Sts2Dir` 改为本机游戏安装目录。
-2. 安装与游戏版本匹配的 BaseLib，并确认 `mods/BaseLib/BaseLib.dll` 存在。
-3. 确认本机已安装 Godot 4.5.1 Mono，并确保 `botanist.csproj` 中的 `Sts2Dir` 指向游戏目录。
-4. 执行 `powershell -ExecutionPolicy Bypass -File tools\DeployBotanist.ps1`。脚本会自动定位本机 Godot，重新编译并导出 PCK，校验 DLL、manifest、PCK 和本地化键后，将三项产物一起复制到 `mods/Botanist/`。
-5. 启动游戏后在角色选择界面测试。不要使用 `dotnet build` 后手工复制文件，这会造成 PCK 陈旧或安装不完整。
-
-如 Godot 不在常见安装位置，可显式指定：
-
-```powershell
-powershell -ExecutionPolicy Bypass -File tools\DeployBotanist.ps1 -GodotPath "D:\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64_console.exe"
-```
-
-当前代码使用占位卡牌、遗物和视觉资源，适合先验证加载流程。实际游戏版本或 BaseLib API 发生变化时，应以本机 DLL 和模板为准调整签名。
-
-## 项目进度统计
-
-进度页面会扫描 `Scripts/Models` 与 `botanist/localization/zhs`，统计卡牌、遗物、药水、种子、元素和内容缺口。`CardRarity.Token` 衍生牌只列入卡牌明细和衍生牌计数，不计入卡牌完成度、类型、稀有度、元素或种子覆盖率。启动局域网访问服务：
-
-```powershell
-powershell -ExecutionPolicy Bypass -File tools\ProjectProgress.ps1
-```
-
-脚本会监听 `0.0.0.0:8765`，并在终端输出本机、Wi-Fi 和虚拟网地址。其他电脑使用同一网络时，打开对应地址即可访问；页面每 60 秒自动重新扫描源码。若 Windows 防火墙拦截连接，可用管理员 PowerShell 执行：
-
-```powershell
-powershell -ExecutionPolicy Bypass -File tools\ProjectProgress.ps1 -OpenFirewall -GenerateOnly
-```
-
-只生成静态页面而不启动服务：
-
-```powershell
-powershell -ExecutionPolicy Bypass -File tools\ProjectProgress.ps1 -GenerateOnly
-```
-
-静态页面输出到 `build/project-progress/index.html`。
-
-## 公网静态托管
-
-项目使用 GitHub Pages 发布只读进度页面。工作流每 6 小时自动执行一次，也可以手动立即触发：
-
-1. 打开仓库的 `Actions` 页面。
-2. 选择左侧的「发布项目进度」工作流。
-3. 点击 `Run workflow`，选择 `main` 后执行。
-4. 发布完成后访问 [https://0tlaio0.github.io/botanist/](https://0tlaio0.github.io/botanist/)。
-
-工作流会重新扫描默认分支中的源码与本地化，再生成并发布静态页面。GitHub 的定时任务可能因平台负载延迟开始，具体时间不保证精确到分钟。
 
 ## 安装包
 
@@ -64,13 +16,6 @@ botanist/
 
 安装前需要确保游戏为 v0.107.1，并已安装 BaseLib 3.4.7 或更高兼容版本。
 
-## 设计指南
-
-新增卡牌前请阅读 [植物学家新增卡牌概念设计指南](docs/新增卡牌概念设计指南.md)，先完成概念立案与设计评审。
-
-## 卡牌变量校验
-
-编译前会自动运行 `tools/ValidateCardLocalization.ps1`，逐张比对卡牌源码中的动态变量声明与 `botanist/localization/zhs/cards.json` 中的卡面占位符。变量名不匹配时构建会直接失败。
 
 ## 推送记录
 
