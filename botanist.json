@@ -3,7 +3,7 @@
   "name": "植物学家",
   "author": "植物学家 Mod Team",
   "description": "以种子培育、工具与植物联动为核心玩法的植物学家角色 Mod。",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "min_game_version": "0.107.1",
   "has_pck": true,
   "has_dll": true,
@@ -12,3 +12,4 @@
   ],
   "affects_gameplay": true
 }
+

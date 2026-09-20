@@ -33,6 +33,11 @@ internal static class BotanistSeedCultivationEffects
             await slashAndBurn.OnSeedCultivated(choiceContext);
         }
 
+        if (player.Creature.GetPower<BotanistFlyingPollenPower>() is { } flyingPollen)
+        {
+            await flyingPollen.OnSeedCultivated(choiceContext);
+        }
+
         if (player.Creature.GetPower<BotanistAllelopathyPower>() is { } allelopathy)
         {
             await allelopathy.OnPlantMatured(choiceContext);
@@ -41,6 +46,11 @@ internal static class BotanistSeedCultivationEffects
         if (player.GetRelic<BotanistHeavenPalmBottle>() is { } bottle)
         {
             await bottle.OnSeedCultivated(choiceContext);
+        }
+
+        if (player.GetRelic<BotanistSpecimenAlbum>() is { } album)
+        {
+            await album.OnSeedCultivated(seed.Seed);
         }
     }
 

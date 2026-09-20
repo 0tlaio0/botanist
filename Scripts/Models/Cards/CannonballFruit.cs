@@ -24,16 +24,16 @@ public class BotanistCannonballFruit : BotanistSeedCardModel
         [new(BotanistElement.Fire, 2)];
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
-        [new DamageVar(12, ValueProp.Move)];
+        [new DamageVar(20, ValueProp.Move)];
 
     public BotanistCannonballFruit()
-        : base(1, CardType.Attack, CardRarity.Common, TargetType.AllEnemies, true)
+        : base(2, CardType.Attack, CardRarity.Uncommon, TargetType.AllEnemies, true)
     {
     }
 
     public override async Task OnRipen(PlayerChoiceContext choiceContext)
     {
-        if (CombatState is not { } combatState)
+        if (RipenCombatState is not { } combatState)
         {
             return;
         }
@@ -46,6 +46,6 @@ public class BotanistCannonballFruit : BotanistSeedCardModel
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Damage.UpgradeValueBy(4);
+        DynamicVars.Damage.UpgradeValueBy(8);
     }
 }

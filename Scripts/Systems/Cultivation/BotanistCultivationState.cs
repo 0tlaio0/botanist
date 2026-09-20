@@ -94,6 +94,14 @@ internal sealed class BotanistCultivationState
         }
     }
 
+    public void AddSeedRequirementReduction(CardModel card, int amount)
+    {
+        if (amount > 0)
+        {
+            _seedRequirementReductions[card] = GetSeedRequirementReduction(card) + amount;
+        }
+    }
+
     public int GetSeedRequirementReduction(CardModel card)
     {
         return _seedRequirementReductions.GetValueOrDefault(card);

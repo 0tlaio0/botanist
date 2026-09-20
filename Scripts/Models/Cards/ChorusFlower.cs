@@ -43,13 +43,14 @@ public class BotanistChorusFlower : BotanistSeedCardModel
 
     public override async Task OnRipen(PlayerChoiceContext choiceContext)
     {
-        if (CombatState == null)
+        if (RipenCombatState == null)
         {
             return;
         }
 
-        // 成熟效果结算时这张牌尚未离场，因此培育区数量要包含自身。
-        int fruitCount = BotanistCultivation.GetPlanted(Owner).Count + 1;
+        IReadOnlyList<PlantedSeed> planted = BotanistCultivation.GetPlanted(Owner);
+        bool isStillPlanted = planted.Any(seed => ReferenceEquals(seed.Card, this));
+        int fruitCount = planted.Count + (isStillPlanted ? 1 : 0);
         if (IsUpgraded)
         {
             fruitCount++;
@@ -58,7 +59,7 @@ public class BotanistChorusFlower : BotanistSeedCardModel
         List<CardModel> fruits = [];
         for (int i = 0; i < fruitCount; i++)
         {
-            fruits.Add(CombatState.CreateCard<BotanistChorusFruit>(Owner));
+            fruits.Add(RipenCombatState.CreateCard<BotanistChorusFruit>(Owner));
         }
 
         IReadOnlyList<CardPileAddResult> results = await CardPileCmd.AddGeneratedCardsToCombat(

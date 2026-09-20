@@ -1,0 +1,19 @@
+{
+  "OPTION_BOTANIST_GRAFT.name": "嫁接",
+  "OPTION_BOTANIST_GRAFT.description": "选择一株砧木和一株接穗，将接穗的成长效果转移给砧木。",
+  "OPTION_BOTANIST_GRAFT.enabledDescription": "选择一株砧木和一株接穗。接穗会移出牌组，其成长效果会永久附加给砧木，成长需求按一半向上取整加入砧木。",
+  "OPTION_BOTANIST_GRAFT.noRootDescription": "牌组中没有可以作为砧木的种子。",
+  "OPTION_BOTANIST_GRAFT.noScionDescription": "牌组中没有可以与现有砧木嫁接的合法接穗。",
+  "GRAFT_SCREEN.title": "嫁接",
+  "GRAFT_SCREEN.root": "砧木",
+  "GRAFT_SCREEN.result": "结果预览",
+  "GRAFT_SCREEN.scion": "接穗",
+  "GRAFT_SCREEN.rootHint": "点击选择砧木",
+  "GRAFT_SCREEN.scionHint": "点击选择接穗",
+  "GRAFT_SCREEN.resultEmpty": "选择砧木和接穗后显示结果",
+  "GRAFT_SCREEN.rootPrompt": "选择一张种子牌作为砧木。",
+  "GRAFT_SCREEN.scionPrompt": "选择一张种子牌作为接穗。",
+  "GRAFT_SCREEN.ready": "确认后将消耗本次火堆行动。",
+  "GRAFT_SCREEN.cancel": "取消",
+  "GRAFT_SCREEN.confirm": "确认嫁接"
+}

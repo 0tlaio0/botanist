@@ -27,12 +27,12 @@ public static class ArchaicToothBotanistStarterPatch
 [HarmonyPatch(typeof(ArchaicTooth), "GetTranscendenceTransformedCard")]
 public static class ArchaicToothBotanistTransformationPatch
 {
-    [HarmonyPostfix]
-    public static void Postfix(CardModel starterCard, ref CardModel __result)
+    [HarmonyPrefix]
+    public static bool Prefix(CardModel starterCard, ref CardModel __result)
     {
         if (starterCard is not BotanistHumus)
         {
-            return;
+            return true;
         }
 
         CardModel replacement = starterCard.Owner.RunState.CreateCard<BotanistLivingCulture>(starterCard.Owner);
@@ -48,6 +48,7 @@ public static class ArchaicToothBotanistTransformationPatch
         }
 
         __result = replacement;
+        return false;
     }
 }
 

@@ -14,6 +14,11 @@ public abstract class BotanistTargetedSeedCardModel : BotanistSeedCardModel
     protected Creature SowTarget => _playTarget!;
 
     protected Creature? RipenTarget =>
+        BotanistGrowthResolution.TryGetTargetOverride(out Creature? target)
+            ? target
+            : OwnRipenTarget;
+
+    internal Creature? OwnRipenTarget =>
         _playTarget is { IsAlive: true } ? _playTarget : null;
 
     protected BotanistTargetedSeedCardModel(

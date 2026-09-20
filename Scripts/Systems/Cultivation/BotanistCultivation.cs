@@ -161,6 +161,22 @@ public sealed class BotanistCultivation : CustomSingletonModel
         return Instance.ReduceGrowth(choiceContext, player, [planted[0]], amount);
     }
 
+    public static Task ReduceLastSeedGrowth(
+        PlayerChoiceContext choiceContext,
+        Player player,
+        int amount = 1)
+    {
+        if (Instance == null || amount <= 0)
+        {
+            return Task.CompletedTask;
+        }
+
+        List<PlantedSeed> planted = Instance._state.GetOrCreatePlanted(player);
+        return planted.Count == 0
+            ? Task.CompletedTask
+            : Instance.ReduceGrowth(choiceContext, player, [planted[^1]], amount);
+    }
+
     public static Task ReduceAllSeedsGrowth(
         PlayerChoiceContext choiceContext,
         Player player,
@@ -175,6 +191,121 @@ public sealed class BotanistCultivation : CustomSingletonModel
         return planted.Count == 0
             ? Task.CompletedTask
             : Instance.ReduceGrowth(choiceContext, player, planted.ToList(), amount);
+    }
+
+    public static Task ReduceHighestSeedRequirements(
+        PlayerChoiceContext choiceContext,
+        Player player,
+        int amount)
+    {
+        if (Instance == null || amount <= 0)
+        {
+            return Task.CompletedTask;
+        }
+
+        List<PlantedSeed> planted = Instance._state.GetOrCreatePlanted(player);
+        Dictionary<PlantedSeed, Dictionary<BotanistElement, int>> reductions = [];
+        foreach (PlantedSeed seed in planted)
+        {
+            BotanistElement? highest = null;
+            int highestValue = 0;
+            foreach (BotanistElement element in BotanistElements.Ordered)
+            {
+                int value = seed.Remaining.GetValueOrDefault(element);
+                if (value > highestValue)
+                {
+                    highestValue = value;
+                    highest = element;
+                }
+            }
+
+            if (highest is { } highestElement && highestValue > 0)
+            {
+                AddScheduledReduction(reductions, seed, highestElement, amount);
+            }
+        }
+
+        return Instance.ApplyScheduledGrowthReductions(choiceContext, player, reductions);
+    }
+
+    public static Task ReduceRandomRequirementOfSeed(
+        PlayerChoiceContext choiceContext,
+        Player player,
+        PlantedSeed target,
+        int amount)
+    {
+        if (Instance == null || amount <= 0)
+        {
+            return Task.CompletedTask;
+        }
+
+        List<PlantedSeed> planted = Instance._state.GetOrCreatePlanted(player);
+        if (!planted.Contains(target))
+        {
+            return Task.CompletedTask;
+        }
+
+        List<BotanistElement> candidates = target.Remaining
+            .Where(entry => entry.Value > 0)
+            .Select(entry => entry.Key)
+            .ToList();
+        if (candidates.Count == 0)
+        {
+            return Task.CompletedTask;
+        }
+
+        BotanistElement selected = player.RunState.Rng.CombatCardSelection.NextItem(candidates);
+        Dictionary<PlantedSeed, Dictionary<BotanistElement, int>> reductions = [];
+        AddScheduledReduction(reductions, target, selected, amount);
+        return Instance.ApplyScheduledGrowthReductions(choiceContext, player, reductions);
+    }
+
+    public static void ReduceSeedRequirement(CardModel card, int amount = 1)
+    {
+        if (Instance == null || amount <= 0 || !card.IsSeed())
+        {
+            return;
+        }
+
+        Instance._state.AddSeedRequirementReduction(card, amount);
+        BotanistCardChrome.RefreshSeedPreviews(card.Owner);
+    }
+
+    public static async Task<bool> ConsumeLastSeed(PlayerChoiceContext choiceContext, Player player)
+    {
+        if (Instance == null)
+        {
+            return false;
+        }
+
+        List<PlantedSeed> planted = Instance._state.GetOrCreatePlanted(player);
+        if (planted.Count == 0)
+        {
+            return false;
+        }
+
+        PlantedSeed removed = planted[^1];
+        planted.RemoveAt(planted.Count - 1);
+
+        if (!Instance.HasCultivationInstances(removed.Card) &&
+            removed.Card.Pile?.Type == PileType.Play)
+        {
+            await CardCmd.Exhaust(choiceContext, removed.Card);
+        }
+
+        Instance.Changed?.Invoke();
+        return true;
+    }
+
+    public static async Task<int> ConsumeAllSeeds(PlayerChoiceContext choiceContext, Player player)
+    {
+        int consumed = 0;
+        while (await ConsumeLastSeed(choiceContext, player))
+        {
+            consumed++;
+        }
+
+        return consumed;
     }
 
     public static Task AbsorbElement(
@@ -317,8 +448,14 @@ public sealed class BotanistCultivation : CustomSingletonModel
         int requirementReduction = growthFree
             ? 0
             : _state.GetSeedRequirementReduction(sourceCard);
+        if (player.GetRelic<BotanistBoneMeal>()?.TryApplyToFirstPlantedSeed() == true)
+        {
+            requirementReduction++;
+        }
+
         PlantedSeed plantedSeed = new() { Seed = seed };
-        foreach (KeyValuePair<BotanistElement, int> requirement in seed.Requirements)
+        foreach (KeyValuePair<BotanistElement, int> requirement in
+                 BotanistGraftService.GetEffectiveRequirements(sourceCard))
         {
             plantedSeed.Remaining[requirement.Key] =
                 growthFree ? 0 : Math.Max(0, requirement.Value - requirementReduction);
@@ -384,7 +521,8 @@ public sealed class BotanistCultivation : CustomSingletonModel
                 continue;
             }
 
-            foreach (KeyValuePair<BotanistElement, int> requirement in target.Seed.Requirements)
+            foreach (KeyValuePair<BotanistElement, int> requirement in
+                     BotanistGraftService.GetEffectiveRequirements(target.Card))
             {
                 ScheduleGrowthReduction(planted, index, requirement.Key, amount, reductions);
             }
@@ -487,8 +625,9 @@ public sealed class BotanistCultivation : CustomSingletonModel
         {
             for (int trigger = 0; trigger < power.Amount; trigger++)
             {
-                foreach (BotanistElement element in planted[newSeedIndex].Seed.Requirements.Select(
-                             requirement => requirement.Key))
+                foreach (BotanistElement element in
+                         BotanistGraftService.GetEffectiveRequirements(planted[newSeedIndex].Card)
+                             .Select(requirement => requirement.Key))
                 {
                     ScheduleGrowthReduction(
                         planted,
@@ -543,12 +682,27 @@ public sealed class BotanistCultivation : CustomSingletonModel
         List<PlantedSeed> ripe = planted.Where(seed => seed.IsRipe).ToList();
         foreach (PlantedSeed seed in ripe)
         {
+            if (!planted.Contains(seed))
+            {
+                continue;
+            }
+
+            int seedIndex = planted.IndexOf(seed);
+            PlantedSeed? nextSeed = seedIndex + 1 < planted.Count
+                ? planted[seedIndex + 1]
+                : null;
             // 「成长」关键词的固有奖励：每颗种子成熟各获得1点能量。
             await PlayerCmd.GainEnergy(1m, player);
             await BotanistGrowthResolution.ResolveAsync(seed.Seed, choiceContext);
             planted.Remove(seed);
             // 首次成长即让原卡离场；后续培育记录继续独立结算。
             await MoveOriginalAfterGrowth(seed.Card);
+
+            if (nextSeed is not null &&
+                player.Creature.GetPower<BotanistFloweringSynchronizationPower>() is { } flowering)
+            {
+                await flowering.OnSeedCultivated(choiceContext, nextSeed);
+            }
 
             MarkSeedCultivated(player);
             await BotanistSeedCultivationEffects.TriggerAsync(choiceContext, player, seed);

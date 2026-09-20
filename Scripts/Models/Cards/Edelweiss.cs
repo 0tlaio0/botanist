@@ -56,7 +56,7 @@ public class BotanistEdelweiss : BotanistTargetedSeedCardModel
                 .Targeting(target)
                 .Execute(choiceContext);
         }
-        else if (CombatState is { } combatState && combatState.HittableEnemies.Count > 0)
+        else if (RipenCombatState is { } combatState && combatState.HittableEnemies.Count > 0)
         {
             await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
                 .FromCard(this)

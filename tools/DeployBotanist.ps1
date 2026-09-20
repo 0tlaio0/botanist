@@ -214,8 +214,13 @@ $referenceDirectoryName = -join @(
     [char]0x53C2,
     [char]0x8003)
 $excludedExportPaths = @(
+    "build",
     "output",
+    "tmp",
     "docs\imagegen",
+    ".nuget-home",
+    ".tools",
+    "NuGet",
     $referenceDirectoryName
 )
 $excludedExportRoot = Join-Path $env:TEMP "botanist-export-exclusions-$PID"

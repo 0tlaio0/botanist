@@ -160,7 +160,10 @@ public partial class NBotanistCultivationOrb : NClickableControl
             return;
         }
 
-        Color primary = ElementColor(_planted.Seed.Requirements[0].Key);
+        IReadOnlyList<KeyValuePair<BotanistElement, int>> requirements =
+            BotanistGraftService.GetEffectiveRequirements(_planted.Card);
+        Color primary = ElementColor(
+            requirements.Count > 0 ? requirements[0].Key : BotanistElement.Earth);
         _orbShell.AddThemeStyleboxOverride("panel", CreateOrbStyle(
             new Color(0.08f, 0.12f, 0.11f, 0.96f),
             primary.Lightened(0.32f),
@@ -178,7 +181,7 @@ public partial class NBotanistCultivationOrb : NClickableControl
         BuildElementIcons();
 
         int remaining = _planted.Remaining.Values.Sum();
-        int required = _planted.Seed.Requirements.Sum(requirement => requirement.Value);
+        int required = requirements.Sum(requirement => requirement.Value);
         _progressLabel.Text = $"{remaining}/{required}";
         _progressLabel.Visible = true;
         _titleLabel.Text = _planted.Card.Title;
@@ -203,7 +206,8 @@ public partial class NBotanistCultivationOrb : NClickableControl
         };
         row.AddThemeConstantOverride("separation", 2);
 
-        foreach (KeyValuePair<BotanistElement, int> requirement in _planted!.Seed.Requirements)
+        foreach (KeyValuePair<BotanistElement, int> requirement in
+                 BotanistGraftService.GetEffectiveRequirements(_planted!.Card))
         {
             Texture2D? texture = BotanistArt.Load(requirement.Key.IconPath());
             if (texture == null)
@@ -235,22 +239,29 @@ public partial class NBotanistCultivationOrb : NClickableControl
         PlantedSeed planted = _planted!;
         List<string> lines = [];
 
-        foreach (KeyValuePair<BotanistElement, int> requirement in planted.Seed.Requirements)
+        foreach (KeyValuePair<BotanistElement, int> requirement in
+                 BotanistGraftService.GetEffectiveRequirements(planted.Card))
         {
             int remaining = planted.Remaining.GetValueOrDefault(requirement.Key);
             lines.Add($"{requirement.Key.DisplayName()}：{remaining}/{requirement.Value}");
         }
 
         lines.Add(string.Empty);
-        lines.Add($"成长：{planted.Seed.RipenSummary}");
+        lines.Add($"成长：{BotanistGraftService.BuildRipenSummary(planted.Card)}");
         return string.Join("\n", lines);
     }
 
     private Texture2D? PrimaryIcon()
     {
-        return _planted == null
-            ? null
-            : BotanistArt.Load(_planted.Seed.Requirements[0].Key.IconPath());
+        if (_planted == null)
+        {
+            return null;
+        }
+
+        IReadOnlyList<KeyValuePair<BotanistElement, int>> requirements =
+            BotanistGraftService.GetEffectiveRequirements(_planted.Card);
+        return BotanistArt.Load(
+            (requirements.Count > 0 ? requirements[0].Key : BotanistElement.Earth).IconPath());
     }
 
     private static Label CreateLabel(string text, int size, Color color)

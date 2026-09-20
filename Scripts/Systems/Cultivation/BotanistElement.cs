@@ -12,6 +12,14 @@ public enum BotanistElement
 
 public static class BotanistElements
 {
+    public static IReadOnlyList<BotanistElement> Ordered { get; } =
+    [
+        BotanistElement.Earth,
+        BotanistElement.Fire,
+        BotanistElement.Water,
+        BotanistElement.Wind,
+        BotanistElement.Aether
+    ];
     public static string DisplayName(this BotanistElement element) => element switch
     {
         BotanistElement.Earth => "地",

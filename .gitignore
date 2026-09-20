@@ -32,6 +32,12 @@ text_editor_themes/
 skills-lock.json
 tools/bin/
 
+# Local package and tool caches
+.nuget-home/
+.nuget.config
+.tools/
+NuGet/
+
 # Local previews, audits and browser work directories
 tmp/
 card-ui-review.html

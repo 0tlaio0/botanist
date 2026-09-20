@@ -1,0 +1,7 @@
+{
+  "BOTANIST-BOTANIST_GRAFT_MODIFIER.title": "嫁接",
+  "BOTANIST-BOTANIST_GRAFT_MODIFIER.description": "已嫁接 {Count} 个成长效果。\n{Snapshots}",
+  "BOTANIST-BOTANIST_GRAFT_MODIFIER.growthLine": "[gold]成长[/gold]（嫁接·{Scion}）：{Growth}",
+  "BOTANIST-BOTANIST_GRAFT_MODIFIER.missingSnapshot": "[gold]成长[/gold]（嫁接·卡牌缺失）",
+  "BOTANIST-BOTANIST_GRAFT_MODIFIER.unknownSnapshot": "[gold]成长[/gold]（嫁接·未知卡牌 {ModelId}）"
+}

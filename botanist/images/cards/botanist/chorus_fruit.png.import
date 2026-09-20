@@ -15,9 +15,9 @@ dest_files=["res://.godot/imported/chorus_fruit.png-934cc2fc051f96ac86ff50b276ed
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
-compress/lossy_quality=0.7
+compress/mode=1
+compress/high_quality=true
+compress/lossy_quality=0.85
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1

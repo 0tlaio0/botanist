@@ -116,7 +116,8 @@ public static class BotanistCardChrome
 
         bool growthFree = BotanistCultivation.IsGrowthFree(seed.Card);
         int pendingReduction = BotanistCultivation.GetPendingSeedRequirementReduction(seed.Card);
-        List<KeyValuePair<BotanistElement, int>> requirements = seed.Requirements
+        List<KeyValuePair<BotanistElement, int>> requirements =
+            BotanistGraftService.GetEffectiveRequirements(seed.Card)
             .Where(requirement => requirement.Value > 0)
             .Select(requirement => new KeyValuePair<BotanistElement, int>(
                 requirement.Key,
@@ -190,7 +191,14 @@ public static class BotanistCardChrome
         {
             <= 1 => [SeedlingWidth * 0.54f],
             2 => [SeedlingWidth * 0.27f, SeedlingWidth * 0.81f],
-            _ => [SeedlingWidth * 0.27f, SeedlingWidth * 0.54f, SeedlingWidth * 0.81f]
+            3 => [SeedlingWidth * 0.27f, SeedlingWidth * 0.54f, SeedlingWidth * 0.81f],
+            _ =>
+            [
+                SeedlingWidth * 0.13f,
+                SeedlingWidth * 0.40f,
+                SeedlingWidth * 0.68f,
+                SeedlingWidth * 0.95f
+            ]
         };
     }
 

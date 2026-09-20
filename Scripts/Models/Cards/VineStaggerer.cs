@@ -57,7 +57,7 @@ public class BotanistVineStaggerer : BotanistTargetedSeedCardModel
 
     public override async Task OnRipen(PlayerChoiceContext choiceContext)
     {
-        if (CombatState is not { } combatState)
+        if (RipenCombatState is not { } combatState)
         {
             return;
         }
