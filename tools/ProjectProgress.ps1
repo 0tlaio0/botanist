@@ -258,6 +258,32 @@ function Get-StartingDeckInfo {
     }
 }
 
+function Get-CountedProgressCards {
+    param(
+        [Parameter(Mandatory)]
+        [AllowEmptyCollection()]
+        [object[]]$Cards
+    )
+
+    $collapsedNames = [System.Collections.Generic.HashSet[string]]::new(
+        [string[]]@("打击", "防御"),
+        [System.StringComparer]::Ordinal)
+    $seen = [System.Collections.Generic.HashSet[string]]::new(
+        [System.StringComparer]::Ordinal)
+    $counted = [System.Collections.Generic.List[object]]::new()
+
+    foreach ($card in $Cards) {
+        $name = [string]$card.name
+        if ($collapsedNames.Contains($name) -and -not $seen.Add($name)) {
+            continue
+        }
+
+        $counted.Add($card)
+    }
+
+    return @($counted)
+}
+
 function New-CardsByField {
     param(
         [Parameter(Mandatory)]
@@ -292,6 +318,7 @@ function New-ProgressData {
     $cardCatalog = Get-CardCatalog -Localization $cardsLocalization
     $cards = @($cardCatalog.items)
     $progressCards = @($cards | Where-Object { $_.rarity -ne "Token" })
+    $countedCards = @(Get-CountedProgressCards -Cards $progressCards)
     $relics = @(Get-RelicCatalog -Localization $relicsLocalization)
     $potions = @(Get-PotionCatalog -Localization $potionsLocalization)
     $startingDeck = Get-StartingDeckInfo -SeedClassNames $cardCatalog.seedClassNames
@@ -305,15 +332,16 @@ function New-ProgressData {
         Common = 19
         Uncommon = 38
         Rare = 28
+        Ancient = 2
     }
-    $typeTotals = New-CardsByField -Cards $progressCards -Field "type" -Keys @("Attack", "Skill", "Power")
-    $rarityTotals = New-CardsByField -Cards $progressCards -Field "rarity" -Keys @("Common", "Uncommon", "Rare")
-    $elementTotals = New-CardsByField -Cards $progressCards -Field "element" -Keys @("Earth", "Fire", "Water", "Wind", "Aether")
+    $typeTotals = New-CardsByField -Cards $countedCards -Field "type" -Keys @("Attack", "Skill", "Power")
+    $rarityTotals = New-CardsByField -Cards $countedCards -Field "rarity" -Keys @("Basic", "Common", "Uncommon", "Rare", "Ancient")
+    $elementTotals = New-CardsByField -Cards $countedCards -Field "element" -Keys @("Earth", "Fire", "Water", "Wind", "Aether")
 
-    $basicCount = @($progressCards | Where-Object { $_.rarity -eq "Basic" }).Count
+    $basicCount = @($countedCards | Where-Object { $_.rarity -eq "Basic" }).Count
     $tokenCount = @($cards | Where-Object { $_.rarity -eq "Token" }).Count
-    $ancientCount = @($progressCards | Where-Object { $_.rarity -eq "Ancient" }).Count
-    $seedCount = @($progressCards | Where-Object { $_.seed }).Count
+    $ancientCount = @($countedCards | Where-Object { $_.rarity -eq "Ancient" }).Count
+    $seedCount = @($countedCards | Where-Object { $_.seed }).Count
 
     return [ordered]@{
         generatedAt = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss zzz")
@@ -328,7 +356,7 @@ function New-ProgressData {
         }
         summary = [ordered]@{
             cards = [ordered]@{
-                current = $progressCards.Count
+                current = $countedCards.Count
                 target = 85
                 token = $tokenCount
             }

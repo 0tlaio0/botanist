@@ -384,7 +384,7 @@
     <section class="section">
       <div class="section-head">
         <h2>卡牌结构偏差</h2>
-        <span class="muted small">目标比例约为攻击 2 : 技能 4 : 能力 3</span>
+        <span class="muted small">目标比例约为攻击 2 : 技能 4 : 能力 3；打击与防御四系各计 1 张</span>
       </div>
       <div class="dashboard-grid">
         <article class="panel">
@@ -396,8 +396,8 @@
         </article>
         <article class="panel">
           <div class="panel-title">
-            <h3>普通、罕见、稀有</h3>
-            <span class="muted small">当前 / 目标</span>
+            <h3>稀有度</h3>
+            <span class="muted small">含基础与先古，不含衍生；打击与防御四系各计 1 张</span>
           </div>
           <div id="rarity-comparison"></div>
         </article>
@@ -572,7 +572,7 @@
       document.getElementById("card-metric").textContent =
         `${cards.current} / ${cards.target}`;
       document.getElementById("card-metric-note").textContent =
-        `完成 ${formatPercent(cards.current, cards.target)}，缺 ${Math.max(0, cards.target - cards.current)} 张；衍生牌 ${cards.token} 张另列，不计入进度`;
+        `完成 ${formatPercent(cards.current, cards.target)}，缺 ${Math.max(0, cards.target - cards.current)} 张；打击与防御四系各计 1 张；衍生牌 ${cards.token} 张另列，不计入进度`;
 
       document.getElementById("relic-metric").textContent =
         `${relics.current} / ${relics.target}`;
@@ -618,15 +618,16 @@
       document.getElementById(containerId).innerHTML = entries.map(key => {
         const current = Number(currentData[key] ?? 0);
         const target = Number(targetData[key] ?? 0);
+        const hasTarget = target > 0;
         return `
           <div class="comparison-row">
             <div class="comparison-label">
               <strong>${labels[key]}</strong>
-              <span>${current} / ${target}</span>
+              <span>${hasTarget ? `${current} / ${target}` : current}</span>
             </div>
             <div class="bar-group">
               <div class="bar current" style="width: ${current / max * 100}%"></div>
-              <div class="bar target" style="width: ${target / max * 100}%"></div>
+              ${hasTarget ? `<div class="bar target" style="width: ${target / max * 100}%"></div>` : ""}
             </div>
           </div>
         `;
@@ -787,29 +788,32 @@
         target: Number(data.targets.types[key] ?? 0),
         note: `${typeLabels[key]}牌在进度卡牌中占 ${formatPercent(data.types[key] ?? 0, data.summary.cards.current)}`
       }));
-      const rarityRows = Object.keys(rarityLabels)
-        .filter(key => ["Common", "Uncommon", "Rare"].includes(key))
-        .map(key => ({
+      const rarityRows = ["Basic", "Common", "Uncommon", "Rare", "Ancient"].map(key => {
+        const current = Number(data.rarities[key] ?? 0);
+        const hasTarget = Object.prototype.hasOwnProperty.call(data.targets.rarities, key);
+        const target = hasTarget ? Number(data.targets.rarities[key] ?? 0) : null;
+        let note = "只统计张数，不设中央目标";
+        if (hasTarget) {
+          note = key === "Ancient"
+            ? (current >= target ? "已达到文档指定数量" : "文档指定 2 张")
+            : `该稀有度完成 ${formatPercent(current, target)}`;
+        }
+        return {
           name: `${rarityLabels[key]}牌`,
-          current: Number(data.rarities[key] ?? 0),
-          target: Number(data.targets.rarities[key] ?? 0),
-          note: `该稀有度完成 ${formatPercent(data.rarities[key] ?? 0, data.targets.rarities[key] ?? 0)}`
-        }));
+          current,
+          target,
+          note
+        };
+      });
       const rows = [
         {
           name: "可收集卡牌",
           current: data.summary.cards.current,
           target: data.targets.cards,
-          note: `仅统计可收集卡牌；${data.summary.cards.token} 张衍生牌不计入`
+          note: `仅统计可收集卡牌；打击与防御四系各计 1 张；${data.summary.cards.token} 张衍生牌不计入`
         },
         ...typeRows,
         ...rarityRows,
-        {
-          name: "先古牌",
-          current: data.counters.ancient,
-          target: 2,
-          note: data.counters.ancient >= 2 ? "已达到文档指定数量" : "文档指定 2 张"
-        },
         {
           name: "初始卡组",
           current: data.counters.startingDeck,
@@ -831,14 +835,15 @@
       ];
 
       document.getElementById("gap-rows").innerHTML = rows.map(row => {
-        const gap = Math.max(0, row.target - row.current);
-        const tone = gap === 0 ? "seed" : gap >= 10 ? "warn" : "";
-        const status = gap === 0 ? "已达标" : `缺 ${gap}`;
+        const hasTarget = row.target != null;
+        const gap = hasTarget ? Math.max(0, row.target - row.current) : 0;
+        const tone = !hasTarget ? "" : gap === 0 ? "seed" : gap >= 10 ? "warn" : "";
+        const status = !hasTarget ? "—" : gap === 0 ? "已达标" : `缺 ${gap}`;
         return `
           <tr>
             <td class="nowrap">${row.name}</td>
             <td class="numeric">${row.current}</td>
-            <td class="numeric">${row.target}</td>
+            <td class="numeric">${hasTarget ? row.target : "—"}</td>
             <td class="numeric"><span class="tag ${tone}">${status}</span></td>
             <td>${row.note}</td>
           </tr>
@@ -858,9 +863,11 @@
     renderProgress();
     renderComparison("type-comparison", typeLabels, data.types, data.targets.types);
     renderComparison("rarity-comparison", {
+      Basic: rarityLabels.Basic,
       Common: rarityLabels.Common,
       Uncommon: rarityLabels.Uncommon,
-      Rare: rarityLabels.Rare
+      Rare: rarityLabels.Rare,
+      Ancient: rarityLabels.Ancient
     }, data.rarities, data.targets.rarities);
     renderCounters();
     renderSeeds();
