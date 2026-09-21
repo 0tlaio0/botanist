@@ -19,7 +19,7 @@ public class BotanistSeedBank : BotanistCardModel
 {
     public override BotanistElement Element => BotanistElement.Earth;
 
-    public BotanistSeedBank() : base(5, CardType.Power, CardRarity.Uncommon, TargetType.Self, true)
+    public BotanistSeedBank() : base(5, CardType.Power, CardRarity.Rare, TargetType.Self, true)
     {
     }
 

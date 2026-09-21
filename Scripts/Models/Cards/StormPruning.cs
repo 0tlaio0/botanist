@@ -1,5 +1,5 @@
-// 中文卡名：恒温箱
-// 卡面描述：每回合第一次打出[gold]火元素[/gold]牌时，获得{BotanistIncubatorPower:diff()}点能量。
+// 中文卡名：风暴修剪
+// 卡面描述：本回合打出[gold]插条[/gold]时，对所有敌人造成{BotanistStormPruningPower:diff()}点伤害。
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BaseLib.Utils;
@@ -12,36 +12,36 @@ using MegaCrit.Sts2.Core.Localization.DynamicVars;
 namespace Botanist.Scripts;
 
 [Pool(typeof(BotanistCardPool))]
-public class BotanistIncubator : BotanistCardModel
+public class BotanistStormPruning : BotanistCardModel
 {
-    public override BotanistElement Element => BotanistElement.Fire;
+    public override BotanistElement Element => BotanistElement.Wind;
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
-        [new PowerVar<BotanistIncubatorPower>(1m)];
+        [new PowerVar<BotanistStormPruningPower>(3m)];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
     [
-        base.EnergyHoverTip,
-        HoverTipFactory.FromPower<BotanistIncubatorPower>()
+        HoverTipFactory.FromCard<BotanistCutting>(),
+        HoverTipFactory.FromPower<BotanistStormPruningPower>()
     ];
 
-    public BotanistIncubator()
-        : base(1, CardType.Power, CardRarity.Rare, TargetType.Self, true)
+    public BotanistStormPruning()
+        : base(1, CardType.Skill, CardRarity.Rare, TargetType.Self, true)
     {
     }
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        await PowerCmd.Apply<BotanistIncubatorPower>(
+        await PowerCmd.Apply<BotanistStormPruningPower>(
             choiceContext,
             Owner.Creature,
-            DynamicVars["BotanistIncubatorPower"].BaseValue,
+            DynamicVars["BotanistStormPruningPower"].BaseValue,
             Owner.Creature,
             this);
     }
 
     protected override void OnUpgrade()
     {
-        DynamicVars["BotanistIncubatorPower"].UpgradeValueBy(1m);
+        DynamicVars["BotanistStormPruningPower"].UpgradeValueBy(2m);
     }
 }

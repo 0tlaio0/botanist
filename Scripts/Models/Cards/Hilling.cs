@@ -1,5 +1,5 @@
-// 中文卡名：燧石刀
-// 卡面描述：造成{Damage:diff()}点伤害，将1张[gold]插条[/gold]放到你的[gold]抽牌堆[/gold]底。
+// 中文卡名：培土
+// 卡面描述：造成{Damage:diff()}点伤害。本回合每打出1张[gold]插条[/gold]，获得4点[gold]格挡[/gold]。
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -14,18 +14,23 @@ using MegaCrit.Sts2.Core.ValueProps;
 namespace Botanist.Scripts;
 
 [Pool(typeof(BotanistCardPool))]
-public class BotanistFlintKnife : BotanistCardModel
+public class BotanistHilling : BotanistCardModel
 {
-    public override BotanistElement Element => BotanistElement.Fire;
+    private const decimal CuttingBlock = 4m;
+
+    public override BotanistElement Element => BotanistElement.Earth;
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
-        [new DamageVar(5m, ValueProp.Move)];
+        [new DamageVar(8m, ValueProp.Move)];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
-        [HoverTipFactory.FromCard<BotanistCutting>()];
+    [
+        HoverTipFactory.FromCard<BotanistCutting>(),
+        HoverTipFactory.FromPower<BotanistHillingPower>()
+    ];
 
-    public BotanistFlintKnife()
-        : base(0, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy, true)
+    public BotanistHilling()
+        : base(2, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy, true)
     {
     }
 
@@ -37,7 +42,12 @@ public class BotanistFlintKnife : BotanistCardModel
             .FromCard(this)
             .Targeting(cardPlay.Target)
             .Execute(choiceContext);
-        await BotanistCuttings.CreateOnDrawBottom(choiceContext, Owner, Element);
+        await PowerCmd.Apply<BotanistHillingPower>(
+            choiceContext,
+            Owner.Creature,
+            CuttingBlock,
+            Owner.Creature,
+            this);
     }
 
     protected override void OnUpgrade()

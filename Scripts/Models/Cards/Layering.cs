@@ -1,5 +1,6 @@
-// 中文卡名：整枝剪
-// 卡面描述：对所有敌人造成{Damage:diff()}点伤害，将1张[gold]插条[/gold]加入你的[gold]弃牌堆[/gold]。
+// 中文卡名：压条
+// 卡面描述：造成{Damage:diff()}点伤害，将1张[gold]插条[/gold]加入你的手牌，然后将这张牌放入你的[gold]抽牌堆[/gold]底。
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BaseLib.Utils;
@@ -13,32 +14,32 @@ using MegaCrit.Sts2.Core.ValueProps;
 namespace Botanist.Scripts;
 
 [Pool(typeof(BotanistCardPool))]
-public class BotanistPruningShears : BotanistCardModel
+public class BotanistLayering : BotanistCardModel
 {
-    public override BotanistElement Element => BotanistElement.Wind;
+    public override BotanistElement Element => BotanistElement.Water;
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
-        [new DamageVar(6m, ValueProp.Move)];
+        [new DamageVar(7m, ValueProp.Move)];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
         [HoverTipFactory.FromCard<BotanistCutting>()];
 
-    public BotanistPruningShears() : base(1, CardType.Attack, CardRarity.Common, TargetType.AllEnemies, true)
+    public BotanistLayering()
+        : base(1, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy, true)
     {
     }
 
+    protected override PileType GetResultPileTypeForCardPlay() => PileType.Draw;
+
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        if (CombatState is not { } combatState)
-        {
-            return;
-        }
+        ArgumentNullException.ThrowIfNull(cardPlay.Target, nameof(cardPlay.Target));
 
         await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
             .FromCard(this)
-            .TargetingAllOpponents(combatState)
+            .Targeting(cardPlay.Target)
             .Execute(choiceContext);
-        await BotanistCuttings.CreateInDiscard(choiceContext, Owner, Element);
+        await BotanistCuttings.CreateInHand(choiceContext, Owner, Element);
     }
 
     protected override void OnUpgrade()

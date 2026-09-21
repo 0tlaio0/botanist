@@ -19,7 +19,7 @@ public class BotanistSlashAndBurn : BotanistCardModel
         [HoverTipFactory.FromPower<BotanistSlashAndBurnPower>()];
 
     public BotanistSlashAndBurn()
-        : base(1, CardType.Power, CardRarity.Uncommon, TargetType.Self, true)
+        : base(1, CardType.Power, CardRarity.Rare, TargetType.Self, true)
     {
     }
 

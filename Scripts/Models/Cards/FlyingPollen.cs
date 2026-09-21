@@ -24,7 +24,7 @@ public class BotanistFlyingPollen : BotanistCardModel
         [HoverTipFactory.FromPower<BotanistFlyingPollenPower>()];
 
     public BotanistFlyingPollen()
-        : base(2, CardType.Power, CardRarity.Uncommon, TargetType.Self, true)
+        : base(2, CardType.Power, CardRarity.Rare, TargetType.Self, true)
     {
     }
 

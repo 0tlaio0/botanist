@@ -1,5 +1,6 @@
-// 中文卡名：整枝剪
-// 卡面描述：对所有敌人造成{Damage:diff()}点伤害，将1张[gold]插条[/gold]加入你的[gold]弃牌堆[/gold]。
+// 中文卡名：树冠斩
+// 卡面描述：造成{Damage:diff()}点伤害。本场打出过的每种[gold]插条[/gold]元素再攻击1次。
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BaseLib.Utils;
@@ -13,32 +14,31 @@ using MegaCrit.Sts2.Core.ValueProps;
 namespace Botanist.Scripts;
 
 [Pool(typeof(BotanistCardPool))]
-public class BotanistPruningShears : BotanistCardModel
+public class BotanistCanopySlash : BotanistCardModel
 {
-    public override BotanistElement Element => BotanistElement.Wind;
+    public override BotanistElement Element => BotanistElement.Earth;
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
-        [new DamageVar(6m, ValueProp.Move)];
+        [new DamageVar(8m, ValueProp.Move)];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
         [HoverTipFactory.FromCard<BotanistCutting>()];
 
-    public BotanistPruningShears() : base(1, CardType.Attack, CardRarity.Common, TargetType.AllEnemies, true)
+    public BotanistCanopySlash()
+        : base(3, CardType.Attack, CardRarity.Rare, TargetType.AnyEnemy, true)
     {
     }
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        if (CombatState is not { } combatState)
-        {
-            return;
-        }
+        ArgumentNullException.ThrowIfNull(cardPlay.Target, nameof(cardPlay.Target));
 
+        int extraHits = BotanistCultivation.GetPlayedCuttingElements(Owner).Count;
         await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
+            .WithHitCount(1 + extraHits)
             .FromCard(this)
-            .TargetingAllOpponents(combatState)
+            .Targeting(cardPlay.Target)
             .Execute(choiceContext);
-        await BotanistCuttings.CreateInDiscard(choiceContext, Owner, Element);
     }
 
     protected override void OnUpgrade()

@@ -11,7 +11,9 @@ internal sealed class BotanistCultivationState
     private readonly Dictionary<ulong, int> _capacityByPlayer = new();
     private readonly Dictionary<ulong, int> _seedsCultivatedThisCombat = new();
     private readonly Dictionary<ulong, int> _seedsCultivatedThisTurn = new();
+    private readonly Dictionary<ulong, int> _cuttingsPlayedThisTurn = new();
     private readonly Dictionary<ulong, int> _fireAbsorbedThisTurn = new();
+    private readonly Dictionary<ulong, HashSet<BotanistElement>> _playedCuttingElements = new();
     private readonly HashSet<CardModel> _growthFreeCards = [];
     private readonly Dictionary<CardModel, int> _seedRequirementReductions = [];
 
@@ -61,6 +63,16 @@ internal sealed class BotanistCultivationState
         _seedsCultivatedThisTurn.Remove(player.NetId);
     }
 
+    public int GetCuttingsPlayedThisTurn(Player player)
+    {
+        return _cuttingsPlayedThisTurn.GetValueOrDefault(player.NetId);
+    }
+
+    public void IncrementCuttingsPlayedThisTurn(Player player)
+    {
+        _cuttingsPlayedThisTurn[player.NetId] = GetCuttingsPlayedThisTurn(player) + 1;
+    }
+
     public int GetFireAbsorbedThisTurn(Player player)
     {
         return _fireAbsorbedThisTurn.GetValueOrDefault(player.NetId);
@@ -69,6 +81,29 @@ internal sealed class BotanistCultivationState
     public void IncrementFireAbsorbedThisTurn(Player player)
     {
         _fireAbsorbedThisTurn[player.NetId] = GetFireAbsorbedThisTurn(player) + 1;
+    }
+
+    public void RecordPlayedCuttingElement(Player player, BotanistElement element)
+    {
+        if (element == BotanistElement.None)
+        {
+            return;
+        }
+
+        if (!_playedCuttingElements.TryGetValue(player.NetId, out HashSet<BotanistElement>? elements))
+        {
+            elements = [];
+            _playedCuttingElements[player.NetId] = elements;
+        }
+
+        elements.Add(element);
+    }
+
+    public IReadOnlyCollection<BotanistElement> GetPlayedCuttingElements(Player player)
+    {
+        return _playedCuttingElements.TryGetValue(player.NetId, out HashSet<BotanistElement>? elements)
+            ? elements
+            : [];
     }
 
     public void MarkGrowthFree(CardModel card)
@@ -115,6 +150,7 @@ internal sealed class BotanistCultivationState
     public void ClearTurnState()
     {
         _seedsCultivatedThisTurn.Clear();
+        _cuttingsPlayedThisTurn.Clear();
         _fireAbsorbedThisTurn.Clear();
         _growthFreeCards.Clear();
     }
@@ -125,7 +161,9 @@ internal sealed class BotanistCultivationState
         _capacityByPlayer.Clear();
         _seedsCultivatedThisCombat.Clear();
         _seedsCultivatedThisTurn.Clear();
+        _cuttingsPlayedThisTurn.Clear();
         _fireAbsorbedThisTurn.Clear();
+        _playedCuttingElements.Clear();
         _growthFreeCards.Clear();
         _seedRequirementReductions.Clear();
     }

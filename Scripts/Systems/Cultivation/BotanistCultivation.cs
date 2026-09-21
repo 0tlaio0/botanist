@@ -106,6 +106,16 @@ public sealed class BotanistCultivation : CustomSingletonModel
         return Instance?._state.GetSeedsCultivatedThisTurn(player) ?? 0;
     }
 
+    public static int GetCuttingsPlayedThisTurn(Player player)
+    {
+        return Instance?._state.GetCuttingsPlayedThisTurn(player) ?? 0;
+    }
+
+    public static void RecordCuttingPlayedThisTurn(Player player)
+    {
+        Instance?._state.IncrementCuttingsPlayedThisTurn(player);
+    }
+
     public static int GetSeedsCultivatedThisCombat(Player player)
     {
         return Instance?._state.GetSeedsCultivatedThisCombat(player) ?? 0;
@@ -175,6 +185,50 @@ public sealed class BotanistCultivation : CustomSingletonModel
         return planted.Count == 0
             ? Task.CompletedTask
             : Instance.ReduceGrowth(choiceContext, player, [planted[^1]], amount);
+    }
+
+    public static Task ReduceLastSeedElement(
+        PlayerChoiceContext choiceContext,
+        Player player,
+        BotanistElement element,
+        int amount = 1)
+    {
+        if (Instance == null || amount <= 0 || element == BotanistElement.None)
+        {
+            return Task.CompletedTask;
+        }
+
+        List<PlantedSeed> planted = Instance._state.GetOrCreatePlanted(player);
+        if (planted.Count == 0)
+        {
+            return Task.CompletedTask;
+        }
+
+        int index = planted.Count - 1;
+        Dictionary<PlantedSeed, Dictionary<BotanistElement, int>> reductions = [];
+        if (element == BotanistElement.Aether)
+        {
+            foreach (BotanistElement required in planted[index].Remaining.Keys.ToList())
+            {
+                ScheduleGrowthReduction(planted, index, required, amount, reductions);
+            }
+        }
+        else
+        {
+            ScheduleGrowthReduction(planted, index, element, amount, reductions);
+        }
+
+        return Instance.ApplyScheduledGrowthReductions(choiceContext, player, reductions);
+    }
+
+    public static void RecordPlayedCuttingElement(Player player, BotanistElement element)
+    {
+        Instance?._state.RecordPlayedCuttingElement(player, element);
+    }
+
+    public static IReadOnlyCollection<BotanistElement> GetPlayedCuttingElements(Player player)
+    {
+        return Instance?._state.GetPlayedCuttingElements(player) ?? [];
     }
 
     public static Task ReduceAllSeedsGrowth(
@@ -694,6 +748,10 @@ public sealed class BotanistCultivation : CustomSingletonModel
             // 「成长」关键词的固有奖励：每颗种子成熟各获得1点能量。
             await PlayerCmd.GainEnergy(1m, player);
             await BotanistGrowthResolution.ResolveAsync(seed.Seed, choiceContext);
+            if (player.Creature.GetPower<BotanistBottledSeasonsPower>() is { } bottledSeasons)
+            {
+                await bottledSeasons.ConsumeExtraGrowth(choiceContext, seed.Seed);
+            }
             planted.Remove(seed);
             // 首次成长即让原卡离场；后续培育记录继续独立结算。
             await MoveOriginalAfterGrowth(seed.Card);

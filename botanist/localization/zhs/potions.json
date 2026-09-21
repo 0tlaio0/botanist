@@ -1,4 +1,8 @@
 {
   "BOTANIST-BOTANIST_GROWTH_HORMONE.title": "生长激素",
-  "BOTANIST-BOTANIST_GROWTH_HORMONE.description": "从3张随机[gold]种子[/gold]牌中选择1张加入你的手牌。这张牌在本回合内费用为0，成长需求也为0；若培养区有空间，打出后将直接成熟。"
+  "BOTANIST-BOTANIST_GROWTH_HORMONE.description": "从3张随机[gold]种子[/gold]牌中选择1张加入你的手牌。这张牌在本回合内费用为0，成长需求也为0；若培养区有空间，打出后将直接成熟。",
+  "BOTANIST-BOTANIST_CHLOROPHYLL.title": "叶绿素",
+  "BOTANIST-BOTANIST_CHLOROPHYLL.description": "获得{Block}点[gold]格挡[/gold]。培养区中每有1颗[gold]种子[/gold]，再获得{BonusBlock}点[gold]格挡[/gold]。",
+  "BOTANIST-BOTANIST_BOTTLED_SEASONS.title": "瓶中四季",
+  "BOTANIST-BOTANIST_BOTTLED_SEASONS.description": "本场战斗中，下一颗[gold]种子[/gold][gold]成长[/gold]时额外结算一次成长效果。"
 }

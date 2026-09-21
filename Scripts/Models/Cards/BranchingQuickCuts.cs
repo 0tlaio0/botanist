@@ -1,5 +1,5 @@
 // 中文卡名：连枝快切
-// 卡面描述：造成{Damage:diff()}点伤害2次，若本回合有[gold]种子[/gold]成长，额外攻击{Repeat:diff()}次。
+// 卡面描述：造成{Damage:diff()}点伤害2次。若本回合打出过[gold]插条[/gold]，额外攻击{Repeat:diff()}次。
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -25,6 +25,9 @@ public class BotanistBranchingQuickCuts : BotanistCardModel
         new RepeatVar(1)
     ];
 
+    protected override bool ShouldGlowGoldInternal =>
+        BotanistCultivation.GetCuttingsPlayedThisTurn(Owner) > 0;
+
     public BotanistBranchingQuickCuts()
         : base(1, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy, true)
     {
@@ -35,7 +38,7 @@ public class BotanistBranchingQuickCuts : BotanistCardModel
         ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
 
         int hitCount = BaseHitCount;
-        if (BotanistCultivation.GetSeedsCultivatedThisTurn(Owner) > 0)
+        if (BotanistCultivation.GetCuttingsPlayedThisTurn(Owner) > 0)
         {
             hitCount += DynamicVars.Repeat.IntValue;
         }

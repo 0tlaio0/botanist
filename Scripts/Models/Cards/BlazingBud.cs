@@ -1,5 +1,5 @@
 // 中文卡名：燎芽
-// 卡面描述：造成{Damage:diff()}点伤害。若本场战斗打出的上一张牌是[gold]种子[/gold]牌，额外造成{BonusDamage:diff()}点伤害。
+// 卡面描述：造成{Damage:diff()}点伤害。若本场战斗打出的上一张牌是[gold]种子[/gold]牌或[gold]插条[/gold]，额外造成{BonusDamage:diff()}点伤害。
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +26,7 @@ public class BotanistBlazingBud : BotanistCardModel
         new DynamicVar("BonusDamage", 4m)
     ];
 
-    protected override bool ShouldGlowGoldInternal => LastPlayedCardWasSeed();
+    protected override bool ShouldGlowGoldInternal => LastPlayedCardWasSeedOrCutting();
 
     public BotanistBlazingBud()
         : base(1, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy, true)
@@ -42,7 +42,7 @@ public class BotanistBlazingBud : BotanistCardModel
             .Targeting(cardPlay.Target)
             .Execute(choiceContext);
 
-        if (!LastPlayedCardWasSeed())
+        if (!LastPlayedCardWasSeedOrCutting())
         {
             return;
         }
@@ -58,12 +58,12 @@ public class BotanistBlazingBud : BotanistCardModel
         DynamicVars["BonusDamage"].UpgradeValueBy(2m);
     }
 
-    private bool LastPlayedCardWasSeed()
+    private bool LastPlayedCardWasSeedOrCutting()
     {
         CardPlayFinishedEntry? previous = CombatManager.Instance?.History.CardPlaysFinished
             .LastOrDefault(entry =>
                 entry.CardPlay.Card.Owner == Owner &&
                 !ReferenceEquals(entry.CardPlay.Card, this));
-        return previous?.CardPlay.Card.IsSeed() == true;
+        return previous?.CardPlay.Card is { } card && (card.IsSeed() || card.IsCutting());
     }
 }

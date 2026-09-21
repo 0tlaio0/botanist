@@ -7,4 +7,7 @@ public static class BotanistCardTags
 {
     [CustomEnum("SEED")]
     public static CardTag Seed = CardTag.None;
+
+    [CustomEnum("CUTTING")]
+    public static CardTag Cutting = CardTag.None;
 }
