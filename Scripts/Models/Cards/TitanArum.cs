@@ -1,4 +1,4 @@
-// 中文卡名：泰坦魔芋
+// 中文卡名：腐香芋
 // 卡面描述：
 // [gold]成长[/gold]：使所有敌人的[gold]中毒[/gold]层数翻倍。
 using System.Collections.Generic;
@@ -16,6 +16,7 @@ namespace Botanist.Scripts;
 public class BotanistTitanArum : BotanistSeedCardModel
 {
     public override BotanistElement Element => BotanistElement.Earth;
+    public override string PortraitPath => BotanistArt.FuXiangYu;
 
     public override string RipenSummary => "使所有敌人的中毒层数翻倍";
 

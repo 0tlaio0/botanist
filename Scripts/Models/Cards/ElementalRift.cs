@@ -14,7 +14,7 @@ namespace Botanist.Scripts;
 [Pool(typeof(BotanistCardPool))]
 public class BotanistElementalRift : BotanistCardModel
 {
-    public override BotanistElement Element => BotanistElement.None;
+    public override BotanistElement Element => BotanistElement.Water;
 
     public override IEnumerable<CardKeyword> CanonicalKeywords =>
     [

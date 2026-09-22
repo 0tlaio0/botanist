@@ -19,6 +19,7 @@ namespace Botanist.Scripts;
 public class BotanistBloodRose : BotanistSeedCardModel
 {
     public override BotanistElement Element => BotanistElement.Water;
+    public override string PortraitPath => BotanistArt.BloodRose;
 
     public override string RipenSummary =>
         $"对生命值最高的敌人造成{DynamicVars.Damage.IntValue}点伤害，回复造成伤害一半的生命值";

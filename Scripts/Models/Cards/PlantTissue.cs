@@ -20,6 +20,7 @@ public class BotanistPlantTissue : BotanistSeedCardModel
 
     public override bool CanBeGeneratedInCombat => false;
     public override BotanistElement Element => BotanistElement.Water;
+    public override string PortraitPath => BotanistArt.PlantTissue;
     public override string RipenSummary => GrowthText;
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>

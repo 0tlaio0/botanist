@@ -18,6 +18,7 @@ public class BotanistOncidium : BotanistSeedCardModel
 {
     public override bool GainsBlock => true;
     public override BotanistElement Element => BotanistElement.Water;
+    public override string PortraitPath => BotanistArt.Oncidium;
 
     public override string RipenSummary =>
         $"抽{DynamicVars.Cards.IntValue}张牌";

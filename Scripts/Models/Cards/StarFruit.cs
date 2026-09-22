@@ -18,6 +18,7 @@ namespace Botanist.Scripts;
 public class BotanistStarFruit : BotanistSeedCardModel
 {
     public override BotanistElement Element => BotanistElement.Water;
+    public override string PortraitPath => BotanistArt.StarFruit;
 
     public override string RipenSummary =>
         $"获得{DynamicVars.Strength.IntValue}点力量与{DynamicVars.Dexterity.IntValue}点敏捷；" +

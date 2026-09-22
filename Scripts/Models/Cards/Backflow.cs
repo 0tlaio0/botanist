@@ -1,5 +1,5 @@
 // 中文卡名：回流
-// 卡面描述：获得{Block:diff()}点[gold]格挡[/gold]，将你[gold]弃牌堆[/gold]中的1张[gold]水元素[/gold]牌放到[gold]抽牌堆[/gold]顶。
+// 卡面描述：获得{Block:diff()}点[gold]格挡[/gold]，将你[gold]弃牌堆[/gold]中的1张牌放到[gold]抽牌堆[/gold]顶。
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,17 +32,16 @@ public class BotanistBackflow : BotanistCardModel
     {
         await CreatureCmd.GainBlock(Owner.Creature, DynamicVars.Block, cardPlay);
 
-        CardModel? waterCard = (await CardSelectCmd.FromCombatPile(
+        CardModel? card = (await CardSelectCmd.FromCombatPile(
                 choiceContext,
                 PileType.Discard.GetPile(Owner),
                 Owner,
-                new CardSelectorPrefs(base.SelectionScreenPrompt, 1),
-                IsWaterCard))
+                new CardSelectorPrefs(base.SelectionScreenPrompt, 1)))
             .FirstOrDefault();
 
-        if (waterCard != null)
+        if (card != null)
         {
-            await CardPileCmd.Add(waterCard, PileType.Draw, CardPilePosition.Top);
+            await CardPileCmd.Add(card, PileType.Draw, CardPilePosition.Top);
         }
     }
 
@@ -50,7 +49,4 @@ public class BotanistBackflow : BotanistCardModel
     {
         DynamicVars.Block.UpgradeValueBy(3m);
     }
-
-    private static bool IsWaterCard(CardModel card) =>
-        card is BotanistCardModel { Element: BotanistElement.Water };
 }

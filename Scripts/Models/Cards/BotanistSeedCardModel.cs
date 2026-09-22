@@ -72,6 +72,12 @@ public abstract class BotanistSeedCardModel : BotanistCardModel, IBotanistSeedCa
             return;
         }
 
+        if (Type == CardType.Power)
+        {
+            await CardPileCmd.RemoveFromCombat(this);
+            return;
+        }
+
         await CardPileCmd.Add(this, PileType.Discard);
     }
 }

@@ -18,6 +18,7 @@ namespace Botanist.Scripts;
 public class BotanistFrostLotus : BotanistTargetedSeedCardModel
 {
     public override BotanistElement Element => BotanistElement.Water;
+    public override string PortraitPath => BotanistArt.FrostLotus;
     public override string RipenSummary => "给予敌人1层缓慢";
 
     public override IReadOnlyList<KeyValuePair<BotanistElement, int>> Requirements =>

@@ -18,6 +18,7 @@ namespace Botanist.Scripts;
 public class BotanistOleander : BotanistSeedCardModel
 {
     public override BotanistElement Element => BotanistElement.Water;
+    public override string PortraitPath => BotanistArt.Oleander;
 
     public override string RipenSummary =>
         $"对所有敌人施加{DynamicVars.Poison.IntValue}层中毒";

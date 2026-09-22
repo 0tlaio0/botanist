@@ -18,6 +18,7 @@ public class BotanistIronBirch : BotanistSeedCardModel
 {
     public override bool GainsBlock => true;
     public override BotanistElement Element => BotanistElement.Wind;
+    public override string PortraitPath => BotanistArt.IronBirch;
 
     public override string RipenSummary =>
         $"获得{DynamicVars["RipenBlock"].IntValue}点格挡";

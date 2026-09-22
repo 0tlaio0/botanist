@@ -1,5 +1,5 @@
 // 中文卡名：插条
-// 卡面描述：造成{Damage:diff()}点伤害。使培养区中最后一颗[gold]种子[/gold]的该元素计数再减少1。
+// 卡面描述：造成{Damage:diff()}点伤害。额外造成本回合已成长种子数的伤害。
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,6 +52,15 @@ public class BotanistCutting : BotanistCardModel
             .Targeting(cardPlay.Target)
             .Execute(choiceContext);
 
+        int cultivatedThisTurn = BotanistCultivation.GetSeedsCultivatedThisTurn(Owner);
+        if (cultivatedThisTurn > 0)
+        {
+            await DamageCmd.Attack(cultivatedThisTurn)
+                .FromCard(this)
+                .Targeting(cardPlay.Target)
+                .Execute(choiceContext);
+        }
+
         if (ForksToLowest && CombatState is { } combatState)
         {
             Creature? lowest = combatState.HittableEnemies
@@ -68,7 +77,6 @@ public class BotanistCutting : BotanistCardModel
 
         BotanistCultivation.RecordPlayedCuttingElement(Owner, Element);
         BotanistCultivation.RecordCuttingPlayedThisTurn(Owner);
-        await BotanistCultivation.ReduceLastSeedElement(choiceContext, Owner, Element);
     }
 
     protected override void OnUpgrade()
